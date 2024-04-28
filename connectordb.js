@@ -18,11 +18,6 @@ connection.connect(err => {
 // Read JSON file
 const data = JSON.parse(fs.readFileSync('C:\\Users\\thana\\Desktop\\WebProject2024\\WebProj\\initObj.txt', 'utf8'));
 let items = data.items
-// data.items.forEach(entry=>{
-//     entry.quantity=0
-//     entry.is_available = 0
-// })
-// console.log(data)
 
 
 const insertData = (items) => {
