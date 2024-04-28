@@ -1,5 +1,13 @@
-exports.civilian = async(req,res,next)=>{
+const db = require('../services/connect_db')
 
-    res.send("Hello from civilian!!!!")
+exports.civilian = async(req,res,next)=>{
+    db.query('SELECT * FROM warehouse',(err,results)=>{
+        if (err){
+            console.log("Something went wrong")
+        }
+        console.log(results)
+        res.send(JSON.stringify(results))
+    })
+   
 
 }
