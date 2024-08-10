@@ -5,7 +5,7 @@ const fs = require('fs');
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
-  password: '1997Pana8a!',
+  password: '9de07afe9b',
   database: 'civilsecdb'
 });
 
@@ -16,7 +16,7 @@ connection.connect(err => {
 });
 
 // Read JSON file
-const data = JSON.parse(fs.readFileSync('C:\\Users\\thana\\Desktop\\WebProject2024\\WebProj\\initObj.txt', 'utf8'));
+const data = JSON.parse(fs.readFileSync('C:\\Users\\mtzan\\WebProject2024\\initObj.txt', 'utf8'));
 let items = data.items
 
 

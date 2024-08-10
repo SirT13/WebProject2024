@@ -1,8 +1,8 @@
 const express = require('express')
 const router = express.Router();
 
-const { civilian } = require('../api/civilian')
+const { login } = require('../api/login')
 
-router.route('/greet_civilian').get(civilian)
+router.route('/login').post(login)
 
 module.exports = router;
