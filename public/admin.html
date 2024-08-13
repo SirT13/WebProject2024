@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page</title>
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <h1 id="welcome-message">Welcome, Admin!</h1>
+    <p>This is the admin page.</p>
+    <button id="update-warehouse-button">Update Warehouse</button>
+    <button id="logout-button">Logout</button>
+
+    <div id="message"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const token = localStorage.getItem('auth-token');
+            if (!token) {
+                window.location.href = '/login';
+            }
+
+            $('#logout-button').click(function() {
+                localStorage.removeItem('auth-token'); // Remove the token from localStorage
+                window.location.href = '/login'; // Redirect to the login page
+            });
+
+            $('#update-warehouse-button').click(function() {
+                $.ajax({
+                    url: '/admin/update_warehouse',
+                    type: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    success: function(response) {
+                        $('#message').text(response);
+                    },
+                    error: function(error) {
+                        $('#message').text('Error updating warehouse: ' + error.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="/js/logout.js"></script>
+</body>
+</html>

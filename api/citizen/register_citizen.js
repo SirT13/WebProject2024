@@ -1,4 +1,4 @@
-const db = require('../services/connect_db')
+const db = require('../../utils/connect_db')
 const { check, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 
@@ -9,14 +9,13 @@ exports.register_citizen = async(req,res,next)=>{
     var first_name = req.body.first_name
     var last_name = req.body.last_name
     var phone_number = req.body.phone_number
-    var longtitude = req.body.longtitude
+    var longitude = req.body.longitude
     var latitude = req.body.latitude
 
     if(password == reppass) {
-        console.log("mikeee")
         password = await bcrypt.hash(password, 10);
-        var values = [username,password,'citizen',first_name,last_name,phone_number,longtitude,latitude];
-        var sql="INSERT INTO users (username, password, role, first_name, last_name, phone_number,longtitude,latitude) VALUES (?,?,?,?,?,?,?,?)";
+        var values = [username,password,'citizen',first_name,last_name,phone_number,longitude,latitude];
+        var sql="INSERT INTO users (username, password, role, first_name, last_name, phone_number,longitude,latitude) VALUES (?,?,?,?,?,?,?,?)";
         db.query(sql,values,function(err,record){
             
             if(err) {

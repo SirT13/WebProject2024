@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rescuer Page</title>
+</head>
+<body>
+    <h1 id="welcome-message"></h1>
+    <p>This is the rescuer page.</p>
+    <button id="logout-button">Logout</button>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const token = localStorage.getItem('auth-token');
+            if (!token) {
+                window.location.href = '/login';
+            } else {
+                $('#welcome-message').text('Welcome, Rescuer!');
+            }
+        });
+    </script>
+    <script src="/js/logout.js"></script>
+</body>
+</html>

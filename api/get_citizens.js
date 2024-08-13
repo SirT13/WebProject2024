@@ -1,11 +1,11 @@
-const db = require('../services/connect_db')
+const db = require('../utils/connect_db')
 
 exports.get_citizens = async(req,res,next)=>{
     values = ['citizen']
     var sql = 'SELECT * FROM users WHERE role = ?'
     db.query(sql,values,(err,results)=>{
         if (err){
-            console.log("Something went wrong")
+            return next(err)
         }
         console.log(results)
         res.send(JSON.stringify(results))

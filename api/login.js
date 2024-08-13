@@ -1,4 +1,4 @@
-const db = require('../services/connect_db')
+const db = require('../utils/connect_db')
 const jwt = require("jsonwebtoken")
 var bcrypt = require('bcrypt');
 exports.login = async(req,res,next)=>{  
@@ -18,7 +18,7 @@ exports.login = async(req,res,next)=>{
                     const user_data = {user_id:user[0].user_id,username: username,role:user[0].role}
                     const token=jwt.sign(user_data,process.env.SECRET_KEY)
                     console.log(token)
-                    res.header('auth-token',token).status(200).send(user[0])
+                    res.header('auth-token',token).status(200).send({ token, role: user[0].role });
                 }
                 else res.status(403).send({message:"Τα στοιχεία σύνδεσης είναι λάθος"})
             })

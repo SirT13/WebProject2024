@@ -1,0 +1,123 @@
+/* General styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #4ea8de;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Header styles */
+header {
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    padding: 1em 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 20px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+
+/* Container for forms */
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 500px;
+    /* Default margin-top for other pages */
+    margin-top: 20px;
+}
+
+/* Heading for forms */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Form elements */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Buttons */
+button, .button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 15px;
+}
+
+button:hover, .button:hover {
+    background-color: #0056b3;
+}
+
+/* Page-specific styles */
+.login-page, .register-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 80px); /* Adjust height to account for header */
+}
+
+.login-page .container {
+    margin-top: 0; /* Move up the login form */
+}
+
+.register-page .container {
+    margin-top: 20px; /* Default margin-top */
+}
+
+.home-page {
+    text-align: center;
+    padding: 20px;
+}
+.form-container {
+    width: 400px; /* Adjust as needed */
+    margin-right: 20px;
+}

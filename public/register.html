@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Account Form</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Additional styles for map */
+        #map {
+            height: 200px; /* Adjust the height as needed */
+            width: 100%;
+            margin-top: 20px;
+        }
+        #button {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body class="register-page">
+    <header>
+        <nav>
+            <ul>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="register.html">Register</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="container">
+        <form id="register-form">
+            <h2>Citizen Register Form</h2>
+            <div class="form-group">
+                <input type="text" name="username" id="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="password" id="password" placeholder="Password" required>
+            </div>
+            <div class="form-group">
+                <input type="password" name="reppass" id="reppass" placeholder="Repeat Password" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="first_name" id="first_name" placeholder="First Name" required>
+            </div>
+            <div class="form-group">
+                <input type="text" name="last_name" id="last_name" placeholder="Last Name" required>
+            </div>
+            <div class="form-group">
+                <input type="tel" name="phone_number" id="phone_number" placeholder="Phone Number" required>
+            </div>
+            <div id="map"></div> <!-- Map container -->
+            <input type="hidden" id="latitude" name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+            <button type="submit">Register</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        $(document).ready(function() {
+            const map = L.map('map').setView([40.7128, -74.0060], 12); // Default to New York City
+
+            // Add a tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Add a marker
+            const marker = L.marker([40.7128, -74.0060], { draggable: true }).addTo(map);
+
+            // Update hidden fields with latitude and longitude when marker is moved
+            marker.on('move', function(event) {
+                const position = event.latlng;
+                $('#latitude').val(position.lat);
+                $('#longitude').val(position.lng);
+            });
+
+            // Update marker position and hidden fields when map is clicked
+            map.on('click', function(event) {
+                marker.setLatLng(event.latlng);
+                $('#latitude').val(event.latlng.lat);
+                $('#longitude').val(event.latlng.lng);
+            });
+            $('#register-form').submit(function(event) {
+                event.preventDefault();
+                const formData = {
+                    username: $('#username').val(),
+                    password: $('#password').val(),
+                    reppass: $('#reppass').val(),
+                    first_name: $('#first_name').val(),
+                    last_name: $('#last_name').val(),
+                    phone_number: $('#phone_number').val(),
+                    latitude: $('#latitude').val(),
+                    longitude: $('#longitude').val()
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/register_citizen',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        window.location.href = 'login.html';
+                    },
+                    error: function(error) {
+                        alert('Error during registration: ' + error.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
