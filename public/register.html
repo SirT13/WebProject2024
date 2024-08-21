@@ -23,7 +23,7 @@
         <nav>
             <ul>
                 <li><a href="login.html">Login</a></li>
-                <li><a href="register.html">Register</a></li>
+                <li><a href="index.html">Home</a></li>
             </ul>
         </nav>
     </header>
@@ -58,7 +58,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         $(document).ready(function() {
-            const map = L.map('map').setView([40.7128, -74.0060], 12); // Default to New York City
+            const map = L.map('map').setView([37.9838, 23.7275], 12); // Default to Athens
 
             // Add a tile layer
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -66,7 +66,7 @@
             }).addTo(map);
 
             // Add a marker
-            const marker = L.marker([40.7128, -74.0060], { draggable: true }).addTo(map);
+            const marker = L.marker([37.9838, 23.7275], { draggable: true }).addTo(map);
 
             // Update hidden fields with latitude and longitude when marker is moved
             marker.on('move', function(event) {
