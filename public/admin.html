@@ -1,49 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
     <link rel="stylesheet" href="css/admin.css">
+    <style>
+        /* Minimalistic CSS styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1,
+        h2 {
+            color: #333;
+        }
+
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #category-list,
+        #item-list {
+            margin-top: 20px;
+        }
+
+        #upload-json {
+            margin-top: 20px;
+        }
+
+        .list-item {
+            padding: 10px;
+            background-color: #fff;
+            margin-bottom: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Custom styling for the file input button */
+        .file-input-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-container input[type="file"] {
+            font-size: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .file-input-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
+
 <body>
-    <h1 id="welcome-message">Welcome, Admin!</h1>
-    <p>This is the admin page.</p>
+    <h1>Welcome, Admin!</h1>
+    <p>This is the admin page for managing categories and items.</p>
+
     <button id="update-warehouse-button">Update Warehouse</button>
     <button id="logout-button">Logout</button>
 
     <div id="message"></div>
 
+    <!-- Category Management -->
+    <div id="category-management">
+        <h2>Manage Categories</h2>
+        <button id="add-category-button">Add Category</button>
+        <div id="category-list">
+            <!-- Categories will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <!-- Item Management -->
+    <div id="item-management">
+        <h2>Manage Items</h2>
+        <button id="add-item-button">Add Item</button>
+        <div id="item-list">
+            <!-- Items will be dynamically loaded here -->
+        </div>
+    </div>
+
+    <!-- Upload JSON File Section -->
+    <div id="upload-json">
+        <h2>Upload JSON Data</h2>
+        <div class="file-input-container">
+            <button class="file-input-button">Choose File</button>
+            <input type="file" id="json-file-input" accept=".json">
+        </div>
+        <button id="upload-json-button">Upload JSON</button>
+        <div id="upload-message"></div>
+    </div>
+
+    <!-- Modal for Adding a New Category -->
+    <div id="add-category-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-modal">&times;</span>
+            <h2>Add New Category</h2>
+            <form id="add-category-form">
+                <label for="category-name">Category Name:</label>
+                <input type="text" id="category-name" name="category-name" required>
+                <label for="category-description">Category Description:</label>
+                <textarea id="category-description" name="category-description" required></textarea>
+                <button type="submit">Add Category</button>
+            </form>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             const token = localStorage.getItem('auth-token');
             if (!token) {
                 window.location.href = '/login';
             }
 
-            $('#logout-button').click(function() {
-                localStorage.removeItem('auth-token'); // Remove the token from localStorage
-                window.location.href = '/login'; // Redirect to the login page
+            $('#logout-button').click(function () {
+                localStorage.removeItem('auth-token');
+                window.location.href = '/login';
             });
 
-            $('#update-warehouse-button').click(function() {
+            $('#update-warehouse-button').click(function () {
                 $.ajax({
                     url: '/admin/update_warehouse',
                     type: 'GET',
                     headers: {
                         'Authorization': 'Bearer ' + token
                     },
-                    success: function(response) {
+                    success: function (response) {
                         $('#message').text(response);
                     },
-                    error: function(error) {
+                    error: function (error) {
                         $('#message').text('Error updating warehouse: ' + error.responseText);
                     }
                 });
             });
+
+            // Show the add category modal when button is clicked
+            $('#add-category-button').click(function () {
+                $('#add-category-modal').css('display', 'block');
+            });
+
+            // Hide the modal when the close button is clicked
+            $('#close-modal').click(function () {
+                $('#add-category-modal').css('display', 'none');
+            });
+
+            // Handle form submission
+            $('#add-category-form').submit(function (event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                const categoryName = $('#category-name').val();
+                const categoryDescription = $('#category-description').val();
+
+                // Placeholder for AJAX call to add category
+                $.ajax({
+                    url: '/admin/add_category',
+                    type: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    data: JSON.stringify({
+                        name: categoryName,
+                        description: categoryDescription
+                    }),
+                    success: function (response) {
+                        alert('Category added successfully!');
+                        $('#add-category-modal').css('display', 'none');
+                        $('#category-list').append('<div class="list-item">' + categoryName + '</div>');
+                        $('#add-category-form')[0].reset(); // Reset form fields
+                    },
+                    error: function (error) {
+                        alert('Error adding category: ' + error.responseText);
+                    }
+                });
+            });
+
+            // Close modal when clicking outside of it
+            $(window).click(function (event) {
+                if (event.target.id === 'add-category-modal') {
+                    $('#add-category-modal').css('display', 'none');
+                }
+            });
+
+            $('#upload-json-button').click(function () {
+                const fileInput = $('#json-file-input')[0].files[0];
+                if (fileInput) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const jsonData = JSON.parse(e.target.result);
+                        console.log(jsonData);
+                        $('#upload-message').text('JSON data uploaded successfully.');
+                    };
+                    reader.readAsText(fileInput);
+                } else {
+                    $('#upload-message').text('Please select a JSON file to upload.');
+                }
+            });
         });
     </script>
-    <script src="/js/logout.js"></script>
 </body>
+
 </html>
