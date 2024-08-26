@@ -8,6 +8,6 @@ exports.get_citizens = async(req,res,next)=>{
             return next(err)
         }
         console.log(results)
-        res.send(JSON.stringify(results))
+        res.status(200).send(JSON.stringify(results))
     })
 }

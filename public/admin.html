@@ -136,7 +136,7 @@
 
     <button id="update-warehouse-button">Update Warehouse</button>
     <button id="logout-button">Logout</button>
-
+    <button id="view-items">View Items</button>
     <div id="message"></div>
 
     <!-- Category Management -->
@@ -211,7 +211,10 @@
                     }
                 });
             });
-
+            
+            $('#view-items').click(function() {
+            window.location.href = 'items.html';
+        });
             // Show the add category modal when button is clicked
             $('#add-category-button').click(function () {
                 $('#add-category-modal').css('display', 'block');

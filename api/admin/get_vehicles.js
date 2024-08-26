@@ -8,6 +8,6 @@ exports.get_vehicles = async(req,res,next)=>{
             return next(err);
         };
         
-        res.send(JSON.stringify(results));
+        res.status(200).send(JSON.stringify(results));
     })
 }

@@ -10,9 +10,9 @@ exports.create_task = async(req,res,next)=>{
         const values = [citizen_id,item.item_id,item.quantity,'not_assigned',type]
         db.query(sql,values,(err)=>{
             if (err){
-                throw err
+                throw next(err)
             }
         })
     })
-    res.send("Tasks created successfully!")
+    res.status(200).send("Tasks created successfully!")
 }

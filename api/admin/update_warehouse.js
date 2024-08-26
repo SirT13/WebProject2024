@@ -5,5 +5,5 @@ exports.update_warehouse = async(req,res,next)=>{
     const response = await axios.get('http://usidas.ceid.upatras.gr/web/2023/export.php');
     const data = response.data;
     insertData(data)
-    res.send("Data Inserted Successfully!");
+    res.status(200).send("Data Inserted Successfully!");
 }
