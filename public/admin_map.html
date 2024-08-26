@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="el">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Save Base Location</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <div id="map" style="height: 500px;"></div>
+    <button id="saveLocationButton">Αποθήκευση Τοποθεσίας Βάσης</button>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
+    <div id="map" style="height: 500px;"></div>
+
+    <script>
+        var baseLatitude = 37.9838; // π.χ., Συντεταγμένες Αθήνας
+        var baseLongitude = 23.7275;
+        var rescuerLatitude = 37.9756;
+        var rescuerLongitude = 23.7348;
+        var requestLatitude = 37.9842;
+        var requestLongitude = 23.7281;
+        var processingRequestLatitude = 37.9924;
+        var processingRequestLongitude = 23.7257;
+        var offerLatitude = 37.9778;
+        var offerLongitude = 23.7512;
+        var distance = 5;
+
+        var rescuers = [
+            { latitude: 37.9756, longitude: 23.7348, username: "rescuer1" },
+            { latitude: 37.9942, longitude: 23.7281, username: "rescuer2" },
+            { latitude: 37.9924, longitude: 23.7257, username: "rescuer3" }
+            
+        ];
+
+
+
+        var map = L.map('map').setView([37.9838, 23.7275], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Marker για τη βάση
+        var baseMarker = L.marker([baseLatitude, baseLongitude], {
+            draggable: true
+        }).addTo(map);
+        baseMarker.bindPopup("Βάση Διασώστη").openPopup();
+
+        baseMarker.on('dragend', function (e) {
+            var newLatLng = e.target.getLatLng();
+            baseLatitude = newLatLng.lat;
+            baseLongitude = newLatLng.lng;
+            console.log("Νέα τοποθεσία βάσης: " + baseLatitude + ", " + baseLongitude);
+        });
+        document.getElementById("saveLocationButton").onclick = function () {
+            $.ajax({
+                url: '/api/saveBaseLocation',  // Το endpoint στο backend σου
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    latitude: baseLatitude,
+                    longitude: baseLongitude
+                }),
+                success: function (response) {
+                    alert('Η τοποθεσία της βάσης αποθηκεύτηκε επιτυχώς!');
+                },
+                error: function (xhr, status, error) {
+                    alert('Παρουσιάστηκε πρόβλημα κατά την αποθήκευση της τοποθεσίας.');
+                }
+            });
+        };
+        // Marker για οχήματα διασωστών
+        rescuers.forEach(function (rescuer) {
+            var rescuerMarker = L.marker([rescuer.latitude, rescuer.longitude], {
+               }).addTo(map);
+            rescuerMarker.bindPopup(`Όχημα Διασώστη: ${rescuer.username}`).openPopup();
+        });
+        // Marker για εκκρεμή αιτήματα (διαφορετικό χρώμα)
+        var pendingRequestMarker = L.marker([requestLatitude, requestLongitude]).addTo(map);
+        pendingRequestMarker.bindPopup("Εκκρεμές Αίτημα").openPopup();
+
+        // Marker για αιτήματα υπό διεκπεραίωση (διαφορετικό χρώμα)
+        var processingRequestMarker = L.marker([requestLatitude, requestLongitude]).addTo(map);
+        processingRequestMarker.bindPopup("Υπό Διεκπεραίωση Αίτημα").openPopup();
+
+        // Marker για εκκρεμή προσφορά ειδών (διαφορετικό είδος marker)
+        var pendingOfferMarker = L.marker([offerLatitude, offerLongitude]).addTo(map);
+        pendingOfferMarker.bindPopup("Εκκρεμής Προσφορά").openPopup();
+
+
+
+        // BALE MALAKA PATH GIA TA EIKONIDIA
+
+        var pendingIcon = L.icon({
+            iconUrl: 'url_to_pending_icon.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        var processingIcon = L.icon({
+            iconUrl: 'url_to_processing_icon.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        var offerIcon = L.icon({
+            iconUrl: 'url_to_offer_icon.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        var vehicleMarker = L.marker([vehicleLatitude, vehicleLongitude], { icon: vehicleIcon }).addTo(map);
+        vehicleMarker.bindPopup(`
+    <b>Όχημα: ${vehicleUsername}</b><br>
+    Φορτίο: ${vehicleLoad}<br>
+    Κατάσταση: ${vehicleStatus}<br>
+    Ενεργά Tasks: ${activeTasks.length}
+`);
+        var vehicleMarker = L.marker([vehicleLatitude, vehicleLongitude], { icon: vehicleIcon }).addTo(map);
+        vehicleMarker.bindPopup(`
+    <b>Όχημα: ${vehicleUsername}</b><br>
+    Φορτίο: ${vehicleLoad}<br>
+    Κατάσταση: ${vehicleStatus}<br>
+    Ενεργά Tasks: ${activeTasks.length}
+`);
+        var offerMarker = L.marker([offerLatitude, offerLongitude], { icon: offerIcon }).addTo(map);
+        offerMarker.bindPopup(`
+    <b>Προσφορά Πολίτη</b><br>
+    Ονοματεπώνυμο: ${citizenName}<br>
+    Τηλέφωνο: ${citizenPhone}<br>
+    Ημερομηνία Καταχώρησης: ${offerDate}<br>
+    Είδος: ${offerType}<br>
+    Ποσότητα: ${offerQuantity}<br>
+    ${vehicleUsername ? `Αναλήφθηκε από: ${vehicleUsername} στις ${assignmentDate}` : 'Εκκρεμεί'}
+`);
+
+        if (vehicleHasTasks) {
+            var taskMarkers = [
+                [vehicleLatitude, vehicleLongitude],
+                [task1Latitude, task1Longitude],
+                // μπορείς να προσθέσεις κι άλλες θέσεις αν το όχημα έχει πολλαπλά tasks
+            ];
+
+            var polyline = L.polyline(taskMarkers, { color: 'blue' }).addTo(map);
+        }
+
+        var baseMarker = L.marker([baseLatitude, baseLongitude], {
+            icon: baseIcon,
+            draggable: true
+        }).addTo(map);
+
+        baseMarker.on('dragend', function (e) {
+            var newLatLng = e.target.getLatLng();
+            // Ζήτησε επιβεβαίωση πριν αποθηκεύσεις την νέα τοποθεσία
+            if (confirm("Επιβεβαίωση νέας τοποθεσίας βάσης: " + newLatLng.toString())) {
+                // Κάνε αποθήκευση ή οποιαδήποτε άλλη ενέργεια χρειάζεται
+                saveNewBaseLocation(newLatLng);
+            } else {
+                // Επιστρέφει στη παλιά τοποθεσία αν η αλλαγή δεν επιβεβαιωθεί
+                baseMarker.setLatLng([baseLatitude, baseLongitude]);
+            }
+        });
+
+
+    </script>
+
+</body>
+
+</html>
