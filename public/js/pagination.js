@@ -78,6 +78,7 @@ function renderPage(page) {
 function updateQuantity(index, change) {
     if (index >= 0 && index < data.length) {
         data[index].quantity = Math.max(0, data[index].quantity + change);
+        updateQuantityOnServer(index,data[index].quantity)
         renderPage(currentPage); // Re-render to update quantities
     }
 }
@@ -92,7 +93,6 @@ function updatePaginationControls(page, start, end) {
 
 function setupPageSelection() {
     const totalPages = Math.ceil(data.length / itemsPerPage);
-    const pageSelect = document.getElementById('page-select');
 
     for (let i = 1; i <= totalPages; i++) {
         const option = document.createElement('option');
@@ -120,4 +120,26 @@ function nextPage() {
 function goToPage(page) {
     currentPage = parseInt(page);
     renderPage(currentPage);
+}
+
+function updateQuantityOnServer(index, quantity) {
+    fetch(`/admin/update_item_quantity`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`, // Add the authorization header
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id: data[index].id,  // Pass the ID in the body
+            quantity: quantity   // Pass the quantity in the body
+        })
+    })
+    .then(response => response.json())
+    .then(updatedItem => {
+        // Handle the server response if needed
+    })
+    .catch(error => {
+        console.error('Error updating item:', error);
+        // Optionally, handle errors here (e.g., revert the quantity change)
+    });
 }
