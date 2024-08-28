@@ -1,7 +1,8 @@
 let data = [];
-const itemsPerPage = 10;
+const itemsPerPage = 12; // Adjust according to your requirements
 let currentPage = 1;
-const authToken = localStorage.getItem('auth-token'); 
+const token = localStorage.getItem('auth-token');
+
 document.addEventListener('DOMContentLoaded', () => {
     fetchDataAndRender();
 });
@@ -10,7 +11,7 @@ function fetchDataAndRender() {
     fetch('/admin/get_items', {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${authToken}`, // Add the authorization header
+            'Authorization': `Bearer ${token}`, // Add the authorization header
             'Content-Type': 'application/json'
         }
     })
@@ -23,6 +24,7 @@ function fetchDataAndRender() {
     .then(fetchedData => {
         data = fetchedData;
         renderPage(currentPage);
+        setupPageSelection();
     })
     .catch(error => {
         console.error('Error fetching data:', error);
@@ -32,7 +34,7 @@ function fetchDataAndRender() {
 
 function renderPage(page) {
     const start = (page - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
+    const end = Math.min(start + itemsPerPage, data.length);
     const itemsToShow = data.slice(start, end);
 
     const itemList = document.getElementById('item-list');
@@ -70,23 +72,34 @@ function renderPage(page) {
         itemList.appendChild(row);
     });
 
-    updatePaginationControls(page);
+    updatePaginationControls(page, start + 1, end);
 }
 
 function updateQuantity(index, change) {
     if (index >= 0 && index < data.length) {
         data[index].quantity = Math.max(0, data[index].quantity + change);
-        // Optional: Make an API call to update the server-side data
-        // Example: updateQuantityOnServer(index, data[index].quantity);
         renderPage(currentPage); // Re-render to update quantities
     }
 }
 
-function updatePaginationControls(page) {
+function updatePaginationControls(page, start, end) {
     const totalPages = Math.ceil(data.length / itemsPerPage);
     document.getElementById('prev-btn').disabled = (page === 1);
     document.getElementById('next-btn').disabled = (page === totalPages);
-    document.getElementById('page-info').textContent = `Page ${page} of ${totalPages}`;
+    document.getElementById('range-info').textContent = `${start}-${end} of ${data.length}`;
+    document.getElementById('page-info').textContent = `Page: ${page}`;
+}
+
+function setupPageSelection() {
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const pageSelect = document.getElementById('page-select');
+
+    for (let i = 1; i <= totalPages; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = i;
+    }
+
 }
 
 function prevPage() {
@@ -104,22 +117,7 @@ function nextPage() {
     }
 }
 
-// Optional: Function to send updated quantity to the server
-function updateQuantityOnServer(index, quantity) {
-    fetch(`/admin/update_item_quantity/${data[index].id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        },
-        body: JSON.stringify({ quantity })
-    })
-    .then(response => response.json())
-    .then(updatedItem => {
-        // Handle the server response if needed
-    })
-    .catch(error => {
-        console.error('Error updating item:', error);
-        // Optionally, handle errors here (e.g., revert the quantity change)
-    });
+function goToPage(page) {
+    currentPage = parseInt(page);
+    renderPage(currentPage);
 }

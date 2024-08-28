@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paginated Table with Quantity</title>
-    <link rel="stylesheet" href="pagination.css">
+    <link rel="stylesheet" href="css/pagination.css">
 </head>
 <body>
     <div id="item-table-container">
@@ -21,9 +21,10 @@
         </table>
     </div>
     <div id="pagination">
-        <button id="prev-btn" onclick="prevPage()">Previous</button>
-        <span id="page-info"></span>
-        <button id="next-btn" onclick="nextPage()">Next</button>
+        <span id="range-info"></span>
+        <span id="page-info">Page: <select id="page-select" onchange="goToPage(this.value)"></select></span>
+        <button id="prev-btn" onclick="prevPage()">&#9664;</button>
+        <button id="next-btn" onclick="nextPage()">&#9654;</button>
     </div>
     <script src="js/pagination.js"></script>
 </body>
