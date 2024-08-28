@@ -5,18 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/admin.css">
     <style>
-        /* Minimalistic CSS styling */
         body {
             font-family: Arial, sans-serif;
+            height: auto;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            background-color: #c2b8b8;
         }
 
         h1,
         h2 {
-            color: #333;
+            color: white;
+        }
+
+        .nav-bar {
+            margin-left: auto;
         }
 
         button {
@@ -127,27 +133,22 @@
             background-color: #0056b3;
         }
 
-        #map {
-            height: 500px;
-            width: 300%;
-            margin-top: 20px;
-        }
     </style>
 </head>
 
 <body>
+    <div class="d-flex nav-bar pb-5">
+        <button id="view-items">View Items</button>
+        <button id="redirectButton">Go to Map Page</button>
+        <button id="update-warehouse-button">Update Warehouse</button>
+        <button id="logout-button">Logout</button>
+    </div>
+
     <h1>Welcome, Admin!</h1>
     <p>This is the admin page for managing categories and items.</p>
 
-    <button id="update-warehouse-button">Update Warehouse</button>
-    <button id="logout-button">Logout</button>
-    <button id="view-items">View Items</button>
-    <button id="redirectButton">Go to Map Page</button>
-
-    <div id="message"></div>
-
     <!-- Category Management -->
-    <div id="category-management">
+    <div id="category-management pb-3">
         <h2>Manage Categories</h2>
         <button id="add-category-button">Add Category</button>
         <div id="category-list">
@@ -165,7 +166,7 @@
     </div>
 
     <!-- Upload JSON File Section -->
-    <div id="upload-json">
+    <div class="d-flex justify-content-between align-items-center" id="upload-json">
         <h2>Upload JSON Data</h2>
         <div class="file-input-container">
             <button class="file-input-button">Choose File</button>
@@ -190,8 +191,9 @@
         </div>
     </div>
 
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         $(document).ready(function () {

@@ -6,8 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Save Base Location</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </head>
 
 <body>
@@ -37,9 +42,9 @@
             { latitude: 37.9756, longitude: 23.7348, username: "rescuer1" },
             { latitude: 37.9942, longitude: 23.7281, username: "rescuer2" },
             { latitude: 37.9924, longitude: 23.7257, username: "rescuer3" }
-            
+
         ];
- 
+
 
 
         var map = L.map('map').setView([37.9838, 23.7275], 12);
@@ -80,7 +85,7 @@
         // Marker για οχήματα διασωστών
         rescuers.forEach(function (rescuer) {
             var rescuerMarker = L.marker([rescuer.latitude, rescuer.longitude], {
-               }).addTo(map);
+            }).addTo(map);
             rescuerMarker.bindPopup(`Όχημα Διασώστη: ${rescuer.username}`).openPopup();
         });
         // Marker για εκκρεμή αιτήματα (διαφορετικό χρώμα)
@@ -124,22 +129,19 @@
         });
 
         var vehicleMarker = L.marker([vehicleLatitude, vehicleLongitude], { icon: vehicleIcon }).addTo(map);
-        vehicleMarker.bindPopup(`
-    <b>Όχημα: ${vehicleUsername}</b><br>
+        vehicleMarker.bindPopup(`<b>Όχημα: ${vehicleUsername}</b><br>
     Φορτίο: ${vehicleLoad}<br>
     Κατάσταση: ${vehicleStatus}<br>
     Ενεργά Tasks: ${activeTasks.length}
 `);
         var vehicleMarker = L.marker([vehicleLatitude, vehicleLongitude], { icon: vehicleIcon }).addTo(map);
-        vehicleMarker.bindPopup(`
-    <b>Όχημα: ${vehicleUsername}</b><br>
+        vehicleMarker.bindPopup(`<b>Όχημα: ${vehicleUsername}</b><br>
     Φορτίο: ${vehicleLoad}<br>
     Κατάσταση: ${vehicleStatus}<br>
     Ενεργά Tasks: ${activeTasks.length}
 `);
         var offerMarker = L.marker([offerLatitude, offerLongitude], { icon: offerIcon }).addTo(map);
-        offerMarker.bindPopup(`
-    <b>Προσφορά Πολίτη</b><br>
+        offerMarker.bindPopup(`<b>Προσφορά Πολίτη</b><br>
     Ονοματεπώνυμο: ${citizenName}<br>
     Τηλέφωνο: ${citizenPhone}<br>
     Ημερομηνία Καταχώρησης: ${offerDate}<br>
