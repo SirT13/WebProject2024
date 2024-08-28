@@ -16,14 +16,15 @@
 </head>
 
 <body>
-    <div id="map" style="height: 500px;"></div>
-    <button id="saveLocationButton">Αποθήκευση Τοποθεσίας Βάσης</button>
+    <div class="container shadow mt-3">
+        <div id="map" style="height: 500px;"></div>
+    
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    
+    </div>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-
-    <div id="map" style="height: 500px;"></div>
+    <button class="btn btn-primary m-3" id="saveLocationButton">Αποθήκευση Τοποθεσίας Βάσης</button>
 
     <script>
         var baseLatitude = 37.9838; // π.χ., Συντεταγμένες Αθήνας
