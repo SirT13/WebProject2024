@@ -5,15 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
+    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/admin.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            height: auto;
             margin: 0;
-            padding: 0;
-            background-color: #c2b8b8;
         }
 
         h1,
@@ -21,180 +18,109 @@
             color: white;
         }
 
-        .nav-bar {
-            margin-left: auto;
-        }
-
-        button {
-            padding: 10px 15px;
-            margin-top: 10px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            border-radius: 4px;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
             text-align: center;
         }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        input[type="text"],
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        #category-list,
-        #item-list {
-            margin-top: 20px;
-        }
-
-        #upload-json {
-            margin-top: 20px;
-        }
-
-        .list-item {
-            padding: 10px;
-            background-color: #fff;
-            margin-bottom: 5px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        /* Custom styling for the file input button */
-        .file-input-container {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-
-        .file-input-container input[type="file"] {
-            font-size: 0;
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .file-input-button {
-            padding: 10px 15px;
-            border: none;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-            border-radius: 4px;
-            text-align: center;
-            display: inline-block;
-        }
-
-        .file-input-button:hover {
-            background-color: #0056b3;
-        }
-
     </style>
 </head>
 
-<body>
-    <div class="d-flex nav-bar pb-5">
-        <button id="view-items">View Items</button>
-        <button id="redirectButton">Go to Map Page</button>
-        <button id="update-warehouse-button">Update Warehouse</button>
-        <button id="logout-button">Logout</button>
-    </div>
-
-    <h1>Welcome, Admin!</h1>
-    <p>This is the admin page for managing categories and items.</p>
-
-    <!-- Category Management -->
-    <div id="category-management pb-3">
-        <h2>Manage Categories</h2>
-        <button id="add-category-button">Add Category</button>
-        <div id="category-list">
-            <!-- Categories will be dynamically loaded here -->
+<body class="bg-dark">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <h1 class="navbar-brand">Admin Dashboard</h1>
+            <div class="ml-auto">
+                <button id="view-items" class="btn btn-light mr-2">View Items</button>
+                <button id="redirectButton" class="btn btn-light mr-2">Go to Map Page</button>
+                <button id="update-warehouse-button" class="btn btn-light mr-2">Update Warehouse</button>
+                <button id="logout-button" class="btn btn-danger">Logout</button>
+            </div>
         </div>
-    </div>
+    </nav>
 
-    <!-- Item Management -->
-    <div id="item-management">
-        <h2>Manage Items</h2>
-        <button id="add-item-button">Add Item</button>
-        <div id="item-list">
-            <!-- Items will be dynamically loaded here -->
+    <div class="container mt-5">
+        <!-- Welcome Section -->
+        <div class="text-center">
+            <h1>Welcome, Admin!</h1>
+            <p class="lead">This is the admin page for managing categories and items.</p>
+        </div>
+
+        <!-- Management Sections -->
+        <div class="row">
+            <!-- Category Management -->
+            <div id="category-management" class="col-md-6 mb-4">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <h2 class="card-title">Manage Categories</h2>
+                        <button id="add-category-button" class="btn btn-light mt-3">Add Category</button>
+                        <div id="category-list" class="mt-4">
+                            <!-- Categories will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item Management -->
+            <div id="item-management" class="col-md-6 mb-4">
+                <div class="card bg-dark text-white">
+                    <div class="card-body">
+                        <h2 class="card-title">Manage Items</h2>
+                        <button id="add-item-button" class="btn btn-light mt-3">Add Item</button>
+                        <div id="item-list" class="mt-4">
+                            <!-- Items will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Upload JSON File Section -->
-    <div class="d-flex justify-content-between align-items-center" id="upload-json">
-        <h2>Upload JSON Data</h2>
-        <div class="file-input-container">
-            <button class="file-input-button">Choose File</button>
-            <input type="file" id="json-file-input" accept=".json">
+    <div id="upload-json" class=" d-flex justify-content-center m-auto bg-dark mb-4">
+        <div class="card-body">
+            <h2 class="card-title">Upload JSON Data</h2>
+            <div class="d-flex align-items-center">
+                <input type="file" id="json-file-input" accept=".json" class="d-none">
+                <button id="choose-file-button" class="btn btn-primary">Choose File</button>
+                <button id="upload-json-button" class="btn btn-success ml-3">Upload JSON</button>
+            </div>
+            <div id="upload-message" class="mt-3"></div>
         </div>
-        <button id="upload-json-button">Upload JSON</button>
-        <div id="upload-message"></div>
     </div>
 
     <!-- Modal for Adding a New Category -->
-    <div id="add-category-modal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="close-modal">&times;</span>
-            <h2>Add New Category</h2>
-            <form id="add-category-form">
-                <label for="category-name">Category Name:</label>
-                <input type="text" id="category-name" name="category-name" required>
-                <label for="category-description">Category Description:</label>
-                <textarea id="category-description" name="category-description" required></textarea>
-                <button type="submit">Add Category</button>
-            </form>
+    <div id="add-category-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCategoryModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-category-form">
+                        <div class="form-group">
+                            <label for="category-name">Category Name:</label>
+                            <input type="text" id="category-name" name="category-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="category-description">Category Description:</label>
+                            <textarea id="category-description" name="category-description" class="form-control"
+                                required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Category</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Bootstrap and JS dependencies -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         $(document).ready(function () {
             const token = localStorage.getItem('auth-token');
@@ -224,7 +150,6 @@
             });
 
             document.getElementById("redirectButton").onclick = function () {
-                // Αντικατάστησε το URL παρακάτω με την πραγματική διεύθυνση της σελίδας σου
                 window.location.href = "admin_map.html";
             };
 
@@ -232,24 +157,15 @@
                 window.location.href = 'items.html';
             });
 
-            // Show the add category modal when button is clicked
             $('#add-category-button').click(function () {
-                $('#add-category-modal').css('display', 'block');
+                $('#add-category-modal').modal('show');
             });
 
-            // Hide the modal when the close button is clicked
-            $('#close-modal').click(function () {
-                $('#add-category-modal').css('display', 'none');
-            });
-
-            // Handle form submission
             $('#add-category-form').submit(function (event) {
-                event.preventDefault(); // Prevent the default form submission
-
+                event.preventDefault();
                 const categoryName = $('#category-name').val();
                 const categoryDescription = $('#category-description').val();
 
-                // Placeholder for AJAX call to add category
                 $.ajax({
                     url: '/admin/add_category',
                     type: 'POST',
@@ -263,9 +179,9 @@
                     }),
                     success: function (response) {
                         alert('Category added successfully!');
-                        $('#add-category-modal').css('display', 'none');
+                        $('#add-category-modal').modal('hide');
                         $('#category-list').append('<div class="list-item">' + categoryName + '</div>');
-                        $('#add-category-form')[0].reset(); // Reset form fields
+                        $('#add-category-form')[0].reset();
                     },
                     error: function (error) {
                         alert('Error adding category: ' + error.responseText);
@@ -273,11 +189,9 @@
                 });
             });
 
-            // Close modal when clicking outside of it
-            $(window).click(function (event) {
-                if (event.target.id === 'add-category-modal') {
-                    $('#add-category-modal').css('display', 'none');
-                }
+            // Trigger the file input click event when the "Choose File" button is clicked
+            $('#choose-file-button').click(function () {
+                $('#json-file-input').click();
             });
 
             $('#upload-json-button').click(function () {
@@ -294,10 +208,8 @@
                     $('#upload-message').text('Please select a JSON file to upload.');
                 }
             });
-
         });
     </script>
 </body>
 
 </html>
-
