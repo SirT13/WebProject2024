@@ -16,6 +16,6 @@ exports.register_rescuer = async(req,res,next)=>{
         };
         console.log("1 record inserted");
         
-        res.send("Resister Successfull!!!");
+        res.status(200).send("Resister Successfull!!!");
     })
 }
