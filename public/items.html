@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <title>Paginated Table with Quantity</title>
     <link rel="stylesheet" href="css/pagination.css">
 </head>
+
 <body>
-    <div id="item-table-container">
+    <button id="redirectButton" onclick="prevPage()" class="btn btn-dark mr-2">Back</button>
+    <div class="container shadow" id="item-table-container">
         <table id="item-table">
             <thead>
                 <tr>
@@ -20,12 +24,24 @@
             <tbody id="item-list"></tbody>
         </table>
     </div>
-    <div id="pagination">
-        <span id="range-info"></span>
-        <span id="page-info">Page: <select id="page-select" onchange="goToPage(this.value)"></select></span>
-        <button id="prev-btn" onclick="prevPage()">&#9664;</button>
-        <button id="next-btn" onclick="nextPage()">&#9654;</button>
+    <div class="d-flex justify-content-between align-items-center">
+        <div id="pagination">
+            <span id="range-info"></span>
+            <span id="page-info">Page: <select id="page-select" onchange="goToPage(this.value)"></select></span>
+            <button id="prev-btn" onclick="prevPage()">&#9664;</button>
+            <button id="next-btn" onclick="nextPage()">&#9654;</button>
+        </div>
+        <button id="view-items" class="btn btn-dark mr-2">Save</button>
     </div>
+    <script>
+        document.getElementById("redirectButton").onclick = function () {
+            window.location.href = "admin.html";
+        };
+    </script>
     <script src="js/pagination.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>

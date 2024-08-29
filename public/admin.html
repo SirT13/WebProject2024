@@ -28,15 +28,92 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark ml-auto">
         <div class="container">
-            <h1 class="navbar-brand">Admin Dashboard</h1>
             <div class="ml-auto">
                 <button id="view-items" class="btn btn-light mr-2">View Items</button>
                 <button id="redirectButton" class="btn btn-light mr-2">Go to Map Page</button>
                 <button id="update-warehouse-button" class="btn btn-light mr-2">Update Warehouse</button>
+                <button type="button" class="btn btn-light" data-toggle="modal" data-target="#add-rescuer-modal">
+                    Register Rescuer
+                </button>
+                <button type="button" class="btn btn-light" data-toggle="modal" data-target="#add-announcement-modal">
+                    Create Announcement
+                </button>
                 <button id="logout-button" class="btn btn-danger">Logout</button>
             </div>
         </div>
     </nav>
+
+    <!-- Modal για τη δημιουργία νέας ανακοίνωσης -->
+    <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Announcement</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-announcement-form">
+                        <div class="form-group">
+                            <label for="category-name">Category Name</label>
+                            <input type="text" id="category-name" name="category-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-name">Item Name</label>
+                            <input type="text" id="item-name" name="item-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quantity">Quantity</label>
+                            <input type="number" id="quantity" name="quantity" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Announcement</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal για τη δημιουργία νέου Rescuer -->
+    <div id="add-rescuer-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addRescuerModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRescuerModalLabel">Register New Rescuer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-rescuer-form">
+                        <div class="form-group">
+                            <label for="first-name">First Name</label>
+                            <input type="text" id="first-name" name="first-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last-name">Last Name</label>
+                            <input type="text" id="last-name" name="last-name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="mobile-number">Mobile Number</label>
+                            <input type="text" id="mobile-number" name="mobile-number" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="longitude">Longitude</label>
+                            <input type="text" id="longitude" name="longitude" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="latitude">Latitude</label>
+                            <input type="text" id="latitude" name="latitude" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Rescuer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="container mt-5">
         <!-- Welcome Section -->
