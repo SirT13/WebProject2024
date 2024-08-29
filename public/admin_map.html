@@ -48,6 +48,8 @@
 </head>
 
 <body>
+    <button id="redirectButton" onclick="prevPage()" class="btn btn-dark mt-3 ml-3">Back</button>
+
     <div class="container shadow mt-3">
         <div id="map" style="height: 500px;"></div>
 
@@ -67,7 +69,7 @@
 
         </div>
 
-        <button class="btn btn-primary m-3" id="saveLocationButton">Αποθήκευση Τοποθεσίας Βάσης</button>
+        <button class="btn btn-primary mt-3 ms-3" id="saveLocationButton">Αποθήκευση Τοποθεσίας Βάσης</button>
 
         <script>
             var baseLatitude = 37.9838; // π.χ., Συντεταγμένες Αθήνας
@@ -281,7 +283,17 @@
                 });
             }
 
+        </script>
 
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Όλος ο υπόλοιπος κώδικας σου εδώ...
+
+                // Redirect button
+                document.getElementById("redirectButton").onclick = function () {
+                    window.location.href = "admin.html";
+                };
+            });
         </script>
 
 </body>
