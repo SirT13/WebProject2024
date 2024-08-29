@@ -4,20 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Save Base Location</title>
+    <title>Map</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <style>
         /* Στυλ για το κουμπί και το dropdown menu */
         .dropdown {
             position: relative;
             display: inline-block;
+            z-index: 1000;
+            /* Εξασφάλιση ότι είναι πάνω από το χάρτη */
+        }
+
+        #map {
+            height: 500px;
+            z-index: 1;
+            /* Ο χάρτης θα βρίσκεται κάτω από το dropdown */
         }
 
         .dropdown-content {
@@ -26,7 +33,8 @@
             background-color: #f9f9f9;
             min-width: 160px;
             box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-            z-index: 1;
+            z-index: 1001;
+            /* Ακόμη υψηλότερο για το περιεχόμενο του dropdown */
         }
 
         .dropdown-content label {
@@ -48,241 +56,162 @@
 </head>
 
 <body>
+    <button id="redirectButton" class="btn btn-dark mt-3 ml-3">Back</button>
+
     <div class="container shadow mt-3">
-        <div id="map" style="height: 500px;"></div>
-
         <!-- Κουμπί για το dropdown menu -->
-        <div class="dropdown">
-            <button>Φίλτρα Χάρτη</button>
-            <div class="dropdown-content">
-                <label><input type="checkbox" id="toggleAssignedRequests"> Αιτήματα που έχουν αναληφθεί</label>
-                <label><input type="checkbox" id="togglePendingRequests"> Εκκρεμή Αιτήματα</label>
-                <label><input type="checkbox" id="toggleOffers"> Προσφορές</label>
-                <label><input type="checkbox" id="toggleActiveTasks"> Οχήματα με ενεργά tasks</label>
-                <label><input type="checkbox" id="toggleInactiveTasks"> Οχήματα χωρίς ενεργά tasks</label>
-                <label><input type="checkbox" id="toggleLines"> Ευθείες Γραμμές</label>
+        <div class="dropdown mb-2">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Φίλτρα Χάρτη
+            </button>
+            <div class="dropdown-content" aria-labelledby="filterDropdown">
+                <label class="dropdown-item"><input type="checkbox" id="toggleAssignedRequests"> Αιτήματα που έχουν
+                    αναληφθεί</label>
+                <label class="dropdown-item"><input type="checkbox" id="togglePendingRequests"> Εκκρεμή Αιτήματα</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleOffers"> Προσφορές</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleActiveTasks"> Οχήματα με ενεργά
+                    tasks</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleInactiveTasks"> Οχήματα χωρίς ενεργά
+                    tasks</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleLines"> Ευθείες Γραμμές</label>
             </div>
-            <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-            <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
         </div>
 
-        <button class="btn btn-primary m-3" id="saveLocationButton">Αποθήκευση Τοποθεσίας Βάσης</button>
+        <div id="map"></div>
+    </div>
 
-        <script>
-            var baseLatitude = 37.9838; // π.χ., Συντεταγμένες Αθήνας
-            var baseLongitude = 23.7275;
-            var rescuerLatitude = 37.9756;
-            var rescuerLongitude = 23.7348;
-            var requestLatitude = 37.9842;
-            var requestLongitude = 23.7281;
-            var processingRequestLatitude = 37.9924;
-            var processingRequestLongitude = 23.7257;
-            var offerLatitude = 37.9778;
-            var offerLongitude = 23.7512;
-            var distance = 5;
+    <button class="btn btn-primary mt-3 ml-3" id="saveLocationButton">Αποθήκευση Τοποθεσίας Βάσης</button>
 
-            var rescuers = [
-                { latitude: 37.9756, longitude: 23.7348, username: "rescuer1" },
-                { latitude: 37.9942, longitude: 23.7281, username: "rescuer2" },
-                { latitude: 37.9924, longitude: 23.7257, username: "rescuer3" }
+    <script>
+        var baseLatitude = 37.9838; // π.χ., Συντεταγμένες Αθήνας
+        var baseLongitude = 23.7275;
 
-            ];
+        var rescuers = [
+            { latitude: 37.9756, longitude: 23.7348, username: "rescuer1" },
+            { latitude: 37.9942, longitude: 23.7281, username: "rescuer2" },
+            { latitude: 37.9924, longitude: 23.7257, username: "rescuer3" }
+        ];
 
-            //  Μarkers και γραμμών που θα χρησιμοποιηθούν για τα φίλτρα
-            var assignedRequestMarkers = []; // Π.χ., λίστα με markers για αιτήματα που έχουν αναληφθεί
-            var pendingRequestMarkers = [];  // Π.χ., λίστα με markers για εκκρεμή αιτήματα
-            var offerMarkers = [];           // Π.χ., λίστα με markers για προσφορές
-            var activeTaskMarkers = [];      // Π.χ., λίστα με markers για οχήματα με ενεργά tasks
-            var inactiveTaskMarkers = [];    // Π.χ., λίστα με markers για οχήματα χωρίς ενεργά tasks
-            var lines = [];                  // Π.χ., λίστα με polyline αντικείμενα για ευθείες γραμμές
+        //  Μarkers και γραμμών που θα χρησιμοποιηθούν για τα φίλτρα
+        var assignedRequestMarkers = [];
+        var pendingRequestMarkers = [];
+        var offerMarkers = [];
+        var activeTaskMarkers = [];
+        var inactiveTaskMarkers = [];
+        var lines = [];
 
+        var map = L.map('map').setView([baseLatitude, baseLongitude], 12);
 
-            var map = L.map('map').setView([37.9838, 23.7275], 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+        // Marker για τη βάση
+        var baseMarker = L.marker([baseLatitude, baseLongitude], {
+            draggable: true
+        }).addTo(map);
+        baseMarker.bindPopup("Βάση Διασώστη").openPopup();
 
-            // Marker για τη βάση
-            var baseMarker = L.marker([baseLatitude, baseLongitude], {
-                draggable: true
-            }).addTo(map);
-            baseMarker.bindPopup("Βάση Διασώστη").openPopup();
+        baseMarker.on('dragend', function (e) {
+            var newLatLng = e.target.getLatLng();
+            baseLatitude = newLatLng.lat;
+            baseLongitude = newLatLng.lng;
+            console.log("Νέα τοποθεσία βάσης: " + baseLatitude + ", " + baseLongitude);
+        });
 
-            baseMarker.on('dragend', function (e) {
-                var newLatLng = e.target.getLatLng();
-                baseLatitude = newLatLng.lat;
-                baseLongitude = newLatLng.lng;
-                console.log("Νέα τοποθεσία βάσης: " + baseLatitude + ", " + baseLongitude);
-            });
-            document.getElementById("saveLocationButton").onclick = function () {
-                $.ajax({
-                    url: '/api/saveBaseLocation',  // Το endpoint στο backend σου
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        latitude: baseLatitude,
-                        longitude: baseLongitude
-                    }),
-                    success: function (response) {
-                        alert('Η τοποθεσία της βάσης αποθηκεύτηκε επιτυχώς!');
-                    },
-                    error: function (xhr, status, error) {
-                        alert('Παρουσιάστηκε πρόβλημα κατά την αποθήκευση της τοποθεσίας.');
-                    }
-                });
-            };
-            // Marker για οχήματα διασωστών
-            rescuers.forEach(function (rescuer) {
-                var rescuerMarker = L.marker([rescuer.latitude, rescuer.longitude], {
-                }).addTo(map);
-                rescuerMarker.bindPopup(`Όχημα Διασώστη: ${rescuer.username}`).openPopup();
-            });
-            // Marker για εκκρεμή αιτήματα (διαφορετικό χρώμα)
-            var pendingRequestMarker = L.marker([requestLatitude, requestLongitude]).addTo(map);
-            pendingRequestMarker.bindPopup("Εκκρεμές Αίτημα").openPopup();
-
-            // Marker για αιτήματα υπό διεκπεραίωση (διαφορετικό χρώμα)
-            var processingRequestMarker = L.marker([requestLatitude, requestLongitude]).addTo(map);
-            processingRequestMarker.bindPopup("Υπό Διεκπεραίωση Αίτημα").openPopup();
-
-            // Marker για εκκρεμή προσφορά ειδών (διαφορετικό είδος marker)
-            var pendingOfferMarker = L.marker([offerLatitude, offerLongitude]).addTo(map);
-            pendingOfferMarker.bindPopup("Εκκρεμής Προσφορά").openPopup();
-
-
-
-            // BALE MALAKA PATH GIA TA EIKONIDIA
-
-            var pendingIcon = L.icon({
-                iconUrl: 'url_to_pending_icon.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-            });
-
-            var processingIcon = L.icon({
-                iconUrl: 'url_to_processing_icon.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-            });
-
-            var offerIcon = L.icon({
-                iconUrl: 'url_to_offer_icon.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-            });
-
-            var vehicleMarker = L.marker([vehicleLatitude, vehicleLongitude], { icon: vehicleIcon }).addTo(map);
-            vehicleMarker.bindPopup(`<b>Όχημα: ${vehicleUsername}</b><br>
-                Φορτίο: ${vehicleLoad}<br>
-                Κατάσταση: ${vehicleStatus}<br>
-                Ενεργά Tasks: ${activeTasks.length}
-            `);
-            var vehicleMarker = L.marker([vehicleLatitude, vehicleLongitude], { icon: vehicleIcon }).addTo(map);
-            vehicleMarker.bindPopup(`<b>Όχημα: ${vehicleUsername}</b><br>
-                Φορτίο: ${vehicleLoad}<br>
-                Κατάσταση: ${vehicleStatus}<br>
-                Ενεργά Tasks: ${activeTasks.length}
-            `);
-            var offerMarker = L.marker([offerLatitude, offerLongitude], { icon: offerIcon }).addTo(map);
-            offerMarker.bindPopup(`<b>Προσφορά Πολίτη</b><br>
-                Ονοματεπώνυμο: ${citizenName}<br>
-                Τηλέφωνο: ${citizenPhone}<br>
-                Ημερομηνία Καταχώρησης: ${offerDate}<br>
-                Είδος: ${offerType}<br>
-                Ποσότητα: ${offerQuantity}<br>
-                ${vehicleUsername ? `Αναλήφθηκε από: ${vehicleUsername} στις ${assignmentDate}` : 'Εκκρεμεί'}
-            `);
-
-            if (vehicleHasTasks) {
-                var taskMarkers = [
-                    [vehicleLatitude, vehicleLongitude],
-                    [task1Latitude, task1Longitude],
-                    // μπορείς να προσθέσεις κι άλλες θέσεις αν το όχημα έχει πολλαπλά tasks
-                ];
-
-                var polyline = L.polyline(taskMarkers, { color: 'blue' }).addTo(map);
-            }
-
-            var baseMarker = L.marker([baseLatitude, baseLongitude], {
-                icon: baseIcon,
-                draggable: true
-            }).addTo(map);
-
-            baseMarker.on('dragend', function (e) {
-                var newLatLng = e.target.getLatLng();
-                // Ζήτησε επιβεβαίωση πριν αποθηκεύσεις την νέα τοποθεσία
-                if (confirm("Επιβεβαίωση νέας τοποθεσίας βάσης: " + newLatLng.toString())) {
-                    // Κάνε αποθήκευση ή οποιαδήποτε άλλη ενέργεια χρειάζεται
-                    saveNewBaseLocation(newLatLng);
-                } else {
-                    // Επιστρέφει στη παλιά τοποθεσία αν η αλλαγή δεν επιβεβαιωθεί
-                    baseMarker.setLatLng([baseLatitude, baseLongitude]);
+        document.getElementById("saveLocationButton").onclick = function () {
+            $.ajax({
+                url: '/api/saveBaseLocation',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    latitude: baseLatitude,
+                    longitude: baseLongitude
+                }),
+                success: function (response) {
+                    alert('Η τοποθεσία της βάσης αποθηκεύτηκε επιτυχώς!');
+                },
+                error: function (xhr, status, error) {
+                    alert('Παρουσιάστηκε πρόβλημα κατά την αποθήκευση της τοποθεσίας.');
                 }
             });
+        };
 
-            // Event listeners για τα φίλτρα
-            $('#toggleAssignedRequests').change(function () {
-                var isChecked = $(this).is(':checked');
-                toggleMarkers(assignedRequestMarkers, isChecked);
+        // Marker για οχήματα διασωστών
+        rescuers.forEach(function (rescuer) {
+            var rescuerMarker = L.marker([rescuer.latitude, rescuer.longitude], {}).addTo(map);
+            rescuerMarker.bindPopup(`Όχημα Διασώστη: ${rescuer.username}`);
+            activeTaskMarkers.push(rescuerMarker); // Assuming these are active by default
+        });
+
+        // Marker για εκκρεμή αιτήματα
+        var pendingRequestMarker = L.marker([37.9842, 23.7281]).addTo(map);
+        pendingRequestMarker.bindPopup("Εκκρεμές Αίτημα");
+        pendingRequestMarkers.push(pendingRequestMarker);
+
+        // Marker για αιτήματα υπό διεκπεραίωση
+        var processingRequestMarker = L.marker([37.9924, 23.7257]).addTo(map);
+        processingRequestMarker.bindPopup("Υπό Διεκπεραίωση Αίτημα");
+        assignedRequestMarkers.push(processingRequestMarker);
+
+        // Marker για εκκρεμή προσφορά ειδών
+        var pendingOfferMarker = L.marker([37.9778, 23.7512]).addTo(map);
+        pendingOfferMarker.bindPopup("Εκκρεμής Προσφορά");
+        offerMarkers.push(pendingOfferMarker);
+
+        // Event listeners για τα φίλτρα
+        $('#toggleAssignedRequests').change(function () {
+            toggleMarkers(assignedRequestMarkers, $(this).is(':checked'));
+        });
+
+        $('#togglePendingRequests').change(function () {
+            toggleMarkers(pendingRequestMarkers, $(this).is(':checked'));
+        });
+
+        $('#toggleOffers').change(function () {
+            toggleMarkers(offerMarkers, $(this).is(':checked'));
+        });
+
+        $('#toggleActiveTasks').change(function () {
+            toggleMarkers(activeTaskMarkers, $(this).is(':checked'));
+        });
+
+        $('#toggleInactiveTasks').change(function () {
+            toggleMarkers(inactiveTaskMarkers, $(this).is(':checked'));
+        });
+
+        $('#toggleLines').change(function () {
+            toggleLines(lines, $(this).is(':checked'));
+        });
+
+        // Συνάρτηση για την εμφάνιση ή απόκρυψη markers
+        function toggleMarkers(markers, show) {
+            markers.forEach(function (marker) {
+                if (show) {
+                    map.addLayer(marker);
+                } else {
+                    map.removeLayer(marker);
+                }
             });
+        }
 
-            $('#togglePendingRequests').change(function () {
-                var isChecked = $(this).is(':checked');
-                toggleMarkers(pendingRequestMarkers, isChecked);
+        // Συνάρτηση για την εμφάνιση ή απόκρυψη γραμμών
+        function toggleLines(lines, show) {
+            lines.forEach(function (line) {
+                if (show) {
+                    map.addLayer(line);
+                } else {
+                    map.removeLayer(line);
+                }
             });
+        }
 
-            $('#toggleOffers').change(function () {
-                var isChecked = $(this).is(':checked');
-                toggleMarkers(offerMarkers, isChecked);
-            });
-
-            $('#toggleActiveTasks').change(function () {
-                var isChecked = $(this).is(':checked');
-                toggleMarkers(activeTaskMarkers, isChecked);
-            });
-
-            $('#toggleInactiveTasks').change(function () {
-                var isChecked = $(this).is(':checked');
-                toggleMarkers(inactiveTaskMarkers, isChecked);
-            });
-
-            $('#toggleLines').change(function () {
-                var isChecked = $(this).is(':checked');
-                toggleLines(lines, isChecked);
-            });
-
-            // Συνάρτηση για την εμφάνιση ή απόκρυψη markers
-            function toggleMarkers(markers, show) {
-                markers.forEach(function (marker) {
-                    if (show) {
-                        map.addLayer(marker);
-                    } else {
-                        map.removeLayer(marker);
-                    }
-                });
-            }
-
-            // Συνάρτηση για την εμφάνιση ή απόκρυψη γραμμών
-            function toggleLines(lines, show) {
-                lines.forEach(function (line) {
-                    if (show) {
-                        map.addLayer(line);
-                    } else {
-                        map.removeLayer(line);
-                    }
-                });
-            }
-
-
-        </script>
+        // Redirect button
+        document.getElementById("redirectButton").onclick = function () {
+            window.location.href = "admin.html";
+        };
+    </script>
 
 </body>
 
