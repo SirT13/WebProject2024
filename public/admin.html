@@ -7,10 +7,14 @@
     <title>Admin Page</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css">
+    <!-- Bootstrap Select CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css"
+        rel="stylesheet">
+
     <style>
         body {
             margin: 0;
+            background-color: #343a40;
         }
 
         h1,
@@ -20,6 +24,29 @@
 
         .modal-content {
             text-align: center;
+        }
+
+        .category-container {
+            margin-bottom: 20px;
+        }
+
+        .item-container {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .item-container select {
+            margin-right: 10px;
+        }
+
+        .item-quantity {
+            width: 100px;
+            margin-left: 10px;
+        }
+
+        .form-group {
+            text-align: left;
         }
     </style>
 </head>
@@ -43,7 +70,7 @@
         </div>
     </nav>
 
-    <!-- Modal για τη δημιουργία νέας ανακοίνωσης -->
+    <!-- Modal for creating a new announcement -->
     <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
         aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -56,17 +83,14 @@
                 </div>
                 <div class="modal-body">
                     <form id="add-announcement-form">
-                        <div class="form-group">
+                        <div id="category-container" class="form-group">
                             <label for="category-name">Category Name</label>
-                            <input type="text" id="category-name" name="category-name" class="form-control" required>
+                            <select id="category-name" name="category-name" class="form-control" multiple required>
+                                <!-- Options for categories will be dynamically loaded here -->
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label for="item-name">Item Name</label>
-                            <input type="text" id="item-name" name="item-name" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="quantity">Quantity</label>
-                            <input type="number" id="quantity" name="quantity" class="form-control" required>
+                        <div id="item-container" class="form-group">
+                            <!-- Items and quantity fields will be dynamically loaded here -->
                         </div>
                         <button type="submit" class="btn btn-primary">Add Announcement</button>
                     </form>
@@ -74,8 +98,7 @@
             </div>
         </div>
     </div>
-
-    <!-- Modal για τη δημιουργία νέου Rescuer -->
+    <!-- Modal for creating a new rescuer -->
     <div id="add-rescuer-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addRescuerModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -109,7 +132,6 @@
             <h1>Welcome, Admin!</h1>
             <p class="lead">This is the admin page for managing categories and items.</p>
         </div>
-
         <!-- Management Sections -->
         <div class="row">
             <!-- Category Management -->
@@ -124,7 +146,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- Item Management -->
             <div id="item-management" class="col-md-6 mb-4">
                 <div class="card bg-dark text-white">
@@ -141,7 +162,7 @@
     </div>
 
     <!-- Upload JSON File Section -->
-    <div id="upload-json" class=" d-flex justify-content-center m-auto bg-dark mb-4">
+    <div id="upload-json" class="d-flex justify-content-center m-auto bg-dark mb-4">
         <div class="card-body">
             <h2 class="card-title">Upload JSON Data</h2>
             <div class="d-flex align-items-center">
@@ -167,8 +188,9 @@
                 <div class="modal-body">
                     <form id="add-category-form">
                         <div class="form-group">
-                            <label for="category-name">Category Name:</label>
-                            <input type="text" id="category-name" name="category-name" class="form-control" required>
+                            <label for="new-category-name">Category Name:</label>
+                            <input type="text" id="new-category-name" name="category-name" class="form-control"
+                                required>
                         </div>
                         <button type="submit" class="btn btn-primary">Add Category</button>
                     </form>
@@ -181,8 +203,80 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
     <script>
+        const categories = [
+            {
+                category_id: 5,
+                category_name: "Sardines",
+                items: [
+                    { item_id: 124, item_name: "Πασατέμπος" },
+                    { item_id: 151, item_name: "Παξιμάδια" },
+                    { item_id: 146, item_name: "Πατατάκια" }
+                ]
+            },
+            {
+                category_id: 6,
+                category_name: "Water",
+                items: [
+                    { item_id: 17, item_name: "Orange juice" },
+                    { item_id: 84, item_name: "Water" },
+                    { item_id: 85, item_name: "Coca Cola" }
+                ]
+            },
+            {
+                category_id: 7,
+                category_name: "Men Sneakers",
+                items: [
+                    { item_id: 22, item_name: "Men Sneakers" },
+                    { item_id: 36, item_name: "Blanket" },
+                    { item_id: 65, item_name: "Underwear" }
+                ]
+            }
+        ];
+
+        $(document).ready(function () {
+            // Populate category dropdown with multiple selection
+            categories.forEach(category => {
+                $('#category-name').append(`
+                    <option value="${category.category_id}">${category.category_name}</option>
+                `);
+            });
+
+            // Handle category selection change
+            $('#category-name').change(function () {
+                const selectedCategoryIds = $(this).val();
+                $('#item-container').empty(); // Clear the items and quantity fields
+
+                // Populate items and quantity fields based on selected categories
+                selectedCategoryIds.forEach(categoryId => {
+                    const category = categories.find(cat => cat.category_id == categoryId);
+                    if (category) {
+                        category.items.forEach(item => {
+                            $('#item-container').append(`
+                                <div class="item-container row">
+                                    <div class="col-md-8">
+                                        <span>${item.item_name}</span>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="number" id="quantity-${item.item_id}" name="quantity-${item.item_id}" class="form-control item-quantity" placeholder="Quantity" required>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    }
+                });
+            });
+
+            // Handle form submission
+            $('#add-announcement-form').submit(function (event) {
+                event.preventDefault();
+                // Handle form submission logic here, e.g., sending data to the server
+            });
+        });
+
         $(document).ready(function () {
             const token = localStorage.getItem('auth-token');
             if (!token) {
@@ -210,7 +304,7 @@
                 });
             });
 
-                $('#add-rescuer-form').submit(function (event) {
+            $('#add-rescuer-form').submit(function (event) {
                 event.preventDefault();
                 const rescuer_username = $('#reg-rescuer-username').val();
                 const resucer_password = $('#reg-rescuer-pass').val();
@@ -248,7 +342,7 @@
 
             $('#add-category-form').submit(function (event) {
                 event.preventDefault();
-                const categoryName = $('#category-name').val();
+                const categoryName = $('#new-category-name').val();
 
                 $.ajax({
                     url: '/admin/add_category',
@@ -277,7 +371,7 @@
                 $('#json-file-input').click();
             });
 
-            $('#upload-json-button').click(function () { upload_file
+            $('#upload-json-button').click(function () {
                 const fileInput = $('#json-file-input')[0].files[0];
                 if (fileInput) {
                     const reader = new FileReader();
