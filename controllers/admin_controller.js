@@ -25,7 +25,7 @@ router.route('/get_tasks').get(verifyToken('admin'),get_tasks)
 router.route('/get_items').get(verifyToken('admin'),get_items)
 router.route('/add_category').post(verifyToken('admin'),add_category)
 router.route('/get_warehouse_location').get(get_warehouse_location)
-router.route('/get_admin_map_info').get(get_admin_map_info)
+router.route('/get_admin_map_info').get(verifyToken('admin'),get_admin_map_info)
 router.route('/save_warehouse_location').post(verifyToken('admin'),save_warehouse_location)
 router.route('/update_item_quantity').put(verifyToken('admin'),update_item_quantity)
 
