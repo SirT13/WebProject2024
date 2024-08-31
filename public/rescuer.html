@@ -49,8 +49,8 @@
 
         .legend-icon {
             display: inline-block;
-            width: 12px;
-            height: 12px;
+            width: 15px;
+            height: 15px;
             border-radius: 50%;
             margin-right: 8px;
         }
@@ -159,10 +159,21 @@
     </div>
     <div id="map-legend">
         <h4>Task Status</h4>
-        <div><span class="legend-icon" style="background-color: black;"></span> Not Assigned</div>
-        <div><span class="legend-icon" style="background-color: red;"></span> Request</div>
-        <div><span class="legend-icon" style="background-color: blue;"></span> Offer</div>
-        <div><span class="legend-icon" style="background-color: green;"></span> Complete</div>
+        <div>
+            <img src="assets/person_raised_hand_black.png" alt="Not Assigned" class="legend-icon"> Not Assigned
+        </div>
+        <div>
+            <img src="assets/person_raised_hand_orange.png" alt="Request" class="legend-icon"> Request
+        </div>
+        <div>
+            <img src="assets/person_raised_hand_red.png" alt="Offer" class="legend-icon"> Offer
+        </div>
+        <div>
+            <img src="assets/rescuer.png" alt="Rescuer" class="legend-icon"> Rescuer
+        </div>
+        <div>
+            <img src="assets/warehouse.png" alt="Warehouse" class="legend-icon"> Warehouse
+        </div>
     </div>
    
     <button id="logout-button">Logout</button>
@@ -320,7 +331,31 @@
                                         Ανάληψη
                                     </button>
                                 </div>` : ''}
-                            `);
+                            `).on('popupopen', function() {
+                                const button = document.getElementById(`rescue-btn-${record.task_id}`);
+                                if (button) {
+                                    button.addEventListener('click', function() {
+                                        $.ajax({
+                                            url: '/api/assign_task',
+                                            method: 'PUT',
+                                            headers: {
+                                                'Authorization': 'Bearer ' + token, // Assuming you have a token variable
+                                                'Content-Type': 'application/json'
+                                            },
+                                            data: JSON.stringify({
+                                                task_id: record.task_id
+                                            }),
+                                            success: function(response) {
+                                            },
+                                            error: function(error) {
+                                                console.error('Error assigning task:', error);
+                                                alert('Failed to assign the task.');
+                                            }
+                                        });
+                                        location.reload()
+                                    });
+                                }
+                            });
                             if (record.status === 'in_progress') {
                                 taskMarkers.push(taskMarker);
                             }
@@ -411,7 +446,6 @@
                         item_id: itemId
                     }),
                     success: function(response) {
-                        alert('Task ' + status + ' successfully.');
                         location.reload(); // Reload the page to update the task list
                     },
                     error: function(error) {
