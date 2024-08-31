@@ -69,7 +69,10 @@
                 <label class="dropdown-item"><input type="checkbox" id="toggleAssignedRequests"> Αιτήματα που έχουν
                     αναληφθεί</label>
                 <label class="dropdown-item"><input type="checkbox" id="togglePendingRequests"> Εκκρεμή Αιτήματα</label>
-                <label class="dropdown-item"><input type="checkbox" id="toggleOffers"> Προσφορές</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleAssignedOffers"> Προσφορές που έχουν
+                    αναληφθεί</label>
+                <label class="dropdown-item"><input type="checkbox" id="togglePendingOffers"> Εκκρεμείς
+                    Προσφορες</label>
                 <label class="dropdown-item"><input type="checkbox" id="toggleActiveTasks"> Οχήματα με ενεργά
                     tasks</label>
                 <label class="dropdown-item"><input type="checkbox" id="toggleInactiveTasks"> Οχήματα χωρίς ενεργά
@@ -84,19 +87,16 @@
     <button class="btn btn-primary mt-3 ml-3" id="saveLocationButton">Αποθήκευση Τοποθεσίας Βάσης</button>
 
     <script>
+        const token = localStorage.getItem('auth-token');
+
         var baseLatitude = 37.9838; // π.χ., Συντεταγμένες Αθήνας
         var baseLongitude = 23.7275;
-
-        var rescuers = [
-            { latitude: 37.9756, longitude: 23.7348, username: "rescuer1" },
-            { latitude: 37.9942, longitude: 23.7281, username: "rescuer2" },
-            { latitude: 37.9924, longitude: 23.7257, username: "rescuer3" }
-        ];
 
         //  Μarkers και γραμμών που θα χρησιμοποιηθούν για τα φίλτρα
         var assignedRequestMarkers = [];
         var pendingRequestMarkers = [];
-        var offerMarkers = [];
+        var assignedOfferMarkers = [];
+        var pendingOfferMarkers = [];
         var activeTaskMarkers = [];
         var inactiveTaskMarkers = [];
         var lines = [];
@@ -138,71 +138,127 @@
             });
         };
 
-        // Marker για οχήματα διασωστών
-        rescuers.forEach(function (rescuer) {
-            var rescuerMarker = L.marker([rescuer.latitude, rescuer.longitude], {}).addTo(map);
-            rescuerMarker.bindPopup(`Όχημα Διασώστη: ${rescuer.username}`);
-            activeTaskMarkers.push(rescuerMarker); // Assuming these are active by default
-        });
-
-        // Marker για εκκρεμή αιτήματα
-        var pendingRequestMarker = L.marker([37.9842, 23.7281]).addTo(map);
-        pendingRequestMarker.bindPopup("Εκκρεμές Αίτημα");
-        pendingRequestMarkers.push(pendingRequestMarker);
-
-        // Marker για αιτήματα υπό διεκπεραίωση
-        var processingRequestMarker = L.marker([37.9924, 23.7257]).addTo(map);
-        processingRequestMarker.bindPopup("Υπό Διεκπεραίωση Αίτημα");
-        assignedRequestMarkers.push(processingRequestMarker);
-
-        // Marker για εκκρεμή προσφορά ειδών
-        var pendingOfferMarker = L.marker([37.9778, 23.7512]).addTo(map);
-        pendingOfferMarker.bindPopup("Εκκρεμής Προσφορά");
-        offerMarkers.push(pendingOfferMarker);
-
-        // Event listeners για τα φίλτρα
-        $('#toggleAssignedRequests').change(function () {
-            toggleMarkers(assignedRequestMarkers, $(this).is(':checked'));
-        });
-
-        $('#togglePendingRequests').change(function () {
-            toggleMarkers(pendingRequestMarkers, $(this).is(':checked'));
-        });
-
-        $('#toggleOffers').change(function () {
-            toggleMarkers(offerMarkers, $(this).is(':checked'));
-        });
-
-        $('#toggleActiveTasks').change(function () {
-            toggleMarkers(activeTaskMarkers, $(this).is(':checked'));
-        });
-
-        $('#toggleInactiveTasks').change(function () {
-            toggleMarkers(inactiveTaskMarkers, $(this).is(':checked'));
-        });
-
-        $('#toggleLines').change(function () {
-            toggleLines(lines, $(this).is(':checked'));
-        });
-
-        // Συνάρτηση για την εμφάνιση ή απόκρυψη markers
-        function toggleMarkers(markers, show) {
-            markers.forEach(function (marker) {
-                if (show) {
-                    map.addLayer(marker);
-                } else {
-                    map.removeLayer(marker);
+        // Offers and Requests
+        function fetchTasks() {
+            return $.ajax({
+                url: '/admin/get_tasks',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
                 }
             });
         }
 
-        // Συνάρτηση για την εμφάνιση ή απόκρυψη γραμμών
-        function toggleLines(lines, show) {
-            lines.forEach(function (line) {
-                if (show) {
-                    map.addLayer(line);
+        // Συνάρτηση για τη δημιουργία εικονιδίων
+        function getIcon(type, status) {
+            let iconUrl;
+
+            if (type === 'offer') {
+                iconUrl = status === 'in_progress' ? 'assets/img/offer_in_progress.svg' : 'assets/img/circle-chevron-down-solid.svg';
+            } else if (type === 'request') {
+                iconUrl = status === 'in_progress' ? 'assets/img/request_in_progress.svg' : 'assets/img/malicius-actions.svg';
+            }
+
+            return L.icon({
+                iconUrl: iconUrl,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+        }
+
+        // 1. Προβολή δεδομένων στο χάρτη με δυναμικές συντεταγμένες
+        function addMarkersToMap(tasks) {
+            tasks.forEach(task => {
+                let latitude, longitude;
+
+                // Για το παράδειγμα, χρησιμοποιούμε τυχαίες συντεταγμένες κοντά στην Αθήνα
+                latitude = baseLatitude + (Math.random() - 0.5) * 0.02;
+                longitude = baseLongitude + (Math.random() - 0.5) * 0.02;
+
+                // Χρήση της εικόνας SVG για τους markers
+                let icon = getIcon(task.type, task.status);
+
+                let marker = L.marker([latitude, longitude], { icon: icon }).addTo(map);
+                marker.bindPopup(`<b>${task.type === 'offer' ? 'Προσφορά' : 'Αίτημα'}</b><br>
+                  ID: ${task.id}<br>
+                  Ποσότητα: ${task.quantity}<br>
+                  Κατάσταση: ${task.status}`);
+
+                if (task.type === 'offer') {
+                    if (task.status === 'in_progress') {
+                        assignedOfferMarkers.push(marker);
+                    } else {
+                        pendingOfferMarkers.push(marker);
+                    }
+                } else if (task.type === 'request') {
+                    if (task.status === 'in_progress') {
+                        assignedRequestMarkers.push(marker);
+                    } else {
+                        pendingRequestMarkers.push(marker);
+                    }
+                }
+            });
+        }
+
+        // 2. Ενσωμάτωση με τη λειτουργικότητα του χάρτη
+        $(document).ready(function () {
+            fetchTasks().then(data => {
+                let parsedData;
+
+                // Βεβαιώσου ότι τα δεδομένα αναλύονται σωστά
+                if (typeof data === 'string') {
+                    try {
+                        parsedData = JSON.parse(data);
+                    } catch (e) {
+                        console.error('Σφάλμα κατά την ανάλυση των δεδομένων:', e);
+                        return;
+                    }
                 } else {
-                    map.removeLayer(line);
+                    parsedData = data;
+                }
+
+                console.log('Parsed Tasks data:', parsedData);
+
+                if (Array.isArray(parsedData)) {
+                    addMarkersToMap(parsedData);
+
+                    $('#toggleAssignedRequests').change(function () {
+                        console.log("Toggle Assigned Requests", $(this).is(':checked'));
+                        toggleMarkers(assignedRequestMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#togglePendingRequests').change(function () {
+                        console.log("Toggle Pending Requests", $(this).is(':checked'));
+                        toggleMarkers(pendingRequestMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#toggleAssignedOffers').change(function () {
+                        console.log("Toggle Assigned Offers", $(this).is(':checked'));
+                        toggleMarkers(assignedOfferMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#togglePendingOffers').change(function () {
+                        console.log("Toggle Pending Offers", $(this).is(':checked'));
+                        toggleMarkers(pendingOfferMarkers, $(this).is(':checked'));
+                    });
+                } else {
+                    console.error('Το αποτέλεσμα της κλήσης δεν είναι πίνακας:', parsedData);
+                }
+            }).catch(error => {
+                console.error('Error fetching tasks:', error);
+            });
+        });
+
+        // Συνάρτηση για την εμφάνιση ή απόκρυψη markers
+        function toggleMarkers(markers, show) {
+            markers.forEach(marker => {
+                if (show) {
+                    map.addLayer(marker);
+                } else {
+                    map.removeLayer(marker);
                 }
             });
         }
