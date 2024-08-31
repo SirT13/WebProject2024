@@ -4,12 +4,169 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rescuer Page</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        /* Style for the map and panel container */
+        #map-container {
+            display: flex;
+            width: 100%;
+            height: 100vh; /* Ensure full height for both map and panel */
+        }
+        
+        #map {
+            height: 90%;
+            width: 70%; /* Adjust width as needed */
+        }
+
+        #map-legend {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #333;
+            z-index: 1000; /* Ensures the legend is above other elements */
+        }
+
+        #map-legend h4 {
+            margin: 0 0 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: #444;
+            text-align: center;
+        }
+
+        #map-legend div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legend-icon {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        #task-panel {
+        width: 30%; /* Adjust width as needed */
+        height: 85%;
+        padding: 15px;
+        border-left: 2px solid #ccc;
+        overflow-y: auto; /* Enable vertical scrolling */
+        background-color: #f4f6f9;
+        overflow-y: auto;
+        }
+
+        .task-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-width: 4px; /* Increased border width */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-item h4 {
+            margin: 0 0 10px;
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .task-item p {
+            margin: 0 0 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .task-item button {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        /* Border colors based on task type */
+        .offer-border {
+            border-color: #dc3545; /* Red for offers */
+        }
+
+        .request-border {
+            border-color: #ff8800; /* Orange for requests */
+        }
+        .complete-task-btn {
+        background-color: #28a745;
+        color: #fff !important;
+        }
+
+        .complete-task-btn:hover {
+            background-color: #218838 
+        }
+
+        .cancel-task-btn {
+            background-color: #dc3545; 
+            color: #fff !important;
+        }
+
+        .cancel-task-btn:hover {
+            background-color: #c82333 
+        }
+
+        .rescue-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .rescue-btn:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-    <h1 id="welcome-message"></h1>
-    <p>This is the rescuer page.</p>
-    <button id="logout-button">Logout</button>
+    <div id="map-container">
+        <div id="map"></div>
+        <div id="task-panel">
+            <!-- Task items will be injected here -->
+        </div>
+    </div>
 
+    <!-- Popup template -->
+    <div id="popup-template" style="display: none;">
+        <div id="popup-content"></div>
+        <button id="action-button"></button>
+    </div>
+    <div id="map-legend">
+        <h4>Task Status</h4>
+        <div><span class="legend-icon" style="background-color: black;"></span> Not Assigned</div>
+        <div><span class="legend-icon" style="background-color: red;"></span> Request</div>
+        <div><span class="legend-icon" style="background-color: blue;"></span> Offer</div>
+        <div><span class="legend-icon" style="background-color: green;"></span> Complete</div>
+    </div>
+   
+    <button id="logout-button">Logout</button>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
@@ -18,6 +175,249 @@
                 window.location.href = '/login';
             } else {
                 $('#welcome-message').text('Welcome, Rescuer!');
+            }
+            const map = L.map('map')
+
+            // Add a tile layer to the map
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            //Fetch warehouse location and add the baseMarker
+            $.ajax({
+                    url: '/admin/get_warehouse_location',
+                    method: 'GET',
+                    contentType: 'application/json',
+                    success: function(response) {
+                        let location = JSON.parse(response)
+                        const warehouseLocation = [location[0].latitude, location[0].longitude];
+                        // Add the warehouse marker
+                        const baseMarker = L.marker(warehouseLocation, {
+                            icon: L.icon({
+                                iconUrl: 'assets/warehouse.png', // Example warehouse icon
+                                iconSize: [32, 32],
+                                iconAnchor: [16, 32], // Anchor the icon at the center bottom
+                                popupAnchor: [0, -32] // Position the popup correctly relative to the icon
+                            })
+                        }).addTo(map);
+
+                        // Bind a popup to the warehouse marker
+                        baseMarker.bindPopup('<strong>Warehouse Location</strong>').openPopup();
+
+                        // Adjust the map view to include the warehouse location
+                        map.setView(warehouseLocation, 12);
+
+                    },
+                    error: function(error) {
+                        console.error('Error fetching warehouse location:', error);
+                    }
+            });
+
+            const taskMarkers = [];
+            const polylines = [];
+
+            $.ajax({
+                url: '/api/get_rescuer_map_info',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                success: function (response) {
+                    const records = JSON.parse(response)
+                    // Assuming 'tasks' is your array from the JSON response
+                    let rescuerName = null;
+                    let rescuerLatitude = null;
+                    let rescuerLongitude = null;
+
+                    for (let i = 0; i < records.length; i++) {
+                        if (records[i].rescuer && records[i].rescuer_latitude && records[i].rescuer_longitude) {
+                            rescuerName = records[i].rescuer;
+                            rescuerLatitude = records[i].rescuer_latitude;
+                            rescuerLongitude = records[i].rescuer_longitude;
+                            break; // Exit the loop once we find the first valid rescuer
+                        }
+                    }
+                    const rescuerMarker = L.marker([rescuerLatitude,rescuerLongitude], {
+                                    icon: L.icon({
+                                        iconUrl: 'assets/rescuer.png', // Example rescuer icon
+                                        iconSize: [32, 32],
+                                        iconAnchor: [16, 32],
+                                        popupAnchor: [0, -32]
+                                    }),
+                                    draggable: true
+                                }).addTo(map);
+
+                    // Bind a popup to the rescuer marker
+                    rescuerMarker.bindPopup(`<strong>Rescuer: ${rescuerName}</strong>`).openPopup();
+
+                    const taskPanel = $('#task-panel');
+                    records.forEach((record, index) => {
+
+                            const date = new Date(record.date_submited);
+                            // Format date to a more readable string
+                            const formattedDate = date.toLocaleString('en-GB', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: false
+                            });
+                            //Task Panel
+                            if (record.rescuer_id && record.status === 'in_progress') {
+                                // Create a div for the task item
+                                const taskItem = $(`
+                                    <div class="task-item ${record.type === 'request' ? 'request-border' : 'offer-border'}" 
+                                        data-task-type="${record.type}" 
+                                        data-quantity="${record.quantity}"
+                                        data-item-id="${record.item_id}">
+                                        <h4>${record.type === 'request' ? 'Αίτημα' : 'Προσφορά'}</h4>
+                                        <p><strong>Ονοματεπώνυμο:</strong> ${record.citizen}</p>
+                                        <p><strong>Τηλέφωνο:</strong> ${record.citizen_phone_number}</p>
+                                        <p><strong>Είδος:</strong> ${record.item_name}</p>
+                                        <p><strong>Ποσότητα:</strong> ${record.quantity}</p>
+                                        <p><strong>Ημερομηνία Καταχώρησης:</strong> ${formattedDate}</p>
+                                        <p><strong>Ημερομηνία Ανάληψης:</strong> ${record.date_assigned}</p>
+                                        <button class="complete-task-btn" data-task-id="${record.task_id}">Ολοκλήρωση</button>
+                                        <button class="cancel-task-btn" data-task-id="${record.task_id}">Ακύρωση</button>
+                                    </div>
+                                `);
+
+                                // Append the task item to the panel
+                                taskPanel.append(taskItem);
+                            }
+                            
+                            const citizenLocation = [record.citizen_latitude, record.citizen_longitude];
+
+                            // Add a marker for the citizen's location
+                            let iconURL = record.type === 'request' ? 'assets/person_raised_hand_orange.png' : 'assets/person_raised_hand_red.png'
+                            if(record.status === 'not_assigned')
+                            {
+                                iconURL = 'assets/person_raised_hand_black.png'
+                            }
+
+                            const taskMarker = L.marker(citizenLocation, {
+                                icon: L.icon({
+                                    iconUrl: iconURL, // Example citizen icon
+                                    iconSize: [42, 42],
+                                    iconAnchor: [16, 32],
+                                    popupAnchor: [0, -32]
+                                })
+                            }).addTo(map).bindPopup(`
+                                <strong>${record.type === 'request' ? 'Αίτημα' : 'Προσφορά'}</strong><br>
+                                Ονοματεπώνυμο: ${record.citizen}<br>
+                                Τηλέφωνο: ${record.citizen_phone_number}<br>
+                                Κατάσταση: ${record.status}<br>
+                                Είδος: ${record.item_name}<br>
+                                Ημερομηνία Καταχώρησης: ${formattedDate}<br>
+                                Ημερομηνία Ανάληψης: ${record.date_assigned}<br>
+                                Ποσότητα: ${record.quantity}<br>
+                                ${record.status === 'not_assigned' ? `
+                                <div style="margin-top: 10px;">
+                                    <button id="rescue-btn-${record.task_id}" class="rescue-btn">
+                                        Ανάληψη
+                                    </button>
+                                </div>` : ''}
+                            `);
+                            if (record.status === 'in_progress') {
+                                taskMarkers.push(taskMarker);
+                            }
+
+                                // Event listener for drag end
+                                taskMarkers.forEach(taskMarker => {
+                                    const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
+                                        color: 'blue',
+                                        weight: 3,
+                                        opacity: 0.7
+                                    }).addTo(map);
+                                    polylines.push(line); // Save reference to the polyline
+                                });
+
+                                
+
+                                rescuerMarker.on('dragend', function(event) {
+                                    const newLocation = event.target.getLatLng();
+                                    polylines.forEach(polyline => {
+                                        polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
+                                    });
+                                    // Send the new location to the server
+                                    $.ajax({
+                                        url: '/api/save_rescuer_location',
+                                        method: 'POST',
+                                        headers: {
+                                            'Authorization': 'Bearer ' + token,
+                                            'Content-Type': 'application/json' // Ensure Content-Type is set correctly
+                                        },
+                                        data: JSON.stringify({
+                                            latitude: newLocation.lat,
+                                            longitude: newLocation.lng
+                                        }),
+                                        success: function(response) {
+                                        },
+                                        error: function(error) {
+                                            console.error('Error saving new rescuer location:', error);
+                                        }
+                                    });
+                                });
+
+
+                                // Adjust the map view to include the rescuer and task markers
+                                map.fitBounds([
+                                    rescuerMarker.getLatLng(),
+                                    ...taskMarkers.map(marker => marker.getLatLng())
+                                ]);
+                            
+                
+                    });
+
+                    // Handle button clicks for completing or canceling tasks
+                    $('.complete-task-btn').on('click', function() {
+                        const taskId = $(this).data('task-id');
+                        const $taskItem = $(this).closest('.task-item');
+                        const taskType = $taskItem.attr('data-task-type');
+                        const quantity = $taskItem.attr('data-quantity');
+                        const item_id = $taskItem.attr('data-item-id');
+                        updateTaskStatus(taskId, 'complete', taskType, quantity,item_id);
+                    });
+
+                    $('.cancel-task-btn').on('click', function() {
+                        const taskId = $(this).data('task-id');
+                        const $taskItem = $(this).closest('.task-item');
+                        const taskType = $taskItem.attr('data-task-type');
+                        updateTaskStatus(taskId, 'not_assigned',taskType,0,0);
+                    });
+                },
+                error: function (error) {
+                    alert('Error fetching data: ' + error.responseText);
+                }
+                
+            })
+
+            function updateTaskStatus(taskId, status,taskType,item_quantity,itemId) {
+                $.ajax({
+                    url: '/api/update_task_status',
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    data: JSON.stringify({
+                        task_id: taskId,
+                        status: status,
+                        task_type: taskType,
+                        quantity: item_quantity,
+                        item_id: itemId
+                    }),
+                    success: function(response) {
+                        alert('Task ' + status + ' successfully.');
+                        location.reload(); // Reload the page to update the task list
+                    },
+                    error: function(error) {
+                        alert('Error updating task status: ' + error.responseText);
+                    }
+                });
             }
         });
     </script>
