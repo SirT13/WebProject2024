@@ -13,18 +13,15 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <style>
-        /* Στυλ για το κουμπί και το dropdown menu */
         .dropdown {
             position: relative;
             display: inline-block;
             z-index: 1000;
-            /* Εξασφάλιση ότι είναι πάνω από το χάρτη */
         }
 
         #map {
             height: 500px;
             z-index: 1;
-            /* Ο χάρτης θα βρίσκεται κάτω από το dropdown */
         }
 
         .dropdown-content {
@@ -34,7 +31,6 @@
             min-width: 160px;
             box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
             z-index: 1001;
-            /* Ακόμη υψηλότερο για το περιεχόμενο του dropdown */
         }
 
         .dropdown-content label {
@@ -59,7 +55,6 @@
     <button id="redirectButton" class="btn btn-dark mt-3 ml-3">Back</button>
 
     <div class="container shadow mt-3">
-        <!-- Κουμπί για το dropdown menu -->
         <div class="dropdown mb-2">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
@@ -72,7 +67,7 @@
                 <label class="dropdown-item"><input type="checkbox" id="toggleAssignedOffers"> Προσφορές που έχουν
                     αναληφθεί</label>
                 <label class="dropdown-item"><input type="checkbox" id="togglePendingOffers"> Εκκρεμείς
-                    Προσφορες</label>
+                    Προσφορές</label>
                 <label class="dropdown-item"><input type="checkbox" id="toggleActiveTasks"> Οχήματα με ενεργά
                     tasks</label>
                 <label class="dropdown-item"><input type="checkbox" id="toggleInactiveTasks"> Οχήματα χωρίς ενεργά
@@ -89,10 +84,9 @@
     <script>
         const token = localStorage.getItem('auth-token');
 
-        var baseLatitude = 37.9838; // π.χ., Συντεταγμένες Αθήνας
+        var baseLatitude = 37.9838;
         var baseLongitude = 23.7275;
 
-        //  Μarkers και γραμμών που θα χρησιμοποιηθούν για τα φίλτρα
         var assignedRequestMarkers = [];
         var pendingRequestMarkers = [];
         var assignedOfferMarkers = [];
@@ -108,9 +102,18 @@
         }).addTo(map);
 
         // Marker για τη βάση
+        var baseIcon = L.icon({
+            iconUrl: 'assets/warehouse.png',
+            iconSize: [50, 50],
+            iconAnchor: [25, 50],
+            popupAnchor: [0, -50]
+        });
+
         var baseMarker = L.marker([baseLatitude, baseLongitude], {
+            icon: baseIcon,
             draggable: true
         }).addTo(map);
+
         baseMarker.bindPopup("Βάση Διασώστη").openPopup();
 
         baseMarker.on('dragend', function (e) {
@@ -138,10 +141,9 @@
             });
         };
 
-        // Offers and Requests
         function fetchTasks() {
             return $.ajax({
-                url: '/admin/get_tasks',
+                url: '/admin/get_admin_map_info',
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + token,
@@ -150,14 +152,11 @@
             });
         }
 
-        // Συνάρτηση για τη δημιουργία εικονιδίων
         function getIcon(type, status) {
-            let iconUrl;
 
-            if (type === 'offer') {
-                iconUrl = status === 'in_progress' ? 'assets/img/offer_in_progress.svg' : 'assets/img/circle-chevron-down-solid.svg';
-            } else if (type === 'request') {
-                iconUrl = status === 'in_progress' ? 'assets/img/request_in_progress.svg' : 'assets/img/malicius-actions.svg';
+            let iconUrl = type === 'request' ? 'assets/person_raised_hand_orange.png' : 'assets/person_raised_hand_red.png'
+            if (status === 'not_assigned') {
+                iconUrl = 'assets/person_raised_hand_black.png'
             }
 
             return L.icon({
@@ -169,21 +168,93 @@
             });
         }
 
-        // 1. Προβολή δεδομένων στο χάρτη με δυναμικές συντεταγμένες
+        // Προβολη οχηματων διασωστων
+        function addVehicleMarkers(tasks) {
+            tasks.forEach(task => {
+                // Έλεγχος για την ύπαρξη συντεταγμένων διασώστη
+                if (task.rescuer_id && task.rescuer_latitude && task.rescuer_longitude) {
+                    let iconUrl = task.status === 'in_progress' ? 'assets/rescuer.png' : 'assets/rescuer.png';
+                    let vehicleIcon = L.icon({
+                        iconUrl: iconUrl,
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        shadowSize: [41, 41]
+                    });
+
+                    let marker = L.marker([task.rescuer_latitude, task.rescuer_longitude], { icon: vehicleIcon }).addTo(map);
+                    marker.bindPopup(`
+                <b>Όχημα Διασώστη</b><br>
+                Username: ${task.rescuer}<br>
+                Κατάσταση: ${task.status}<br>
+                Φορτίο: ${task.item_name} (Ποσότητα: ${task.quantity})
+            `);
+
+                    activeTaskMarkers.push(marker);
+                } else {
+                    console.warn(`Το όχημα με ID ${task.rescuer_id} δεν έχει έγκυρες συντεταγμένες και θα αγνοηθεί.`);
+                }
+            });
+        }
+
+        // Προβολή αιτημάτων και προσφορών
+        function addTaskMarkers(tasks) {
+            tasks.forEach(task => {
+                // Έλεγχος για την ύπαρξη συντεταγμένων πολίτη
+                if (task.citizen_latitude && task.citizen_longitude) {
+                    let latitude = task.citizen_latitude;
+                    let longitude = task.citizen_longitude;
+                    let icon = getIcon(task.type, task.status);
+
+                    let marker = L.marker([latitude, longitude], { icon: icon }).addTo(map);
+                    marker.bindPopup(`<b>${task.type === 'offer' ? 'Προσφορά' : 'Αίτημα'}</b><br>
+            Πολίτης: ${task.citizen}<br>
+            Τηλέφωνο: ${task.citizen_phone_number}<br>
+            Είδος: ${task.item_name}<br>
+            Ποσότητα: ${task.quantity}<br>
+            Κατάσταση: ${task.status}`);
+
+                    if (task.type === 'offer') {
+                        if (task.status === 'in_progress') {
+                            assignedOfferMarkers.push(marker);
+                        } else {
+                            pendingOfferMarkers.push(marker);
+                        }
+                    } else if (task.type === 'request') {
+                        if (task.status === 'in_progress') {
+                            assignedRequestMarkers.push(marker);
+                        } else {
+                            pendingRequestMarkers.push(marker);
+                        }
+                    }
+
+                    // Σύνδεση οχήματος με τα αιτήματα/προσφορές του
+                    if (task.rescuer_id && task.rescuer_latitude && task.rescuer_longitude) {
+                        let polyline = L.polyline([
+                            [task.rescuer_latitude, task.rescuer_longitude],
+                            [latitude, longitude]
+                        ], { color: 'blue' }).addTo(map);
+                        lines.push(polyline);
+                    }
+                } else {
+                    console.warn(`Η εργασία με ID ${task.task_id} δεν έχει έγκυρες συντεταγμένες και θα αγνοηθεί.`);
+                }
+            });
+        }
+
+        // Τοποθέτηση των markers για τα αιτήματα και τις προσφορές πάνω στον χάρτη 
         function addMarkersToMap(tasks) {
             tasks.forEach(task => {
-                let latitude, longitude;
+                let latitude = task.citizen_latitude;
+                let longitude = task.citizen_longitude;
 
-                // Για το παράδειγμα, χρησιμοποιούμε τυχαίες συντεταγμένες κοντά στην Αθήνα
-                latitude = baseLatitude + (Math.random() - 0.5) * 0.02;
-                longitude = baseLongitude + (Math.random() - 0.5) * 0.02;
-
-                // Χρήση της εικόνας SVG για τους markers
                 let icon = getIcon(task.type, task.status);
 
                 let marker = L.marker([latitude, longitude], { icon: icon }).addTo(map);
                 marker.bindPopup(`<b>${task.type === 'offer' ? 'Προσφορά' : 'Αίτημα'}</b><br>
-                  ID: ${task.id}<br>
+                  Πολίτης: ${task.citizen}<br>
+                  Τηλέφωνο: ${task.citizen_phone_number}<br>
+                  Είδος: ${task.item_name}<br>
                   Ποσότητα: ${task.quantity}<br>
                   Κατάσταση: ${task.status}`);
 
@@ -203,12 +274,11 @@
             });
         }
 
-        // 2. Ενσωμάτωση με τη λειτουργικότητα του χάρτη
+        // Λειτουργικότητα φίλτρων
         $(document).ready(function () {
             fetchTasks().then(data => {
                 let parsedData;
 
-                // Βεβαιώσου ότι τα δεδομένα αναλύονται σωστά
                 if (typeof data === 'string') {
                     try {
                         parsedData = JSON.parse(data);
@@ -223,26 +293,35 @@
                 console.log('Parsed Tasks data:', parsedData);
 
                 if (Array.isArray(parsedData)) {
-                    addMarkersToMap(parsedData);
+                    addTaskMarkers(parsedData);   // Προσθήκη markers για αιτήματα και προσφορές
+                    addVehicleMarkers(parsedData);  // Προσθήκη markers για οχήματα
 
                     $('#toggleAssignedRequests').change(function () {
-                        console.log("Toggle Assigned Requests", $(this).is(':checked'));
                         toggleMarkers(assignedRequestMarkers, $(this).is(':checked'));
                     });
 
                     $('#togglePendingRequests').change(function () {
-                        console.log("Toggle Pending Requests", $(this).is(':checked'));
                         toggleMarkers(pendingRequestMarkers, $(this).is(':checked'));
                     });
 
                     $('#toggleAssignedOffers').change(function () {
-                        console.log("Toggle Assigned Offers", $(this).is(':checked'));
                         toggleMarkers(assignedOfferMarkers, $(this).is(':checked'));
                     });
 
                     $('#togglePendingOffers').change(function () {
-                        console.log("Toggle Pending Offers", $(this).is(':checked'));
                         toggleMarkers(pendingOfferMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#toggleActiveTasks').change(function () {
+                        toggleMarkers(activeTaskMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#toggleInactiveTasks').change(function () {
+                        toggleMarkers(inactiveTaskMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#toggleLines').change(function () {
+                        toggleLines(lines, $(this).is(':checked'));
                     });
                 } else {
                     console.error('Το αποτέλεσμα της κλήσης δεν είναι πίνακας:', parsedData);
@@ -252,7 +331,6 @@
             });
         });
 
-        // Συνάρτηση για την εμφάνιση ή απόκρυψη markers
         function toggleMarkers(markers, show) {
             markers.forEach(marker => {
                 if (show) {
@@ -263,7 +341,16 @@
             });
         }
 
-        // Redirect button
+        function toggleLines(lines, show) {
+            lines.forEach(line => {
+                if (show) {
+                    map.addLayer(line);
+                } else {
+                    map.removeLayer(line);
+                }
+            });
+        }
+
         document.getElementById("redirectButton").onclick = function () {
             window.location.href = "admin.html";
         };
