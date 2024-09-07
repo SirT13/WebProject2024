@@ -7,10 +7,10 @@ exports.assign_task = async(req,res,next)=>{
     var token = auth_headers && auth_headers.split(' ')[1]
     const user = jwt.verify(token, process.env.SECRET_KEY);
     const userId = user.user_id
+    const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const sql = "UPDATE tasks SET rescuer_id = ?, status = 'in_progress', date_assigned = ? WHERE id = ?"
 
-    const sql = "UPDATE tasks SET rescuer_id = ?, status = 'in_progress' WHERE id = ?"
-
-    db.query(sql,[userId,taskId],(err,results)=>{
+    db.query(sql,[userId,currentDateTime,taskId],(err,results)=>{
 
         if (err){
             return next(err)

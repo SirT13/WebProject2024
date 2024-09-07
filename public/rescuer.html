@@ -142,6 +142,10 @@
         .rescue-btn:hover {
             background-color: #218838;
         }
+        button:disabled {
+            opacity: 0.5; /* Makes the button appear faded */
+            cursor: not-allowed; /* Changes the cursor to indicate the button is not clickable */
+        }
     </style>
 </head>
 <body>
@@ -291,7 +295,7 @@
                                         <p><strong>Ποσότητα:</strong> ${record.quantity}</p>
                                         <p><strong>Ημερομηνία Καταχώρησης:</strong> ${formattedDate}</p>
                                         <p><strong>Ημερομηνία Ανάληψης:</strong> ${record.date_assigned}</p>
-                                        <button class="complete-task-btn" data-task-id="${record.task_id}">Ολοκλήρωση</button>
+                                        <button class="complete-task-btn" data-task-id="${record.task_id}" disabled>Ολοκλήρωση</button>
                                         <button class="cancel-task-btn" data-task-id="${record.task_id}">Ακύρωση</button>
                                     </div>
                                 `);
@@ -360,20 +364,38 @@
                                 taskMarkers.push(taskMarker);
                             }
 
-                                // Event listener for drag end
+                                console.log(taskMarkers.length)
                                 taskMarkers.forEach(taskMarker => {
                                     const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
                                         color: 'blue',
                                         weight: 3,
                                         opacity: 0.7
                                     }).addTo(map);
+                                    
                                     polylines.push(line); // Save reference to the polyline
                                 });
 
                                 
-
+                                // Event listener for drag end
                                 rescuerMarker.on('dragend', function(event) {
                                     const newLocation = event.target.getLatLng();
+                                    if (record.status === 'in_progress') {
+                                        const citizen_latitude = record.citizen_latitude
+                                        const citizen_longitude = record.citizen_longitude
+                                        const distance = calculateDistance(newLocation.lat, newLocation.lng, citizen_latitude, citizen_longitude);
+
+                                        const taskItem = $('.task-item').eq(index);
+                                        const completeButton = taskItem.find('.complete-task-btn');
+                                        if (distance <= 50) {
+                                            console.log("Enabling", completeButton)
+                                            completeButton.prop('disabled', false); // Enable the button if within 50 meters
+                                        } else {
+                                            completeButton.prop('disabled', true); // Disable the button if farther away
+                                        }
+                                    }
+                                    
+
+
                                     polylines.forEach(polyline => {
                                         polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
                                     });
@@ -432,7 +454,7 @@
 
             function updateTaskStatus(taskId, status,taskType,item_quantity,itemId) {
                 $.ajax({
-                    url: '/api/update_task_status',
+                    url: '/api/update_task_status', 
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token,
@@ -454,6 +476,22 @@
                 });
             }
         });
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Earth radius in meters
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            const distance = R * c; // Distance in meters
+            return distance;
+        }
     </script>
     <script src="/js/logout.js"></script>
 </body>

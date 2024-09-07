@@ -1,6 +1,6 @@
 const db = require('../../utils/connect_db')
 
-exports.add_category = async(req,res,next)=>{
+exports.add_item = async(req,res,next)=>{
     var name = req.body.name
     var sql1="SELECT * FROM categories ORDER BY id DESC LIMIT 1";
     var sql2="INSERT INTO categories (id,name) VALUES (?,?)";

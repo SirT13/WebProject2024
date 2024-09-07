@@ -15,6 +15,7 @@ const { update_item_quantity } = require('../api/admin/update_item_quantity')
 const { get_warehouse_location } = require('../api/admin/get_warehouse_location')
 const { get_admin_map_info } = require('../api/admin/get_admin_map_info')
 const { save_warehouse_location } = require('../api/admin/save_warehouse_location')
+const { create_notification } = require('../api/admin/create_notification')
 const upload = multer({ dest: 'uploads/' });
 
 router.route('/update_warehouse').get(verifyToken('admin'),update_warehouse)
@@ -27,6 +28,7 @@ router.route('/add_category').post(verifyToken('admin'),add_category)
 router.route('/get_warehouse_location').get(get_warehouse_location)
 router.route('/get_admin_map_info').get(verifyToken('admin'),get_admin_map_info)
 router.route('/save_warehouse_location').post(verifyToken('admin'),save_warehouse_location)
+router.route('/create_notification').post(create_notification)
 router.route('/update_item_quantity').put(verifyToken('admin'),update_item_quantity)
 
-module.exports = router;
+module.exports = router;    
