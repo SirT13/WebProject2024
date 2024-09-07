@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,18 +11,20 @@
         #map-container {
             display: flex;
             width: 100%;
-            height: 100vh; /* Ensure full height for both map and panel */
+            height: 100vh;
+            /* Ensure full height for both map and panel */
         }
-        
+
         #map {
             height: 90%;
-            width: 70%; /* Adjust width as needed */
+            width: 70%;
+            /* Adjust width as needed */
         }
 
         #map-legend {
             position: absolute;
             top: 20px;
-            left: 20px;
+            right: 20px;
             padding: 10px 15px;
             border: 2px solid #ccc;
             border-radius: 8px;
@@ -30,7 +33,8 @@
             font-family: Arial, sans-serif;
             font-size: 14px;
             color: #333;
-            z-index: 1000; /* Ensures the legend is above other elements */
+            z-index: 1000;
+            /* Ensures the legend is above other elements */
         }
 
         #map-legend h4 {
@@ -56,14 +60,50 @@
         }
 
         #task-panel {
-        width: 30%; /* Adjust width as needed */
-        height: 85%;
-        padding: 15px;
-        border-left: 2px solid #ccc;
-        overflow-y: auto; /* Enable vertical scrolling */
-        background-color: #f4f6f9;
-        overflow-y: auto;
+            width: 30%;
+            /* Adjust width as needed */
+            height: 85%;
+            padding: 15px;
+            border-left: 2px solid #ccc;
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+            background-color: #f4f6f9;
+            overflow-y: auto;
         }
+
+
+        .dropdown {
+            position: absolute;
+            top: 20px;
+            left: 70px;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+        }
+
+        .dropdown-content label {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+        }
+
+        .dropdown-content label:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }   
 
         .task-item {
             padding: 15px;
@@ -72,7 +112,8 @@
             border-radius: 8px;
             background-color: #ffffff;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-width: 4px; /* Increased border width */
+            border-width: 4px;
+            /* Increased border width */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -102,30 +143,34 @@
             cursor: pointer;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+
         /* Border colors based on task type */
         .offer-border {
-            border-color: #dc3545; /* Red for offers */
+            border-color: #dc3545;
+            /* Red for offers */
         }
 
         .request-border {
-            border-color: #ff8800; /* Orange for requests */
+            border-color: #ff8800;
+            /* Orange for requests */
         }
+
         .complete-task-btn {
-        background-color: #28a745;
-        color: #fff !important;
+            background-color: #28a745;
+            color: #fff !important;
         }
 
         .complete-task-btn:hover {
-            background-color: #218838 
+            background-color: #218838
         }
 
         .cancel-task-btn {
-            background-color: #dc3545; 
+            background-color: #dc3545;
             color: #fff !important;
         }
 
         .cancel-task-btn:hover {
-            background-color: #c82333 
+            background-color: #c82333
         }
 
         .rescue-btn {
@@ -144,11 +189,33 @@
         }
     </style>
 </head>
+
 <body>
     <div id="map-container">
         <div id="map"></div>
         <div id="task-panel">
             <!-- Task items will be injected here -->
+        </div>
+    </div>
+
+    <button id="redirectButton" class="btn btn-dark mt-3 ml-3">Back</button>
+
+    <div class="container shadow mt-3">
+        <div class="dropdown mb-2">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Φίλτρα Χάρτη
+            </button>
+            <div class="dropdown-content" aria-labelledby="filterDropdown">
+                <label class="dropdown-item"><input type="checkbox" id="toggleAssignedRequests"> Αιτήματα που έχουν
+                    αναληφθεί</label>
+                <label class="dropdown-item"><input type="checkbox" id="togglePendingRequests"> Εκκρεμή Αιτήματα</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleAssignedOffers"> Προσφορές που έχουν
+                    αναληφθεί</label>
+                <label class="dropdown-item"><input type="checkbox" id="togglePendingOffers"> Εκκρεμείς
+                    Προσφορές</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleLines"> Ευθείες Γραμμές</label>
+            </div>
         </div>
     </div>
 
@@ -175,12 +242,12 @@
             <img src="assets/warehouse.png" alt="Warehouse" class="legend-icon"> Warehouse
         </div>
     </div>
-   
+
     <button id="logout-button">Logout</button>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             const token = localStorage.getItem('auth-token');
             if (!token) {
                 window.location.href = '/login';
@@ -196,32 +263,32 @@
 
             //Fetch warehouse location and add the baseMarker
             $.ajax({
-                    url: '/admin/get_warehouse_location',
-                    method: 'GET',
-                    contentType: 'application/json',
-                    success: function(response) {
-                        let location = JSON.parse(response)
-                        const warehouseLocation = [location[0].latitude, location[0].longitude];
-                        // Add the warehouse marker
-                        const baseMarker = L.marker(warehouseLocation, {
-                            icon: L.icon({
-                                iconUrl: 'assets/warehouse.png', // Example warehouse icon
-                                iconSize: [32, 32],
-                                iconAnchor: [16, 32], // Anchor the icon at the center bottom
-                                popupAnchor: [0, -32] // Position the popup correctly relative to the icon
-                            })
-                        }).addTo(map);
+                url: '/admin/get_warehouse_location',
+                method: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    let location = JSON.parse(response)
+                    const warehouseLocation = [location[0].latitude, location[0].longitude];
+                    // Add the warehouse marker
+                    const baseMarker = L.marker(warehouseLocation, {
+                        icon: L.icon({
+                            iconUrl: 'assets/warehouse.png', // Example warehouse icon
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32], // Anchor the icon at the center bottom
+                            popupAnchor: [0, -32] // Position the popup correctly relative to the icon
+                        })
+                    }).addTo(map);
 
-                        // Bind a popup to the warehouse marker
-                        baseMarker.bindPopup('<strong>Warehouse Location</strong>').openPopup();
+                    // Bind a popup to the warehouse marker
+                    baseMarker.bindPopup('<strong>Warehouse Location</strong>').openPopup();
 
-                        // Adjust the map view to include the warehouse location
-                        map.setView(warehouseLocation, 12);
+                    // Adjust the map view to include the warehouse location
+                    map.setView(warehouseLocation, 12);
 
-                    },
-                    error: function(error) {
-                        console.error('Error fetching warehouse location:', error);
-                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching warehouse location:', error);
+                }
             });
 
             const taskMarkers = [];
@@ -249,15 +316,15 @@
                             break; // Exit the loop once we find the first valid rescuer
                         }
                     }
-                    const rescuerMarker = L.marker([rescuerLatitude,rescuerLongitude], {
-                                    icon: L.icon({
-                                        iconUrl: 'assets/rescuer.png', // Example rescuer icon
-                                        iconSize: [32, 32],
-                                        iconAnchor: [16, 32],
-                                        popupAnchor: [0, -32]
-                                    }),
-                                    draggable: true
-                                }).addTo(map);
+                    const rescuerMarker = L.marker([rescuerLatitude, rescuerLongitude], {
+                        icon: L.icon({
+                            iconUrl: 'assets/rescuer.png', // Example rescuer icon
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32],
+                            popupAnchor: [0, -32]
+                        }),
+                        draggable: true
+                    }).addTo(map);
 
                     // Bind a popup to the rescuer marker
                     rescuerMarker.bindPopup(`<strong>Rescuer: ${rescuerName}</strong>`).openPopup();
@@ -265,21 +332,21 @@
                     const taskPanel = $('#task-panel');
                     records.forEach((record, index) => {
 
-                            const date = new Date(record.date_submited);
-                            // Format date to a more readable string
-                            const formattedDate = date.toLocaleString('en-GB', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: false
-                            });
-                            //Task Panel
-                            if (record.rescuer_id && record.status === 'in_progress') {
-                                // Create a div for the task item
-                                const taskItem = $(`
+                        const date = new Date(record.date_submited);
+                        // Format date to a more readable string
+                        const formattedDate = date.toLocaleString('en-GB', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        });
+                        //Task Panel
+                        if (record.rescuer_id && record.status === 'in_progress') {
+                            // Create a div for the task item
+                            const taskItem = $(`
                                     <div class="task-item ${record.type === 'request' ? 'request-border' : 'offer-border'}" 
                                         data-task-type="${record.type}" 
                                         data-quantity="${record.quantity}"
@@ -296,27 +363,26 @@
                                     </div>
                                 `);
 
-                                // Append the task item to the panel
-                                taskPanel.append(taskItem);
-                            }
-                            
-                            const citizenLocation = [record.citizen_latitude, record.citizen_longitude];
+                            // Append the task item to the panel
+                            taskPanel.append(taskItem);
+                        }
 
-                            // Add a marker for the citizen's location
-                            let iconURL = record.type === 'request' ? 'assets/person_raised_hand_orange.png' : 'assets/person_raised_hand_red.png'
-                            if(record.status === 'not_assigned')
-                            {
-                                iconURL = 'assets/person_raised_hand_black.png'
-                            }
+                        const citizenLocation = [record.citizen_latitude, record.citizen_longitude];
 
-                            const taskMarker = L.marker(citizenLocation, {
-                                icon: L.icon({
-                                    iconUrl: iconURL, // Example citizen icon
-                                    iconSize: [42, 42],
-                                    iconAnchor: [16, 32],
-                                    popupAnchor: [0, -32]
-                                })
-                            }).addTo(map).bindPopup(`
+                        // Add a marker for the citizen's location
+                        let iconURL = record.type === 'request' ? 'assets/person_raised_hand_orange.png' : 'assets/person_raised_hand_red.png'
+                        if (record.status === 'not_assigned') {
+                            iconURL = 'assets/person_raised_hand_black.png'
+                        }
+
+                        const taskMarker = L.marker(citizenLocation, {
+                            icon: L.icon({
+                                iconUrl: iconURL, // Example citizen icon
+                                iconSize: [42, 42],
+                                iconAnchor: [16, 32],
+                                popupAnchor: [0, -32]
+                            })
+                        }).addTo(map).bindPopup(`
                                 <strong>${record.type === 'request' ? 'Αίτημα' : 'Προσφορά'}</strong><br>
                                 Ονοματεπώνυμο: ${record.citizen}<br>
                                 Τηλέφωνο: ${record.citizen_phone_number}<br>
@@ -331,106 +397,106 @@
                                         Ανάληψη
                                     </button>
                                 </div>` : ''}
-                            `).on('popupopen', function() {
-                                const button = document.getElementById(`rescue-btn-${record.task_id}`);
-                                if (button) {
-                                    button.addEventListener('click', function() {
-                                        $.ajax({
-                                            url: '/api/assign_task',
-                                            method: 'PUT',
-                                            headers: {
-                                                'Authorization': 'Bearer ' + token, // Assuming you have a token variable
-                                                'Content-Type': 'application/json'
-                                            },
-                                            data: JSON.stringify({
-                                                task_id: record.task_id
-                                            }),
-                                            success: function(response) {
-                                            },
-                                            error: function(error) {
-                                                console.error('Error assigning task:', error);
-                                                alert('Failed to assign the task.');
-                                            }
-                                        });
-                                        location.reload()
-                                    });
-                                }
-                            });
-                            if (record.status === 'in_progress') {
-                                taskMarkers.push(taskMarker);
-                            }
-
-                                // Event listener for drag end
-                                taskMarkers.forEach(taskMarker => {
-                                    const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
-                                        color: 'blue',
-                                        weight: 3,
-                                        opacity: 0.7
-                                    }).addTo(map);
-                                    polylines.push(line); // Save reference to the polyline
-                                });
-
-                                
-
-                                rescuerMarker.on('dragend', function(event) {
-                                    const newLocation = event.target.getLatLng();
-                                    polylines.forEach(polyline => {
-                                        polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
-                                    });
-                                    // Send the new location to the server
+                            `).on('popupopen', function () {
+                            const button = document.getElementById(`rescue-btn-${record.task_id}`);
+                            if (button) {
+                                button.addEventListener('click', function () {
                                     $.ajax({
-                                        url: '/api/save_rescuer_location',
-                                        method: 'POST',
+                                        url: '/api/assign_task',
+                                        method: 'PUT',
                                         headers: {
-                                            'Authorization': 'Bearer ' + token,
-                                            'Content-Type': 'application/json' // Ensure Content-Type is set correctly
+                                            'Authorization': 'Bearer ' + token, // Assuming you have a token variable
+                                            'Content-Type': 'application/json'
                                         },
                                         data: JSON.stringify({
-                                            latitude: newLocation.lat,
-                                            longitude: newLocation.lng
+                                            task_id: record.task_id
                                         }),
-                                        success: function(response) {
+                                        success: function (response) {
                                         },
-                                        error: function(error) {
-                                            console.error('Error saving new rescuer location:', error);
+                                        error: function (error) {
+                                            console.error('Error assigning task:', error);
+                                            alert('Failed to assign the task.');
                                         }
                                     });
+                                    location.reload()
                                 });
+                            }
+                        });
+                        if (record.status === 'in_progress') {
+                            taskMarkers.push(taskMarker);
+                        }
+
+                        // Event listener for drag end
+                        taskMarkers.forEach(taskMarker => {
+                            const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
+                                color: 'blue',
+                                weight: 3,
+                                opacity: 0.7
+                            }).addTo(map);
+                            polylines.push(line); // Save reference to the polyline
+                        });
 
 
-                                // Adjust the map view to include the rescuer and task markers
-                                map.fitBounds([
-                                    rescuerMarker.getLatLng(),
-                                    ...taskMarkers.map(marker => marker.getLatLng())
-                                ]);
-                            
-                
+
+                        rescuerMarker.on('dragend', function (event) {
+                            const newLocation = event.target.getLatLng();
+                            polylines.forEach(polyline => {
+                                polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
+                            });
+                            // Send the new location to the server
+                            $.ajax({
+                                url: '/api/save_rescuer_location',
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': 'Bearer ' + token,
+                                    'Content-Type': 'application/json' // Ensure Content-Type is set correctly
+                                },
+                                data: JSON.stringify({
+                                    latitude: newLocation.lat,
+                                    longitude: newLocation.lng
+                                }),
+                                success: function (response) {
+                                },
+                                error: function (error) {
+                                    console.error('Error saving new rescuer location:', error);
+                                }
+                            });
+                        });
+
+
+                        // Adjust the map view to include the rescuer and task markers
+                        map.fitBounds([
+                            rescuerMarker.getLatLng(),
+                            ...taskMarkers.map(marker => marker.getLatLng())
+                        ]);
+
+
                     });
 
                     // Handle button clicks for completing or canceling tasks
-                    $('.complete-task-btn').on('click', function() {
+                    $('.complete-task-btn').on('click', function () {
                         const taskId = $(this).data('task-id');
                         const $taskItem = $(this).closest('.task-item');
                         const taskType = $taskItem.attr('data-task-type');
                         const quantity = $taskItem.attr('data-quantity');
                         const item_id = $taskItem.attr('data-item-id');
-                        updateTaskStatus(taskId, 'complete', taskType, quantity,item_id);
+                        updateTaskStatus(taskId, 'complete', taskType, quantity, item_id);
                     });
 
-                    $('.cancel-task-btn').on('click', function() {
+                    $('.cancel-task-btn').on('click', function () {
                         const taskId = $(this).data('task-id');
                         const $taskItem = $(this).closest('.task-item');
                         const taskType = $taskItem.attr('data-task-type');
-                        updateTaskStatus(taskId, 'not_assigned',taskType,0,0);
+                        updateTaskStatus(taskId, 'not_assigned', taskType, 0, 0);
                     });
                 },
                 error: function (error) {
                     alert('Error fetching data: ' + error.responseText);
                 }
-                
+
             })
 
-            function updateTaskStatus(taskId, status,taskType,item_quantity,itemId) {
+            function updateTaskStatus(taskId, status, taskType, item_quantity, itemId) {
                 $.ajax({
                     url: '/api/update_task_status',
                     method: 'POST',
@@ -445,16 +511,69 @@
                         quantity: item_quantity,
                         item_id: itemId
                     }),
-                    success: function(response) {
+                    success: function (response) {
                         location.reload(); // Reload the page to update the task list
                     },
-                    error: function(error) {
+                    error: function (error) {
                         alert('Error updating task status: ' + error.responseText);
                     }
                 });
             }
         });
+
+        // Λειτουργικότητα φίλτρων
+        $(document).ready(function () {
+            fetchTasks().then(data => {
+                let parsedData;
+
+                if (typeof data === 'string') {
+                    try {
+                        parsedData = JSON.parse(data);
+                    } catch (e) {
+                        console.error('Σφάλμα κατά την ανάλυση των δεδομένων:', e);
+                        return;
+                    }
+                } else {
+                    parsedData = data;
+                }
+
+                console.log('Parsed Tasks data:', parsedData);
+
+                if (Array.isArray(parsedData)) {
+                    addMarkersToMap(parsedData);
+
+                    $('#toggleAssignedRequests').change(function () {
+                        toggleMarkers(assignedRequestMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#togglePendingRequests').change(function () {
+                        toggleMarkers(pendingRequestMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#toggleAssignedOffers').change(function () {
+                        toggleMarkers(assignedOfferMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#togglePendingOffers').change(function () {
+                        toggleMarkers(pendingOfferMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#toggleActiveTasks').change(function () {
+                        toggleMarkers(activeTaskMarkers, $(this).is(':checked'));
+                    });
+
+                    $('#toggleLines').change(function () {
+                        toggleLines(lines, $(this).is(':checked'));
+                    });
+                } else {
+                    console.error('Το αποτέλεσμα της κλήσης δεν είναι πίνακας:', parsedData);
+                }
+            }).catch(error => {
+                console.error('Error fetching tasks:', error);
+            });
+        });
     </script>
     <script src="/js/logout.js"></script>
 </body>
+
 </html>
