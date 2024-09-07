@@ -59,6 +59,7 @@ function renderPage(page) {
 
         const decreaseBtn = document.createElement('button');
         decreaseBtn.textContent = '-';
+        decreaseBtn.disabled = item.quantity === 0;
         decreaseBtn.onclick = () => updateQuantity(index + start, -1);
         actionsCell.appendChild(decreaseBtn);
 

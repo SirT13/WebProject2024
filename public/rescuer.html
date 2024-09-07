@@ -187,6 +187,10 @@
         .rescue-btn:hover {
             background-color: #218838;
         }
+        button:disabled {
+            opacity: 0.5; /* Makes the button appear faded */
+            cursor: not-allowed; /* Changes the cursor to indicate the button is not clickable */
+        }
     </style>
 </head>
 
@@ -358,7 +362,7 @@
                                         <p><strong>Ποσότητα:</strong> ${record.quantity}</p>
                                         <p><strong>Ημερομηνία Καταχώρησης:</strong> ${formattedDate}</p>
                                         <p><strong>Ημερομηνία Ανάληψης:</strong> ${record.date_assigned}</p>
-                                        <button class="complete-task-btn" data-task-id="${record.task_id}">Ολοκλήρωση</button>
+                                        <button class="complete-task-btn" data-task-id="${record.task_id}" disabled>Ολοκλήρωση</button>
                                         <button class="cancel-task-btn" data-task-id="${record.task_id}">Ακύρωση</button>
                                     </div>
                                 `);
@@ -426,42 +430,43 @@
                             taskMarkers.push(taskMarker);
                         }
 
-                        // Event listener for drag end
-                        taskMarkers.forEach(taskMarker => {
-                            const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
-                                color: 'blue',
-                                weight: 3,
-                                opacity: 0.7
-                            }).addTo(map);
-                            polylines.push(line); // Save reference to the polyline
-                        });
+                                console.log(taskMarkers.length)
+                                taskMarkers.forEach(taskMarker => {
+                                    const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
+                                        color: 'blue',
+                                        weight: 3,
+                                        opacity: 0.7
+                                    }).addTo(map);
+                                    
+                                    polylines.push(line); // Save reference to the polyline
+                                });
 
+                                
 
-
-                        rescuerMarker.on('dragend', function (event) {
-                            const newLocation = event.target.getLatLng();
-                            polylines.forEach(polyline => {
-                                polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
-                            });
-                            // Send the new location to the server
-                            $.ajax({
-                                url: '/api/save_rescuer_location',
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': 'Bearer ' + token,
-                                    'Content-Type': 'application/json' // Ensure Content-Type is set correctly
-                                },
-                                data: JSON.stringify({
-                                    latitude: newLocation.lat,
-                                    longitude: newLocation.lng
-                                }),
-                                success: function (response) {
-                                },
-                                error: function (error) {
-                                    console.error('Error saving new rescuer location:', error);
-                                }
-                            });
-                        });
+                                rescuerMarker.on('dragend', function(event) {
+                                    const newLocation = event.target.getLatLng();
+                                    polylines.forEach(polyline => {
+                                        polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
+                                    });
+                                    // Send the new location to the server
+                                    $.ajax({
+                                        url: '/api/save_rescuer_location',
+                                        method: 'POST',
+                                        headers: {
+                                            'Authorization': 'Bearer ' + token,
+                                            'Content-Type': 'application/json' // Ensure Content-Type is set correctly
+                                        },
+                                        data: JSON.stringify({
+                                            latitude: newLocation.lat,
+                                            longitude: newLocation.lng
+                                        }),
+                                        success: function(response) {
+                                        },
+                                        error: function(error) {
+                                            console.error('Error saving new rescuer location:', error);
+                                        }
+                                    });
+                                });
 
 
                         // Adjust the map view to include the rescuer and task markers
@@ -498,7 +503,7 @@
 
             function updateTaskStatus(taskId, status, taskType, item_quantity, itemId) {
                 $.ajax({
-                    url: '/api/update_task_status',
+                    url: '/api/update_task_status', 
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token,
@@ -519,58 +524,6 @@
                     }
                 });
             }
-        });
-
-        // Λειτουργικότητα φίλτρων
-        $(document).ready(function () {
-            fetchTasks().then(data => {
-                let parsedData;
-
-                if (typeof data === 'string') {
-                    try {
-                        parsedData = JSON.parse(data);
-                    } catch (e) {
-                        console.error('Σφάλμα κατά την ανάλυση των δεδομένων:', e);
-                        return;
-                    }
-                } else {
-                    parsedData = data;
-                }
-
-                console.log('Parsed Tasks data:', parsedData);
-
-                if (Array.isArray(parsedData)) {
-                    addMarkersToMap(parsedData);
-
-                    $('#toggleAssignedRequests').change(function () {
-                        toggleMarkers(assignedRequestMarkers, $(this).is(':checked'));
-                    });
-
-                    $('#togglePendingRequests').change(function () {
-                        toggleMarkers(pendingRequestMarkers, $(this).is(':checked'));
-                    });
-
-                    $('#toggleAssignedOffers').change(function () {
-                        toggleMarkers(assignedOfferMarkers, $(this).is(':checked'));
-                    });
-
-                    $('#togglePendingOffers').change(function () {
-                        toggleMarkers(pendingOfferMarkers, $(this).is(':checked'));
-                    });
-
-                    $('#toggleActiveTasks').change(function () {
-                        toggleMarkers(activeTaskMarkers, $(this).is(':checked'));
-                    });
-
-                    $('#toggleLines').change(function () {
-                        toggleLines(lines, $(this).is(':checked'));
-                    });
-                } else {
-                    console.error('Το αποτέλεσμα της κλήσης δεν είναι πίνακας:', parsedData);
-                }
-            }).catch(error => {
-                console.error('Error fetching tasks:', error);
-            });
         });
     </script>
     <script src="/js/logout.js"></script>
