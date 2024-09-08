@@ -56,337 +56,355 @@
     <nav class="navbar navbar-expand-lg navbar-dark ml-auto">
         <div class="container">
             <div class="ml-auto">
-                <button id="view-items" class="btn btn-light mr-2">View Items</button>
-                <button id="redirectButton" class="btn btn-light mr-2">Go to Map Page</button>
-                <button id="update-warehouse-button" class="btn btn-light mr-2">Update Warehouse</button>
+                <button id="view-items" class="btn btn-light mr-2">
+                    View Items
+                </button>
+                <button id="redirectButton" class="btn btn-light mr-2">
+                    Go to Map Page
+                </button>
+                <button id="update-warehouse-button" class="btn btn-light mr-2">
+                    Update Warehouse
+                </button>
                 <button type="button" class="btn btn-light" data-toggle="modal" data-target="#add-rescuer-modal">
                     Register Rescuer
                 </button>
-                <button type="button" class="btn btn-light" data-toggle="modal" data-target="#add-announcement-modal">
+                <button type="button" id="create-announcement-button" class="btn btn-light" data-toggle="modal"
+                    data-target="#add-announcement-modal">
                     Create Announcement
                 </button>
-                <button id="logout-button" class="btn btn-danger">Logout</button>
+                <button id="logout-button" class="btn btn-danger">
+                    Logout
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- Modal for creating a new announcement -->
-    <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
-        aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Announcement</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-announcement-form">
-                        <div id="category-container" class="form-group">
-                            <label for="category-name">Category Name</label>
-                            <select id="category-name" name="category-name" class="form-control" multiple required>
-                                <!-- Options for categories will be dynamically loaded here -->
-                            </select>
-                        </div>
-                        <div id="item-container" class="form-group">
-                            <!-- Items and quantity fields will be dynamically loaded here -->
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Announcement</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Modal for creating a new rescuer -->
-    <div id="add-rescuer-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addRescuerModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addRescuerModalLabel">Register New Rescuer</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-rescuer-form">
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input type="text" id="reg-rescuer-username" name="username" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="pass">Password</label>
-                            <input type="password" id="reg-rescuer-pass" name="pass" class="form-control" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Rescuer</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="container mt-5">
-        <!-- Welcome Section -->
         <div class="text-center">
-            <h1>Welcome, Admin!</h1>
-            <p class="lead">This is the admin page for managing categories and items.</p>
+            <h1 class="text-light">Create New Notification</h1>
         </div>
-        <!-- Management Sections -->
-        <div class="row">
-            <!-- Category Management -->
-            <div id="category-management" class="col-md-6 mb-4">
-                <div class="card bg-dark text-white">
-                    <div class="card-body">
-                        <h2 class="card-title">Manage Categories</h2>
-                        <button id="add-category-button" class="btn btn-light mt-3">Add Category</button>
-                        <div id="category-list" class="mt-4">
-                            <!-- Categories will be dynamically loaded here -->
+
+        <!-- Create Notification Form -->
+        <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
+            aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Announcement</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="add-announcement-form">
+                            <div id="search-container" class="form-group">
+                                <label for="category-search">Search Items</label>
+                                <input type="text" id="category-search" class="form-control"
+                                    placeholder="Search for items...">
+                            </div>
+                            <div id="category-results" class="form-group">
+                                <!-- Εδώ θα εμφανίζονται τα αποτελέσματα -->
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Announcement</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal for creating a new rescuer -->
+        <div id="add-rescuer-modal" class="modal fade" tabindex="-1" role="dialog"
+            aria-labelledby="addRescuerModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addRescuerModalLabel">Register New Rescuer</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="add-rescuer-form">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="reg-rescuer-username" name="username" class="form-control"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pass">Password</label>
+                                <input type="password" id="reg-rescuer-pass" name="pass" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Rescuer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container mt-5">
+            <!-- Welcome Section -->
+            <div class="text-center">
+                <h1>Welcome, Admin!</h1>
+                <p class="text-white">This is the admin page for managing categories and items.</p>
+            </div>
+            <!-- Management Sections -->
+            <div class="row">
+                <!-- Category Management -->
+                <div id="category-management" class="col-md-6 mb-4">
+                    <div class="card bg-dark text-white">
+                        <div class="card-body">
+                            <h2 class="card-title">Manage Categories</h2>
+                            <button id="add-category-button" class="btn btn-light mt-3">Add Category</button>
+                            <div id="category-list" class="mt-4">
+                                <!-- Categories will be dynamically loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Item Management -->
+                <div id="item-management" class="col-md-6 mb-4">
+                    <div class="card bg-dark text-white">
+                        <div class="card-body">
+                            <h2 class="card-title">Manage Items</h2>
+                            <button id="add-item-button" class="btn btn-light mt-3">Add Item</button>
+                            <div id="item-list" class="mt-4">
+                                <!-- Items will be dynamically loaded here -->
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- Item Management -->
-            <div id="item-management" class="col-md-6 mb-4">
-                <div class="card bg-dark text-white">
-                    <div class="card-body">
-                        <h2 class="card-title">Manage Items</h2>
-                        <button id="add-item-button" class="btn btn-light mt-3">Add Item</button>
-                        <div id="item-list" class="mt-4">
-                            <!-- Items will be dynamically loaded here -->
+        </div>
+
+        <!-- Upload JSON File Section -->
+        <div id="upload-json" class="d-flex justify-content-center m-auto bg-dark mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Upload JSON Data</h2>
+                <div class="d-flex align-items-center">
+                    <input type="file" id="json-file-input" accept=".json" class="d-none">
+                    <button id="choose-file-button" class="btn btn-primary">Choose File</button>
+                    <button id="upload-json-button" class="btn btn-success ml-3">Upload JSON</button>
+                </div>
+                <div id="upload-message" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Bootstrap and JS dependencies -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <!-- Bootstrap Select JS -->
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+
+        <script>
+
+            //  Region Notifications
+            $(document).ready(function () {
+                let token = localStorage.getItem('auth-token');  // Βεβαιώσου ότι υπάρχει το token
+                let items = [];  // Αποθήκευση όλων των items που επιστρέφονται
+                let selectedItems = [];  // Επιλεγμένα items από την αναζήτηση
+
+                // Trigger την κλήση get_items όταν ανοίγει το modal
+                $('#add-announcement-modal').on('show.bs.modal', function () {
+                    $.ajax({
+                        url: '/admin/get_items',
+                        method: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,  // Στέλνουμε το token στην κεφαλίδα
+                        },
+                        success: function (response) {
+                            items = JSON.parse(response); // Αποθηκεύουμε τα δεδομένα
+                        },
+                        error: function (error) {
+                            console.error('Error fetching items:', error);
+                            alert('Failed to load categories. Error: ' + error.status);
+                        }
+                    });
+                });
+
+                // Αναζήτηση όταν ο χρήστης πατάει Enter στο input
+                $('#category-search').on('keypress', function (e) {
+                    if (e.which == 13) {  // Αν πατήσει το Enter
+                        e.preventDefault();  // Προλαμβάνει το default submit της φόρμας
+
+                        let searchTerm = $(this).val().toLowerCase();  // Παίρνουμε το input και το μετατρέπουμε σε πεζά
+                        $('#category-results').empty();  // Καθαρίζουμε τα παλιά αποτελέσματα
+
+                        // Φιλτράρουμε τα items με βάση το search term
+                        let filteredItems = items.filter(item => item.item.toLowerCase().includes(searchTerm));
+
+                        if (filteredItems.length > 0) {
+                            // Εμφάνιση των φιλτραρισμένων items με checkboxes
+                            filteredItems.forEach(item => {
+                                $('#category-results').append(`
+                        <div class="item-container row">
+                            <div class="col-md-8">
+                                <span>${item.item}</span> - <span>${item.category}</span>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="checkbox" class="item-checkbox" value="${item.id}">
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Upload JSON File Section -->
-    <div id="upload-json" class="d-flex justify-content-center m-auto bg-dark mb-4">
-        <div class="card-body">
-            <h2 class="card-title">Upload JSON Data</h2>
-            <div class="d-flex align-items-center">
-                <input type="file" id="json-file-input" accept=".json" class="d-none">
-                <button id="choose-file-button" class="btn btn-primary">Choose File</button>
-                <button id="upload-json-button" class="btn btn-success ml-3">Upload JSON</button>
-            </div>
-            <div id="upload-message" class="mt-3"></div>
-        </div>
-    </div>
-
-    <!-- Modal for Adding a New Category -->
-    <div id="add-category-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCategoryModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-category-form">
-                        <div class="form-group">
-                            <label for="new-category-name">Category Name:</label>
-                            <input type="text" id="new-category-name" name="category-name" class="form-control"
-                                required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Category</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bootstrap and JS dependencies -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Bootstrap Select JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
-
-    <script>
-        const categories = [
-            {
-                category_id: 5,
-                category_name: "Sardines",
-                items: [
-                    { item_id: 124, item_name: "Πασατέμπος" },
-                    { item_id: 151, item_name: "Παξιμάδια" },
-                    { item_id: 146, item_name: "Πατατάκια" }
-                ]
-            },
-            {
-                category_id: 6,
-                category_name: "Water",
-                items: [
-                    { item_id: 17, item_name: "Orange juice" },
-                    { item_id: 84, item_name: "Water" },
-                    { item_id: 85, item_name: "Coca Cola" }
-                ]
-            },
-            {
-                category_id: 7,
-                category_name: "Men Sneakers",
-                items: [
-                    { item_id: 22, item_name: "Men Sneakers" },
-                    { item_id: 36, item_name: "Blanket" },
-                    { item_id: 65, item_name: "Underwear" }
-                ]
-            }
-        ];
-
-        $(document).ready(function () {
-            // Populate category dropdown with multiple selection
-            categories.forEach(category => {
-                $('#category-name').append(`
-                    <option value="${category.category_id}">${category.category_name}</option>
-                `);
-            });
-
-            // Handle category selection change
-            $('#category-name').change(function () {
-                const selectedCategoryIds = $(this).val();
-                $('#item-container').empty(); // Clear the items and quantity fields
-
-                // Populate items and quantity fields based on selected categories
-                selectedCategoryIds.forEach(categoryId => {
-                    const category = categories.find(cat => cat.category_id == categoryId);
-                    if (category) {
-                        category.items.forEach(item => {
-                            $('#item-container').append(`
-                                <div class="item-container row">
-                                    <div class="col-md-8">
-                                        <span>${item.item_name}</span>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <input type="number" id="quantity-${item.item_id}" name="quantity-${item.item_id}" class="form-control item-quantity" placeholder="Quantity" required>
-                                    </div>
-                                </div>
-                            `);
-                        });
+                    `);
+                            });
+                        } else {
+                            $('#category-results').append('<p>No items found.</p>');
+                        }
                     }
                 });
-            });
 
-            // Handle form submission
-            $('#add-announcement-form').submit(function (event) {
-                event.preventDefault();
-                // Handle form submission logic here, e.g., sending data to the server
-            });
-        });
+                // Υποβολή φόρμας
+                $('#add-announcement-form').submit(function (event) {
+                    event.preventDefault();
 
-        $(document).ready(function () {
-            const token = localStorage.getItem('auth-token');
-            if (!token) {
-                window.location.href = '/login';
-            }
+                    // Καθαρισμός της λίστας με τα επιλεγμένα items
+                    let selectedItems = [];
 
-            $('#logout-button').click(function () {
-                localStorage.removeItem('auth-token');
-                window.location.href = '/login';
-            });
+                    // Βρίσκουμε τα επιλεγμένα checkboxes και προσθέτουμε τα item IDs στο selectedItems
+                    $('.item-checkbox:checked').each(function () {
+                        selectedItems.push($(this).val());
+                    });
 
-            $('#update-warehouse-button').click(function () {
-                $.ajax({
-                    url: '/admin/update_warehouse',
-                    type: 'GET',
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    },
-                    success: function (response) {
-                        $('#message').text(response);
-                    },
-                    error: function (error) {
-                        $('#message').text('Error updating warehouse: ' + error.responseText);
+                    if (selectedItems.length === 0) {
+                        alert('Please select at least one item.');
+                        return;
                     }
+
+                    console.log(selectedItems);
+
+                    // Κλήση για δημιουργία notification
+                    $.ajax({
+                        url: '/admin/create_notification',
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify({ items: selectedItems }),
+                        success: function (response) {
+                            alert('Notification created successfully.');
+                            $('#add-announcement-modal').modal('hide');
+                        },
+                        error: function (error) {
+                            alert('Error creating notification: ' + error.responseText);
+                        }
+                    });
                 });
             });
+            // End Region Notifications  
 
-            $('#add-rescuer-form').submit(function (event) {
-                event.preventDefault();
-                const rescuer_username = $('#reg-rescuer-username').val();
-                const resucer_password = $('#reg-rescuer-pass').val();
-                $.ajax({
-                    url: '/admin/register_rescuer',
-                    type: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                        'Content-Type': 'application/json'
-                    },
-                    data: JSON.stringify({
-                        username: rescuer_username,
-                        password: resucer_password
-                    }),
-                    success: function (response) {
-                        $('#message').text(response);
-                    },
-                    error: function (error) {
-                        $('#message').text('Error registering rescuer: ' + error.responseText);
-                    }
-                });
-            });
-
-            document.getElementById("redirectButton").onclick = function () {
-                window.location.href = "admin_map.html";
-            };
-
-            $('#view-items').click(function () {
-                window.location.href = 'items.html';
-            });
-
-            $('#add-category-button').click(function () {
-                $('#add-category-modal').modal('show');
-            });
-
-            $('#add-category-form').submit(function (event) {
-                event.preventDefault();
-                const categoryName = $('#new-category-name').val();
-
-                $.ajax({
-                    url: '/admin/add_category',
-                    type: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                        'Content-Type': 'application/json'
-                    },
-                    data: JSON.stringify({
-                        name: categoryName
-                    }),
-                    success: function (response) {
-                        alert('Category added successfully!');
-                        $('#add-category-modal').modal('hide');
-                        $('#category-list').append('<div class="list-item">' + categoryName + '</div>');
-                        $('#add-category-form')[0].reset();
-                    },
-                    error: function (error) {
-                        alert('Error adding category: ' + error.responseText);
-                    }
-                });
-            });
-
-            // Trigger the file input click event when the "Choose File" button is clicked
-            $('#choose-file-button').click(function () {
-                $('#json-file-input').click();
-            });
-
-            $('#upload-json-button').click(function () {
-                const fileInput = $('#json-file-input')[0].files[0];
-                if (fileInput) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const jsonData = JSON.parse(e.target.result);
-                        console.log(jsonData);
-                        $('#upload-message').text('JSON data uploaded successfully.');
-                    };
-                    reader.readAsText(fileInput);
-                } else {
-                    $('#upload-message').text('Please select a JSON file to upload.');
+            $(document).ready(function () {
+                const token = localStorage.getItem('auth-token');
+                if (!token) {
+                    window.location.href = '/login';
                 }
+
+                $('#logout-button').click(function () {
+                    localStorage.removeItem('auth-token');
+                    window.location.href = '/login';
+                });
+
+                $('#update-warehouse-button').click(function () {
+                    $.ajax({
+                        url: '/admin/update_warehouse',
+                        type: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
+                        success: function (response) {
+                            $('#message').text(response);
+                        },
+                        error: function (error) {
+                            $('#message').text('Error updating warehouse: ' + error.responseText);
+                        }
+                    });
+                });
+
+                $('#add-rescuer-form').submit(function (event) {
+                    event.preventDefault();
+                    const rescuer_username = $('#reg-rescuer-username').val();
+                    const resucer_password = $('#reg-rescuer-pass').val();
+                    $.ajax({
+                        url: '/admin/register_rescuer',
+                        type: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify({
+                            username: rescuer_username,
+                            password: resucer_password
+                        }),
+                        success: function (response) {
+                            $('#message').text(response);
+                        },
+                        error: function (error) {
+                            $('#message').text('Error registering rescuer: ' + error.responseText);
+                        }
+                    });
+                });
+
+                document.getElementById("redirectButton").onclick = function () {
+                    window.location.href = "admin_map.html";
+                };
+
+                $('#view-items').click(function () {
+                    window.location.href = 'items.html';
+                });
+
+                $('#add-category-button').click(function () {
+                    $('#add-category-modal').modal('show');
+                });
+
+                $('#add-category-form').submit(function (event) {
+                    event.preventDefault();
+                    const categoryName = $('#new-category-name').val();
+
+                    $.ajax({
+                        url: '/admin/add_category',
+                        type: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token,
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify({
+                            name: categoryName
+                        }),
+                        success: function (response) {
+                            alert('Category added successfully!');
+                            $('#add-category-modal').modal('hide');
+                            $('#category-list').append('<div class="list-item">' + categoryName + '</div>');
+                            $('#add-category-form')[0].reset();
+                        },
+                        error: function (error) {
+                            alert('Error adding category: ' + error.responseText);
+                        }
+                    });
+                });
+
+                // Trigger the file input click event when the "Choose File" button is clicked
+                $('#choose-file-button').click(function () {
+                    $('#json-file-input').click();
+                });
+
+                $('#upload-json-button').click(function () {
+                    const fileInput = $('#json-file-input')[0].files[0];
+                    if (fileInput) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const jsonData = JSON.parse(e.target.result);
+                            console.log(jsonData);
+                            $('#upload-message').text('JSON data uploaded successfully.');
+                        };
+                        reader.readAsText(fileInput);
+                    } else {
+                        $('#upload-message').text('Please select a JSON file to upload.');
+                    }
+                });
             });
-        });
-    </script>
+        </script>
 </body>
 
 </html>

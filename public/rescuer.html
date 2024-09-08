@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,12 +12,14 @@
         #map-container {
             display: flex;
             width: 100%;
-            height: 100vh; /* Ensure full height for both map and panel */
+            height: 100vh;
+            /* Ensure full height for both map and panel */
         }
-        
+
         #map {
             height: 90%;
-            width: 70%; /* Adjust width as needed */
+            width: 70%;
+            /* Adjust width as needed */
         }
 
         #map-legend {
@@ -31,7 +34,8 @@
             font-family: Arial, sans-serif;
             font-size: 14px;
             color: #333;
-            z-index: 1000; /* Ensures the legend is above other elements */
+            z-index: 1000;
+            /* Ensures the legend is above other elements */
         }
 
         #map-legend h4 {
@@ -94,14 +98,50 @@
             background-color: #c82333;
         }
         #task-panel {
-        width: 30%; /* Adjust width as needed */
-        height: 85%;
-        padding: 15px;
-        border-left: 2px solid #ccc;
-        overflow-y: auto; /* Enable vertical scrolling */
-        background-color: #f4f6f9;
-        overflow-y: auto;
+            width: 30%;
+            /* Adjust width as needed */
+            height: 85%;
+            padding: 15px;
+            border-left: 2px solid #ccc;
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+            background-color: #f4f6f9;
+            overflow-y: auto;
         }
+
+
+        .dropdown {
+            position: absolute;
+            top: 20px;
+            left: 70px;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+        }
+
+        .dropdown-content label {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+        }
+
+        .dropdown-content label:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }   
 
         .task-item {
             padding: 15px;
@@ -110,7 +150,8 @@
             border-radius: 8px;
             background-color: #ffffff;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            border-width: 4px; /* Increased border width */
+            border-width: 4px;
+            /* Increased border width */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
@@ -140,30 +181,34 @@
             cursor: pointer;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
+
         /* Border colors based on task type */
         .offer-border {
-            border-color: #dc3545; /* Red for offers */
+            border-color: #dc3545;
+            /* Red for offers */
         }
 
         .request-border {
-            border-color: #ff8800; /* Orange for requests */
+            border-color: #ff8800;
+            /* Orange for requests */
         }
+
         .complete-task-btn {
-        background-color: #28a745;
-        color: #fff !important;
+            background-color: #28a745;
+            color: #fff !important;
         }
 
         .complete-task-btn:hover {
-            background-color: #218838 
+            background-color: #218838
         }
 
         .cancel-task-btn {
-            background-color: #dc3545; 
+            background-color: #dc3545;
             color: #fff !important;
         }
 
         .cancel-task-btn:hover {
-            background-color: #c82333 
+            background-color: #c82333
         }
 
         .rescue-btn {
@@ -199,6 +244,7 @@
 }
     </style>
 </head>
+
 <body>
     <div class="navbar">
         <div class="navbar-left">Rescuer Dashboard</div>
@@ -253,6 +299,27 @@
         </div>
     </div>
 
+    <button id="redirectButton" class="btn btn-dark mt-3 ml-3">Back</button>
+
+    <div class="container shadow mt-3">
+        <div class="dropdown mb-2">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="filterDropdown" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Φίλτρα Χάρτη
+            </button>
+            <div class="dropdown-content" aria-labelledby="filterDropdown">
+                <label class="dropdown-item"><input type="checkbox" id="toggleAssignedRequests"> Αιτήματα που έχουν
+                    αναληφθεί</label>
+                <label class="dropdown-item"><input type="checkbox" id="togglePendingRequests"> Εκκρεμή Αιτήματα</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleAssignedOffers"> Προσφορές που έχουν
+                    αναληφθεί</label>
+                <label class="dropdown-item"><input type="checkbox" id="togglePendingOffers"> Εκκρεμείς
+                    Προσφορές</label>
+                <label class="dropdown-item"><input type="checkbox" id="toggleLines"> Ευθείες Γραμμές</label>
+            </div>
+        </div>
+    </div>
+
     <!-- Popup template -->
     <div id="popup-template" style="display: none;">
         <div id="popup-content"></div>
@@ -283,7 +350,7 @@
     <script src="/js/logout.js"></script>
     <script src="/js/rescuer_pagination.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             const token = localStorage.getItem('auth-token');
             if (!token) {
                 window.location.href = '/login';
@@ -299,32 +366,32 @@
 
             //Fetch warehouse location and add the baseMarker
             $.ajax({
-                    url: '/admin/get_warehouse_location',
-                    method: 'GET',
-                    contentType: 'application/json',
-                    success: function(response) {
-                        let location = JSON.parse(response)
-                        const warehouseLocation = [location[0].latitude, location[0].longitude];
-                        // Add the warehouse marker
-                        const baseMarker = L.marker(warehouseLocation, {
-                            icon: L.icon({
-                                iconUrl: 'assets/warehouse.png', // Example warehouse icon
-                                iconSize: [32, 32],
-                                iconAnchor: [16, 32], // Anchor the icon at the center bottom
-                                popupAnchor: [0, -32] // Position the popup correctly relative to the icon
-                            })
-                        }).addTo(map);
+                url: '/admin/get_warehouse_location',
+                method: 'GET',
+                contentType: 'application/json',
+                success: function (response) {
+                    let location = JSON.parse(response)
+                    const warehouseLocation = [location[0].latitude, location[0].longitude];
+                    // Add the warehouse marker
+                    const baseMarker = L.marker(warehouseLocation, {
+                        icon: L.icon({
+                            iconUrl: 'assets/warehouse.png', // Example warehouse icon
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32], // Anchor the icon at the center bottom
+                            popupAnchor: [0, -32] // Position the popup correctly relative to the icon
+                        })
+                    }).addTo(map);
 
-                        // Bind a popup to the warehouse marker
-                        baseMarker.bindPopup('<strong>Warehouse Location</strong>').openPopup();
+                    // Bind a popup to the warehouse marker
+                    baseMarker.bindPopup('<strong>Warehouse Location</strong>').openPopup();
 
-                        // Adjust the map view to include the warehouse location
-                        map.setView(warehouseLocation, 12);
+                    // Adjust the map view to include the warehouse location
+                    map.setView(warehouseLocation, 12);
 
-                    },
-                    error: function(error) {
-                        console.error('Error fetching warehouse location:', error);
-                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching warehouse location:', error);
+                }
             });
 
             const taskMarkers = [];
@@ -352,15 +419,15 @@
                             break;
                         }
                     }
-                    const rescuerMarker = L.marker([rescuerLatitude,rescuerLongitude], {
-                                    icon: L.icon({
-                                        iconUrl: 'assets/rescuer.png', // Example rescuer icon
-                                        iconSize: [32, 32],
-                                        iconAnchor: [16, 32],
-                                        popupAnchor: [0, -32]
-                                    }),
-                                    draggable: true
-                                }).addTo(map);
+                    const rescuerMarker = L.marker([rescuerLatitude, rescuerLongitude], {
+                        icon: L.icon({
+                            iconUrl: 'assets/rescuer.png', // Example rescuer icon
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32],
+                            popupAnchor: [0, -32]
+                        }),
+                        draggable: true
+                    }).addTo(map);
 
                     // Bind a popup to the rescuer marker
                     rescuerMarker.bindPopup(`<strong>Rescuer: ${rescuerName}</strong>`).openPopup();
@@ -409,18 +476,17 @@
                                     </div>
                                 `);
 
-                                // Append the task item to the panel
-                                taskPanel.append(taskItem);
-                            }
-                            
-                            const citizenLocation = [record.citizen_latitude, record.citizen_longitude];
+                            // Append the task item to the panel
+                            taskPanel.append(taskItem);
+                        }
 
-                            // Add a marker for the citizen's location
-                            let iconURL = record.type === 'request' ? 'assets/person_raised_hand_orange.png' : 'assets/person_raised_hand_red.png'
-                            if(record.status === 'not_assigned')
-                            {
-                                iconURL = 'assets/person_raised_hand_black.png'
-                            }
+                        const citizenLocation = [record.citizen_latitude, record.citizen_longitude];
+
+                        // Add a marker for the citizen's location
+                        let iconURL = record.type === 'request' ? 'assets/person_raised_hand_orange.png' : 'assets/person_raised_hand_red.png'
+                        if (record.status === 'not_assigned') {
+                            iconURL = 'assets/person_raised_hand_black.png'
+                        }
 
                             const taskMarker = L.marker(citizenLocation, {
                                 icon: L.icon({
@@ -483,7 +549,7 @@
                                 });
 
                                 
-                                // Event listener for drag end
+
                                 rescuerMarker.on('dragend', function(event) {
                                     const newLocation = event.target.getLatLng();
                                     if (record.status === 'in_progress') {
@@ -525,39 +591,39 @@
                                 });
 
 
-                                // Adjust the map view to include the rescuer and task markers
-                                map.fitBounds([
-                                    rescuerMarker.getLatLng(),
-                                    ...taskMarkers.map(marker => marker.getLatLng())
-                                ]);
-                            
-                
+                        // Adjust the map view to include the rescuer and task markers
+                        map.fitBounds([
+                            rescuerMarker.getLatLng(),
+                            ...taskMarkers.map(marker => marker.getLatLng())
+                        ]);
+
+
                     });
 
                     // Handle button clicks for completing or canceling tasks
-                    $('.complete-task-btn').on('click', function() {
+                    $('.complete-task-btn').on('click', function () {
                         const taskId = $(this).data('task-id');
                         const $taskItem = $(this).closest('.task-item');
                         const taskType = $taskItem.attr('data-task-type');
                         const quantity = $taskItem.attr('data-quantity');
                         const item_id = $taskItem.attr('data-item-id');
-                        updateTaskStatus(taskId, 'complete', taskType, quantity,item_id);
+                        updateTaskStatus(taskId, 'complete', taskType, quantity, item_id);
                     });
 
-                    $('.cancel-task-btn').on('click', function() {
+                    $('.cancel-task-btn').on('click', function () {
                         const taskId = $(this).data('task-id');
                         const $taskItem = $(this).closest('.task-item');
                         const taskType = $taskItem.attr('data-task-type');
-                        updateTaskStatus(taskId, 'not_assigned',taskType,0,0);
+                        updateTaskStatus(taskId, 'not_assigned', taskType, 0, 0);
                     });
                 },
                 error: function (error) {
                     alert('Error fetching data: ' + error.responseText);
                 }
-                
+
             })
 
-            function updateTaskStatus(taskId, status,taskType,item_quantity,itemId) {
+            function updateTaskStatus(taskId, status, taskType, item_quantity, itemId) {
                 $.ajax({
                     url: '/api/update_task_status', 
                     method: 'POST',
@@ -572,10 +638,10 @@
                         quantity: item_quantity,
                         item_id: itemId
                     }),
-                    success: function(response) {
+                    success: function (response) {
                         location.reload(); // Reload the page to update the task list
                     },
-                    error: function(error) {
+                    error: function (error) {
                         alert('Error updating task status: ' + error.responseText);
                     }
                 });
@@ -600,4 +666,5 @@
     </script>
     <script src="/js/logout.js"></script>
 </body>
+
 </html>
