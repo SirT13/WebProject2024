@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rescuer Page</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Style for the map and panel container */
         #map-container {
@@ -20,8 +21,8 @@
 
         #map-legend {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 70px;
+            right: 580px;
             padding: 10px 15px;
             border: 2px solid #ccc;
             border-radius: 8px;
@@ -54,7 +55,44 @@
             border-radius: 50%;
             margin-right: 8px;
         }
+        /* Navigation Bar Styles */
+        .navbar {
+            width: 100%;
+            height: 60px;
+            background-color: #343a40;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
 
+        .navbar h1 {
+            color: white;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar button {
+            background-color: #dc3545;
+            margin-right: 16px;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar button:hover {
+            background-color: #c82333;
+        }
         #task-panel {
         width: 30%; /* Adjust width as needed */
         height: 85%;
@@ -146,9 +184,68 @@
             opacity: 0.5; /* Makes the button appear faded */
             cursor: not-allowed; /* Changes the cursor to indicate the button is not clickable */
         }
+        .custom-modal .modal-dialog {
+    height: 70%; /* Adjust as needed */
+    max-height: 600px; /* Set a maximum height if needed */
+}
+
+.custom-modal .modal-content {
+    height: 100%; /* Make sure content takes full height of the dialog */
+}
+
+.custom-modal .modal-body {
+    height: calc(100% - 60px); /* Adjust to account for header and footer height */
+    overflow-y: auto; /* Adds a scrollbar if content exceeds height */
+}
     </style>
 </head>
 <body>
+    <div class="navbar">
+        <div class="navbar-left">Rescuer Dashboard</div>
+        <div class="navbar-right">
+            <button id="load-button" data-toggle="modal" data-target="#paginationModal">Φόρτωση</button>
+            <button id="logout-button">Αποσύνδεση</button>
+        </div>
+    </div>
+    <!-- Modal for Paginated Items -->
+    <div class="modal fade custom-modal" id="paginationModal" tabindex="-1" aria-labelledby="paginationModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paginationModalLabel">Inventory</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container shadow" id="item-table-container">
+                        <table id="item-table" class="table">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Category</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="item-list"></tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div id="pagination">
+                            <span id="range-info"></span>
+                            <span id="page-info">Page: 
+                                <select id="page-select" onchange="goToPage(this.value)" class="custom-select w-auto"></select>
+                            </span>
+                            <button id="prev-btn" onclick="prevPage()" class="btn btn-outline-secondary mx-2">&#9664;</button>
+                            <button id="next-btn" onclick="nextPage()" class="btn btn-outline-secondary mx-2">&#9654;</button>
+                            <button id="load-items-btn" class="btn btn-primary" disabled>Load</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="map-container">
         <div id="map"></div>
         <div id="task-panel">
@@ -179,10 +276,12 @@
             <img src="assets/warehouse.png" alt="Warehouse" class="legend-icon"> Warehouse
         </div>
     </div>
-   
-    <button id="logout-button">Logout</button>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/js/logout.js"></script>
+    <script src="/js/rescuer_pagination.js"></script>
     <script>
         $(document).ready(function() {
             const token = localStorage.getItem('auth-token');
@@ -250,7 +349,7 @@
                             rescuerName = records[i].rescuer;
                             rescuerLatitude = records[i].rescuer_latitude;
                             rescuerLongitude = records[i].rescuer_longitude;
-                            break; // Exit the loop once we find the first valid rescuer
+                            break;
                         }
                     }
                     const rescuerMarker = L.marker([rescuerLatitude,rescuerLongitude], {
@@ -269,9 +368,19 @@
                     const taskPanel = $('#task-panel');
                     records.forEach((record, index) => {
 
-                            const date = new Date(record.date_submited);
-                            // Format date to a more readable string
-                            const formattedDate = date.toLocaleString('en-GB', {
+                            const date_submited = new Date(record.date_submited);
+                            const formattedDateSumbited = date_submited.toLocaleString('en-GB', {
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: false
+                            });
+
+                            const date_assigned = new Date(record.date_assigned);
+                            const formattedDateAssigned = date_assigned.toLocaleString('en-GB', {
                                 year: 'numeric',
                                 month: '2-digit',
                                 day: '2-digit',
@@ -293,8 +402,8 @@
                                         <p><strong>Τηλέφωνο:</strong> ${record.citizen_phone_number}</p>
                                         <p><strong>Είδος:</strong> ${record.item_name}</p>
                                         <p><strong>Ποσότητα:</strong> ${record.quantity}</p>
-                                        <p><strong>Ημερομηνία Καταχώρησης:</strong> ${formattedDate}</p>
-                                        <p><strong>Ημερομηνία Ανάληψης:</strong> ${record.date_assigned}</p>
+                                        <p><strong>Ημερομηνία Καταχώρησης:</strong> ${formattedDateSumbited}</p>
+                                        <p><strong>Ημερομηνία Ανάληψης:</strong> ${formattedDateAssigned}</p>
                                         <button class="complete-task-btn" data-task-id="${record.task_id}" disabled>Ολοκλήρωση</button>
                                         <button class="cancel-task-btn" data-task-id="${record.task_id}">Ακύρωση</button>
                                     </div>
@@ -315,7 +424,7 @@
 
                             const taskMarker = L.marker(citizenLocation, {
                                 icon: L.icon({
-                                    iconUrl: iconURL, // Example citizen icon
+                                    iconUrl: iconURL, 
                                     iconSize: [42, 42],
                                     iconAnchor: [16, 32],
                                     popupAnchor: [0, -32]
@@ -326,8 +435,8 @@
                                 Τηλέφωνο: ${record.citizen_phone_number}<br>
                                 Κατάσταση: ${record.status}<br>
                                 Είδος: ${record.item_name}<br>
-                                Ημερομηνία Καταχώρησης: ${formattedDate}<br>
-                                Ημερομηνία Ανάληψης: ${record.date_assigned}<br>
+                                Ημερομηνία Καταχώρησης: ${formattedDateSumbited}<br>
+                                Ημερομηνία Ανάληψης: ${formattedDateAssigned}<br>
                                 Ποσότητα: ${record.quantity}<br>
                                 ${record.status === 'not_assigned' ? `
                                 <div style="margin-top: 10px;">
@@ -343,7 +452,7 @@
                                             url: '/api/assign_task',
                                             method: 'PUT',
                                             headers: {
-                                                'Authorization': 'Bearer ' + token, // Assuming you have a token variable
+                                                'Authorization': 'Bearer ' + token,
                                                 'Content-Type': 'application/json'
                                             },
                                             data: JSON.stringify({
@@ -363,8 +472,6 @@
                             if (record.status === 'in_progress') {
                                 taskMarkers.push(taskMarker);
                             }
-
-                                console.log(taskMarkers.length)
                                 taskMarkers.forEach(taskMarker => {
                                     const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
                                         color: 'blue',
@@ -372,7 +479,7 @@
                                         opacity: 0.7
                                     }).addTo(map);
                                     
-                                    polylines.push(line); // Save reference to the polyline
+                                    polylines.push(line);
                                 });
 
                                 
@@ -383,14 +490,12 @@
                                         const citizen_latitude = record.citizen_latitude
                                         const citizen_longitude = record.citizen_longitude
                                         const distance = calculateDistance(newLocation.lat, newLocation.lng, citizen_latitude, citizen_longitude);
+                                        const completeButton = $(`.complete-task-btn[data-task-id="${record.task_id}"]`);
 
-                                        const taskItem = $('.task-item').eq(index);
-                                        const completeButton = taskItem.find('.complete-task-btn');
                                         if (distance <= 50) {
-                                            console.log("Enabling", completeButton)
-                                            completeButton.prop('disabled', false); // Enable the button if within 50 meters
+                                            completeButton.prop('disabled', false);
                                         } else {
-                                            completeButton.prop('disabled', true); // Disable the button if farther away
+                                            completeButton.prop('disabled', true); 
                                         }
                                     }
                                     
@@ -399,13 +504,13 @@
                                     polylines.forEach(polyline => {
                                         polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
                                     });
-                                    // Send the new location to the server
+                                
                                     $.ajax({
                                         url: '/api/save_rescuer_location',
                                         method: 'POST',
                                         headers: {
                                             'Authorization': 'Bearer ' + token,
-                                            'Content-Type': 'application/json' // Ensure Content-Type is set correctly
+                                            'Content-Type': 'application/json'
                                         },
                                         data: JSON.stringify({
                                             latitude: newLocation.lat,
@@ -478,7 +583,7 @@
         });
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Earth radius in meters
+            const R = 6371e3;
             const φ1 = lat1 * Math.PI/180;
             const φ2 = lat2 * Math.PI/180;
             const Δφ = (lat2-lat1) * Math.PI/180;
@@ -489,7 +594,7 @@
                     Math.sin(Δλ/2) * Math.sin(Δλ/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-            const distance = R * c; // Distance in meters
+            const distance = R * c;
             return distance;
         }
     </script>

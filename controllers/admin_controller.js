@@ -23,7 +23,7 @@ router.route('/upload_file').post(verifyToken('admin'),upload.single('file'),upl
 router.route('/register_admin').post(register_admin)
 router.route('/register_rescuer').post(verifyToken('admin'),register_rescuer)
 router.route('/get_tasks').get(verifyToken('admin'),get_tasks)
-router.route('/get_items').get(verifyToken('admin'),get_items)
+router.route('/get_items').get(get_items)
 router.route('/add_category').post(verifyToken('admin'),add_category)
 router.route('/get_warehouse_location').get(get_warehouse_location)
 router.route('/get_admin_map_info').get(verifyToken('admin'),get_admin_map_info)
