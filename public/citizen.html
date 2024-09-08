@@ -1,26 +1,282 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Citizen Page</title>
-</head>
-<body>
-    <h1 id="welcome-message"></h1>
-    <p>This is the citizen page.</p>
-    <button id="logout-button">Logout</button>
+    <title>Citizen Dashboard</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Style for the request and offer panel container */
+        #request-panel, #offer-panel {
+            height: 85%;
+            padding: 15px;
+            border-left: 2px solid #ccc;
+            overflow-y: auto;
+            background-color: #f4f6f9;
+        }
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            const token = localStorage.getItem('auth-token');
-            if (!token) {
-                window.location.href = '/login';
-            } else {
-                $('#welcome-message').text('Welcome, Citizen!');
-            }
-        });
-    </script>
-    <script src="/js/logout.js"></script>
+        .navbar {
+            width: 100%;
+            height: 60px;
+            background-color: #343a40;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar h1 {
+            color: white;
+            font-size: 24px;
+            margin: 0;
+        }
+
+        .navbar-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar button {
+            background-color: #dc3545;
+            margin-right: 16px;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .navbar button:hover {
+            background-color: #c82333;
+        }
+
+        .dropdown {
+            position: absolute;
+            top: 20px;
+            left: 70px;
+            display: inline-block;
+            z-index: 1000;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+        }
+
+        .dropdown-content label {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            cursor: pointer;
+        }
+
+        .dropdown-content label:hover {
+            background-color: #f1f1f1;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }   
+
+        .task-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-width: 4px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-item h4 {
+            margin: 0 0 10px;
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .task-item p {
+            margin: 0 0 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .task-item button {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .offer-border {
+            border-color: #dc3545;
+        }
+
+        .request-border {
+            border-color: #ff8800;
+        }
+
+        .complete-task-btn {
+            background-color: #28a745;
+            color: #fff !important;
+        }
+
+        .complete-task-btn:hover {
+            background-color: #218838
+        }
+
+        .cancel-task-btn {
+            background-color: #dc3545;
+            color: #fff !important;
+        }
+
+        .cancel-task-btn:hover {
+            background-color: #c82333
+        }
+
+        .rescue-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .rescue-btn:hover {
+            background-color: #218838;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .custom-modal .modal-dialog {
+            height: 70%;
+            max-height: 600px;
+        }
+
+        .custom-modal .modal-content {
+            height: 100%;
+        }
+
+        .custom-modal .modal-body {
+            height: calc(100% - 60px);
+            overflow-y: auto;
+        }
+
+        /* Additional Styles */
+        #request-panel h3, #offer-panel h3 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="navbar-left">Citizen Dashboard</div>
+        <div class="navbar-right">
+            <button id="create-request-btn" data-toggle="modal" data-target="#requestModal">Create New Request</button>
+            <button id="view-announcements-btn">View Announcements</button>
+            <button id="logout-button">Logout</button>
+        </div>
+    </div>
+
+    <div id="request-panel">
+        <h3>Your Requests</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>People</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody id="request-list">
+                <!-- List of requests -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="offer-panel">
+        <h3>Your Offers</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="offer-list">
+                <!-- List of offers -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal for creating new requests -->
+    <div class="modal fade custom-modal" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="requestModalLabel">Create New Request</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="category-select">Category</label>
+                            <select id="category-select" class="form-control">
+                                <!-- Populate with categories -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="item-search">Item</label>
+                            <input type="text" id="item-search" class="form-control" placeholder="Search for an item">
+                        </div>
+                        <div class="form-group">
+                            <label for="people-count">People Count</label>
+                            <input type="number" id="people-count" class="form-control" min="1">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>

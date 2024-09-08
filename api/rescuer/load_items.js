@@ -8,7 +8,6 @@ exports.load_items = async(req,res,next)=>{
     const user = jwt.verify(token, process.env.SECRET_KEY);
     const userId = user.user_id
     const sql1 = "UPDATE vehicles SET `load` = ? WHERE rescuer_id = ?"
-    
     db.query(sql1,[JSON.stringify(items),userId],(err,results)=>{
 
         if (err){
@@ -23,6 +22,6 @@ exports.load_items = async(req,res,next)=>{
                 }
             })
         });
-        res.status(200).send(JSON.stringify(results))
     })
+    res.status(200).send({message: "Load updated"})
 }
