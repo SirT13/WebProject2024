@@ -22,7 +22,10 @@ function fetchDataAndRender() {
         return response.json();
     })
     .then(fetchedData => {
-        data = fetchedData;
+        data = fetchedData.map(item => ({
+            ...item,
+            loadQuantity: 0  // Add loadQuantity to each item with initial value of 0
+        }));
         renderPage(currentPage);
         setupPageSelection();
     })
@@ -47,9 +50,14 @@ function renderPage(page) {
         itemCell.textContent = item.item;
         row.appendChild(itemCell);
 
-        const quantityCell = document.createElement('td');
-        quantityCell.textContent = item.quantity;
-        row.appendChild(quantityCell);
+        const warehouseCell = document.createElement('td');
+        warehouseCell.textContent = item.quantity;
+        row.appendChild(warehouseCell);
+
+        // Quantity to Load Cell
+        const loadCell = document.createElement('td');
+        loadCell.textContent = item.loadQuantity;  // Display the current load quantity
+        row.appendChild(loadCell);
 
         const categoryCell = document.createElement('td');
         categoryCell.textContent = item.category;
@@ -58,36 +66,52 @@ function renderPage(page) {
         const actionsCell = document.createElement('td');
         actionsCell.style.display = 'flex';
         actionsCell.style.gap = '10px'; // Adjust spacing as needed
+        
+        const decreaseLoadBtn = document.createElement('button');
+        decreaseLoadBtn.textContent = '-';
+        decreaseLoadBtn.disabled = parseInt(loadCell.textContent === 0); // Disable if loadQuantity is 0
+        decreaseLoadBtn.onclick = () => updateQuantityToLoad(index + start, -1, loadCell);  // Pass loadCell
+        actionsCell.appendChild(decreaseLoadBtn);
 
-        const decreaseBtn = document.createElement('button');
-        decreaseBtn.textContent = '-';
-        decreaseBtn.className = 'btn btn-outline-secondary';
-        decreaseBtn.disabled = item.quantity === 0;
-        decreaseBtn.onclick = () => updateQuantity(index + start, -1);
-        actionsCell.appendChild(decreaseBtn);
-
-        const increaseBtn = document.createElement('button');
-        increaseBtn.textContent = '+';
-        increaseBtn.className = 'btn btn-outline-secondary';
-        increaseBtn.onclick = () => updateQuantity(index + start, 1);
-        actionsCell.appendChild(increaseBtn);
+        const increaseLoadBtn = document.createElement('button');
+        increaseLoadBtn.textContent = '+';
+        increaseLoadBtn.disabled = parseInt(loadCell.textContent === 0); // Disable if no more quantity in the warehouse
+        increaseLoadBtn.onclick = () => updateQuantityToLoad(index + start, 1, loadCell);  // Pass loadCell
+        actionsCell.appendChild(increaseLoadBtn);
 
         row.appendChild(actionsCell);
-
         itemList.appendChild(row);
     });
+
     document.getElementById('load-items-btn').addEventListener('click', loadItems);
     updatePaginationControls(page, start + 1, end);
 }
 
 
-function updateQuantity(index, change) {
-    if (index >= 0 && index < data.length) {
-        data[index].quantity = Math.max(0, data[index].quantity + change);
-        renderPage(currentPage); // Re-render to update quantities
+function updateQuantityToLoad(index, change, loadCell) {
+    const item = data[index];
+
+    if (change > 0 && item.quantity > 0) {
+        // Increase load quantity and decrease warehouse quantity
+        item.loadQuantity += change;  // Add to the load quantity
+        item.quantity -= change;      // Decrease warehouse quantity
+    } else if (change < 0 && item.loadQuantity > 0) {
+        // Decrease load quantity and increase warehouse quantity
+        item.loadQuantity += change;  // Subtract from the load quantity
+        item.quantity -= change;      // Increase warehouse quantity
     }
-    checkItemsToLoad();
+
+    // Update the Load Quantity cell directly
+    loadCell.textContent = item.loadQuantity;
+
+    // Update the warehouse quantity cell if you need to reflect changes
+    const warehouseCell = loadCell.previousSibling;
+    warehouseCell.textContent = item.quantity;
+
+    checkItemsToLoad(); // Check if any item has a load quantity to enable the "Load" button
 }
+
+
 
 function updatePaginationControls(page, start, end) {
     const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -128,35 +152,13 @@ function goToPage(page) {
     renderPage(currentPage);
 }
 
-function updateQuantityOnServer(index, quantity) {
-    fetch(`/admin/update_item_quantity`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`, // Add the authorization header
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            id: data[index].id,  // Pass the ID in the body
-            quantity: quantity   // Pass the quantity in the body
-        })
-    })
-    .then(response => response.json())
-    .then(updatedItem => {
-        // Handle the server response if needed
-    })
-    .catch(error => {
-        console.error('Error updating item:', error);
-        // Optionally, handle errors here (e.g., revert the quantity change)
-    });
-}
-
 function loadItems() {
     const itemsToLoad = data
-    .filter(item => item.quantity > 0)
+    .filter(item => item.loadQuantity > 0)
     .map(item => ({
         id: item.id,
         item: item.item,
-        quantity: item.quantity
+        load_quantity: item.loadQuantity
     }));
 
     fetch('/api/load_items', {
@@ -169,18 +171,16 @@ function loadItems() {
     })
     .then(response => response.json())
     .then(result => {
-        console.log('Items loaded:', result);
-        alert('Items successfully loaded!');
+        $('#paginationModal').modal('hide');
     })
     .catch(error => {
-        console.error('Error loading items:', error);
         alert('Failed to load items.');
     });
 }
 
 function checkItemsToLoad() {
     const loadButton = document.getElementById('load-items-btn');
-    const hasItemsWithQuantity = data.some(item => item.quantity > 0);
+    const hasItemsWithQuantity = data.some(item => item.loadQuantity > 0);
     
     if (hasItemsWithQuantity) {
         loadButton.disabled = false;  // Enable the Load button

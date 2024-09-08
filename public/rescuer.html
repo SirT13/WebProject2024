@@ -229,19 +229,21 @@
             opacity: 0.5; /* Makes the button appear faded */
             cursor: not-allowed; /* Changes the cursor to indicate the button is not clickable */
         }
+
         .custom-modal .modal-dialog {
-    height: 70%; /* Adjust as needed */
-    max-height: 600px; /* Set a maximum height if needed */
-}
+            height: 70%; /* Adjust as needed */
+            max-height: 600px; /* Set a maximum height if needed */
+        }
 
-.custom-modal .modal-content {
-    height: 100%; /* Make sure content takes full height of the dialog */
-}
+        .custom-modal .modal-content {
+            height: 100%; /* Make sure content takes full height of the dialog */
+            width: 130%;
+        }
 
-.custom-modal .modal-body {
-    height: calc(100% - 60px); /* Adjust to account for header and footer height */
-    overflow-y: auto; /* Adds a scrollbar if content exceeds height */
-}
+        .custom-modal .modal-body {
+            height: calc(100% - 60px); /* Adjust to account for header and footer height */
+            overflow-y: auto; /* Adds a scrollbar if content exceeds height */
+        }
     </style>
 </head>
 
@@ -269,7 +271,8 @@
                             <thead>
                                 <tr>
                                     <th>Item</th>
-                                    <th>Quantity</th>
+                                    <th>Warehouse Quantity</th>
+                                    <th>Quantity to Load</th> <!-- New column -->
                                     <th>Category</th>
                                     <th>Actions</th>
                                 </tr>
@@ -325,6 +328,24 @@
         <div id="popup-content"></div>
         <button id="action-button"></button>
     </div>
+    <div class="modal fade" id="loadDetailsModal" tabindex="-1" aria-labelledby="loadDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="loadDetailsModalLabel">Φορτίο</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body" id="loadDetailsBody">
+              <!-- Content will be populated dynamically -->
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
     <div id="map-legend">
         <h4>Task Status</h4>
         <div>
@@ -430,7 +451,53 @@
                     }).addTo(map);
 
                     // Bind a popup to the rescuer marker
-                    rescuerMarker.bindPopup(`<strong>Rescuer: ${rescuerName}</strong>`).openPopup();
+                    rescuerMarker.bindPopup(`
+                        <strong>Όνομα: ${rescuerName}</strong><br>
+                        <button id="showLoadButton" class="btn btn-primary">Προβολή Φορτίου</button>
+                    `);
+
+                    rescuerMarker.on('popupopen', function() {
+                        document.getElementById('showLoadButton').addEventListener('click', function() {
+                            // Trigger AJAX call to get the load information
+                            $.ajax({
+                                url: '/api/get_vehicle_load',
+                                method: 'GET',
+                                headers: {
+                                    'Authorization': 'Bearer ' + token,
+                                    'Content-Type': 'application/json'
+                                },
+                                success: function(response) {
+
+                                    let parsedData = JSON.parse(response);
+                                    let loadItems = JSON.parse(parsedData[0].load)
+
+                                    let loadDetailsHTML = '';
+                                    if (loadItems && loadItems.length > 0) {
+ 
+                                        loadItems.forEach(function(item) {
+                                            loadDetailsHTML += `
+                                                <div class="load-item">
+                                                    <strong>Item:</strong> ${item.item}<br>
+                                                    <strong>Quantity:</strong> ${item.load_quantity}<br>
+                                                </div>
+                                                <hr>`;
+                                        });
+                                    } else {
+                                        loadDetailsHTML = '<p>No items found in the load.</p>';
+                                    }
+
+                                    // Inject the content into the modal body
+                                    document.getElementById('loadDetailsBody').innerHTML = loadDetailsHTML;
+
+                                    // Show the modal
+                                    $('#loadDetailsModal').modal('show');
+                                },
+                                error: function(error) {
+                                    console.error('Error fetching load details:', error);
+                                }
+                            });
+                        });
+                    });
 
                     const taskPanel = $('#task-panel');
                     records.forEach((record, index) => {
