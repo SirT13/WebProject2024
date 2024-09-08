@@ -17,9 +17,9 @@ exports.create_notification = async(req,res,next)=>{
                     return next(err);  // Handle the error
                 }
                 console.log('Query executed for item:', item_id);
+                res.status(200).send("Notification Added")
             });
         });
         
     })   
-    res.status(200).send("Notification Added")
 }
