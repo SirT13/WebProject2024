@@ -9,12 +9,14 @@ const { create_offer } = require('../api/citizen/create_offer');
 const { get_requests } = require('../api/citizen/get_requests');
 const { get_notifications } = require('../api/citizen/get_notifications');
 const { delete_request } = require('../api/citizen/delete_offer');
+const { get_offers } = require('../api/citizen/get_offers');
 
 router.route('/get_citizens').get(verifyToken('citizen'),get_citizens)
 router.route('/register_citizen').post(register_citizen)
 router.route('/create_offer').post(create_offer)
 router.route('/create_request').post(create_request)
-router.route('/get_requests').get(get_requests)
+router.route('/get_requests').get(verifyToken('citizen'),get_requests)
+router.route('/get_offers').get(verifyToken('citizen'), get_offers)
 router.route('/get_notifications').get(get_notifications)
 router.route('/delete_request/:id').delete(delete_request)
 

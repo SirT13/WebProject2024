@@ -1,8 +1,7 @@
 const db = require('../../utils/connect_db')
 
-exports.get_requests = async(req,res,next)=>{
-    console.log(req.user)
-    var sql = `SELECT * FROM tasks WHERE type="request" AND citizen_id = ${req.user.user_id}`;
+exports.get_offers = async(req,res,next)=>{
+    var sql = `SELECT * FROM tasks WHERE type="offer" AND citizen_id = ${req.user.user_id}`;
     db.query(sql,(err,results)=>{
         if (err){
             throw err;
