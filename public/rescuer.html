@@ -251,8 +251,8 @@
     <div class="navbar">
         <div class="navbar-left">Rescuer Dashboard</div>
         <div class="navbar-right">
-            <button id="load-button" data-toggle="modal" data-target="#paginationModal">Φόρτωση</button>
-            <button id="logout-button">Αποσύνδεση</button>
+            <button id="load-button" data-toggle="modal" data-target="#paginationModal">Load</button>
+            <button id="logout-button">Logout</button>
         </div>
     </div>
     <!-- Modal for Paginated Items -->
@@ -537,8 +537,8 @@
                                         <p><strong>Ποσότητα:</strong> ${record.quantity}</p>
                                         <p><strong>Ημερομηνία Καταχώρησης:</strong> ${formattedDateSumbited}</p>
                                         <p><strong>Ημερομηνία Ανάληψης:</strong> ${formattedDateAssigned}</p>
-                                        <button class="complete-task-btn" data-task-id="${record.task_id}" disabled>Ολοκλήρωση</button>
-                                        <button class="cancel-task-btn" data-task-id="${record.task_id}">Ακύρωση</button>
+                                        <button class="complete-task-btn" data-task-id="${record.task_id}" disabled>Complete</button>
+                                        <button class="cancel-task-btn" data-task-id="${record.task_id}">Abort</button>
                                     </div>
                                 `);
 
