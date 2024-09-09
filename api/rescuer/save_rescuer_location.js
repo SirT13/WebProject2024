@@ -4,10 +4,7 @@ const jwt = require("jsonwebtoken")
 exports.save_rescuer_location = async(req,res,next)=>{   
     var latitude=req.body.latitude
     var longitude=req.body.longitude
-    const auth_headers = req.header('Authorization');
-    var token = auth_headers && auth_headers.split(' ')[1]
-    const user = jwt.verify(token, process.env.SECRET_KEY);
-    const userId = user.user_id
+    const userId = req.user.user_id
     
     var sql="UPDATE users SET latitude = ?, longitude = ? WHERE id = ?";
 

@@ -3,10 +3,7 @@ const jwt = require("jsonwebtoken")
 
 exports.assign_task = async(req,res,next)=>{
     var taskId = req.body.task_id
-    const auth_headers = req.header('Authorization');
-    var token = auth_headers && auth_headers.split(' ')[1]
-    const user = jwt.verify(token, process.env.SECRET_KEY);
-    const userId = user.user_id
+    const userId = req.user.user_id
     const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const sql = "UPDATE tasks SET rescuer_id = ?, status = 'in_progress', date_assigned = ? WHERE id = ?"
 

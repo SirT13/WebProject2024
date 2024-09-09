@@ -8,7 +8,8 @@ const { create_request } = require('../api/citizen/create_request');
 const { create_offer } = require('../api/citizen/create_offer');
 const { get_requests } = require('../api/citizen/get_requests');
 const { get_notifications } = require('../api/citizen/get_notifications');
-const { delete_request } = require('../api/citizen/delete_offer');
+const { delete_offer } = require('../api/citizen/delete_offer');
+const { delete_request } = require('../api/citizen/delete_request');
 const { get_offers } = require('../api/citizen/get_offers');
 
 router.route('/get_citizens').get(verifyToken('citizen'),get_citizens)
@@ -19,5 +20,6 @@ router.route('/get_requests').get(verifyToken('citizen'),get_requests)
 router.route('/get_offers').get(verifyToken('citizen'), get_offers)
 router.route('/get_notifications').get(get_notifications)
 router.route('/delete_request/:id').delete(delete_request)
+router.route('/delete_offer/:id').delete(delete_offer)
 
 module.exports = router;

@@ -194,6 +194,78 @@
             font-weight: bold;
             margin-bottom: 15px;
         }
+        /* Table styling */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .table th, .table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #343a40;
+            text-transform: uppercase;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f1f1;
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        /* Styling for the status column with conditional formatting */
+        .status-cell {
+            font-weight: bold;
+            padding: 8px 12px;
+            border-radius: 5px;
+        }
+
+        .status-completed {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .status-pending {
+            background-color: #ffc107;
+            color: #212529;
+        }
+
+        .status-in-progress {
+            background-color: #007bff;
+            color: white;
+        }
+
+        /* Button styling for actions in the table */
+        .delete-task-btn {
+            background-color: #dc3545;
+            color: #fff;
+            padding: 6px 12px;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-task-btn:hover {
+            background-color: #c82333;
+        }
+        #request-panel h3,
+        #offer-panel h3 {
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -208,14 +280,16 @@
     </div>
 
     <div id="request-panel">
-        <h3>Your Requests</h3>
+        <h3>Requests</h3>
         <table class="table">
             <thead>
                 <tr>
                     <th>Item</th>
                     <th>People</th>
                     <th>Status</th>
-                    <th>Date</th>
+                    <th>Date Submited</th>
+                    <th>Date Assigned</th>
+                    <th>Date Completed</th>
                 </tr>
             </thead>
             <tbody id="request-list">
@@ -225,14 +299,16 @@
     </div>
 
     <div id="offer-panel">
-        <h3>Your Offers</h3>
+        <h3>Offers</h3>
         <table class="table">
             <thead>
                 <tr>
                     <th>Item</th>
                     <th>Quantity</th>
                     <th>Status</th>
-                    <th>Date</th>
+                    <th>Date Submited</th>
+                    <th>Date Assigned</th>
+                    <th>Date Completed</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -285,8 +361,207 @@
 </html>
 
 <script>
-    $('#logout-button').click(function () {
-        localStorage.removeItem('auth-token');
-        window.location.href = '/login';
+    document.addEventListener('DOMContentLoaded', function () {
+    // Fetch requests and populate the request table
+    fetchRequests();
+
+    // Fetch offers and populate the offer table
+    fetchOffers();
+});
+
+// Fetch requests from the server
+function fetchRequests() {
+    fetch('/api/get_requests', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        populateRequestTable(data);
+    })
+    .catch(error => console.error('Error fetching requests:', error));
+}
+
+// Fetch offers from the server
+function fetchOffers() {
+    fetch('/api/get_offers', {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        populateOfferTable(data);
+    })
+    .catch(error => console.error('Error fetching offers:', error));
+}
+
+// Populate the request table
+// Populate the request table
+    function populateRequestTable(requests) {
+        const requestList = document.getElementById('request-list');
+        requestList.innerHTML = ''; // Clear any existing data
+
+        if (requests.length === 0) {
+            requestList.innerHTML = '<tr><td colspan="6">No requests found.</td></tr>';
+            return;
+        }
+
+        requests.forEach(request => {
+            const row = document.createElement('tr');
+
+            const itemCell = document.createElement('td');
+            itemCell.textContent = request.name;
+            row.appendChild(itemCell);
+
+            const peopleCell = document.createElement('td');
+            peopleCell.textContent = request.people;
+            row.appendChild(peopleCell);
+
+            const statusCell = document.createElement('td');
+            
+            statusCell.classList.add('status-cell');
+            if (request.status === 'complete') {
+                statusCell.textContent = "Completed";
+                statusCell.classList.add('status-completed');
+            } else if (request.status === 'not_assigned') {
+                statusCell.textContent = "Pending";
+                statusCell.classList.add('status-pending');
+            } else {
+                statusCell.textContent = "In Progress";
+                statusCell.classList.add('status-in-progress');
+            }
+            row.appendChild(statusCell);
+
+            const dateSubmitedCell = document.createElement('td');
+            dateSubmitedCell.textContent = formatDate(request.date_submited);
+            row.appendChild(dateSubmitedCell);
+
+            const dateAssignedCell = document.createElement('td');
+            dateAssignedCell.textContent = formatDate(request.date_assigned);
+            row.appendChild(dateAssignedCell);
+
+            const dateCompletedCell = document.createElement('td');
+            dateCompletedCell.textContent = formatDate(request.date_completed);
+            row.appendChild(dateCompletedCell);
+
+            requestList.appendChild(row);
+        });
+    }
+
+// Populate the offer table
+    // Populate the offer table
+function populateOfferTable(offers) {
+    const offerList = document.getElementById('offer-list');
+    offerList.innerHTML = ''; // Clear any existing data
+
+    if (offers.length === 0) {
+        offerList.innerHTML = '<tr><td colspan="7">No offers found.</td></tr>';
+        return;
+    }
+
+    offers.forEach(offer => {
+        const row = document.createElement('tr');
+
+        const itemCell = document.createElement('td');
+        itemCell.textContent = offer.name;
+        row.appendChild(itemCell);
+
+        const quantityCell = document.createElement('td');
+        quantityCell.textContent = offer.quantity;
+        row.appendChild(quantityCell);
+
+        const statusCell = document.createElement('td');
+        statusCell.classList.add('status-cell');
+        if (offer.status === 'complete') {
+            statusCell.textContent = "Completed";
+            statusCell.classList.add('status-completed');
+        } else if (offer.status === 'not_assigned') {
+            statusCell.textContent = "Pending";
+            statusCell.classList.add('status-pending');
+        } else {
+            statusCell.textContent = "In Progress";
+            statusCell.classList.add('status-in-progress');
+        }
+        row.appendChild(statusCell);
+
+        const dateSubmitedCell = document.createElement('td');
+        dateSubmitedCell.textContent = formatDate(offer.date_submited);
+        row.appendChild(dateSubmitedCell);
+
+        const dateAssignedCell = document.createElement('td');
+        dateAssignedCell.textContent = formatDate(offer.date_assigned);
+        row.appendChild(dateAssignedCell);
+
+        const dateCompletedCell = document.createElement('td');
+        dateCompletedCell.textContent = formatDate(offer.date_completed);
+        row.appendChild(dateCompletedCell);
+
+        // Actions column with buttons
+        const actionsCell = document.createElement('td');
+        if (offer.status == 'in_progress') {
+            const cancelButton = document.createElement('button');
+            cancelButton.textContent = 'Cancel';
+            cancelButton.classList.add('btn', 'btn-danger', 'delete-task-btn');
+            
+            // Add event listener for the cancel button
+            cancelButton.addEventListener('click', function() {
+                // Confirm before deletion
+                    deleteOffer(offer.id, row);  // Call deleteOffer function
+            });
+
+            actionsCell.appendChild(cancelButton);
+        } else {
+            actionsCell.textContent = '-';
+        }
+
+        row.appendChild(actionsCell);
+        offerList.appendChild(row);
     });
+}
+
+// Function to send the DELETE request via AJAX
+function deleteOffer(offerId, row) {
+    fetch(`/api/delete_offer/${offerId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Successfully deleted, remove the row from the table
+            row.remove();
+            alert('Offer has been successfully canceled.');
+        } else {
+            // Handle errors (e.g., offer couldn't be deleted)
+            alert('Failed to cancel the offer. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting the offer:', error);
+        alert('An error occurred. Please try again later.');
+    });
+}
+
+
+    // Format date
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-GB', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        });
+    }
 </script>

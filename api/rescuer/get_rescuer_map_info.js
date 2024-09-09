@@ -2,10 +2,7 @@ const db = require('../../utils/connect_db')
 const jwt = require("jsonwebtoken")
 
 exports.get_rescuer_map_info = async(req,res,next)=>{
-    const auth_headers = req.header('Authorization');
-    var token = auth_headers && auth_headers.split(' ')[1]
-    const user = jwt.verify(token, process.env.SECRET_KEY);
-    const userId = user.user_id
+    const userId = req.user.user_id
 
     const sql = `SELECT t.id AS task_id,t.rescuer_id,i.id AS item_id,i.name AS item_name,t.quantity,t.type,t.status,t.date_submited,t.date_assigned,u.latitude AS rescuer_latitude, 
     u.longitude AS rescuer_longitude,c.latitude AS citizen_latitude, c.longitude AS citizen_longitude, 

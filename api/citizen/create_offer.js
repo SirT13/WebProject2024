@@ -1,7 +1,7 @@
 const db = require('../../utils/connect_db')
 
 exports.create_offer = async(req,res,next)=>{
-    var citizen_id = req.body.citizen_id
+    var citizen_id = req.user.user_id
     var items = req.body.items
     const currentDateTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
     var sql = 'INSERT INTO tasks (citizen_id,item_id,quantity,status,type,date_submited) VALUES (?,?,?,?,?,?)'

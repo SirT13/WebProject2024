@@ -311,14 +311,14 @@
                 Φίλτρα Χάρτη
             </button>
             <div class="dropdown-content" aria-labelledby="filterDropdown">
-                <label class="dropdown-item"><input type="checkbox" id="toggleAssignedRequests"> Αιτήματα που έχουν
+                <label class="dropdown-item"><input type="checkbox" id="in-progress-requests"> Αιτήματα που έχουν
                     αναληφθεί</label>
-                <label class="dropdown-item"><input type="checkbox" id="togglePendingRequests"> Εκκρεμή Αιτήματα</label>
-                <label class="dropdown-item"><input type="checkbox" id="toggleAssignedOffers"> Προσφορές που έχουν
+                <label class="dropdown-item"><input type="checkbox" id="pending-requests"> Εκκρεμή Αιτήματα</label>
+                <label class="dropdown-item"><input type="checkbox" id="in-progress-offers"> Προσφορές που έχουν
                     αναληφθεί</label>
-                <label class="dropdown-item"><input type="checkbox" id="togglePendingOffers"> Εκκρεμείς
+                <label class="dropdown-item"><input type="checkbox" id="pending-offers"> Εκκρεμείς
                     Προσφορές</label>
-                <label class="dropdown-item"><input type="checkbox" id="toggleLines"> Ευθείες Γραμμές</label>
+                <label class="dropdown-item"><input type="checkbox" id="straight-lines"> Ευθείες Γραμμές</label>
             </div>
         </div>
     </div>
@@ -549,12 +549,31 @@
                         const citizenLocation = [record.citizen_latitude, record.citizen_longitude];
 
                         // Add a marker for the citizen's location
-                        let iconURL = record.type === 'request' ? 'assets/person_raised_hand_orange.png' : 'assets/person_raised_hand_red.png'
-                        if (record.status === 'not_assigned') {
+                        let iconURL = null
+                        let type = null 
+                        if(record.type === 'request' && record.status === 'not_assigned')
+                        {
                             iconURL = 'assets/person_raised_hand_black.png'
+                            type = 'pending_request'
+                        }
+                        else if (record.type === 'request' && record.status != 'not_assigned')
+                        {
+                            iconURL = 'assets/person_raised_hand_orange.png'
+                            type = 'in_progress_request'
+                        }
+                        else if (record.type === 'offer' && record.status === 'not_assigned')
+                        {
+                             iconURL = 'assets/person_raised_hand_black.png'
+                             type = 'pending_offer'
+                        }
+                        else
+                        {
+                            iconURL = 'assets/person_raised_hand_red.png'
+                            type = 'in_progress_offer'
                         }
 
                             const taskMarker = L.marker(citizenLocation, {
+                                type: type,
                                 icon: L.icon({
                                     iconUrl: iconURL, 
                                     iconSize: [42, 42],
@@ -662,6 +681,10 @@
                             ...taskMarkers.map(marker => marker.getLatLng())
                         ]);
 
+                            // Function to show/hide markers based on selected filters
+
+
+                        // Attach event listeners to checkboxes
 
                     });
 
@@ -711,6 +734,50 @@
                     }
                 });
             }
+            function applyFilters() {
+                    const showInProgressRequests = $('#in-progress-requests').is(':checked');
+                    const showPendingRequests = $('#pending-requests').is(':checked');
+                    const showInProgressOffers = $('#in-progress-offers').is(':checked');
+                    const showPendingOffers = $('#pending-offers').is(':checked');
+                    const showStraightLines = $('#straight-lines').is(':checked');
+                    console.log(taskMarkers)
+                    // Loop through each marker and apply filters
+                    taskMarkers.forEach(marker => {
+                        const markerType = marker.options.type;
+
+                        let shouldShow = false;
+                        if (markerType === 'in_progress_request' && showInProgressRequests) {
+                            shouldShow = true;
+                        } else if (markerType === 'pending_request' && showPendingRequests) {
+                            shouldShow = true;
+                        } else if (markerType === 'in_progress_offer' && showInProgressOffers) {
+                            shouldShow = true;
+                        } else if (markerType === 'pending_offer' && showPendingOffers) {
+                            shouldShow = true;
+                        }
+
+                        // Show or hide the marker based on the filter
+                        if (shouldShow) {
+                            marker.addTo(map);  // Add the marker to the map
+                        } else {
+                            map.removeLayer(marker);  // Remove the marker from the map
+                        }
+                    });
+
+                    // Show/hide polylines for straight lines
+                    if (showStraightLines) {
+                        // Code to show the polylines
+                        polylines.forEach(line => line.addTo(map));
+                    } else {
+                        // Code to hide the polylines
+                        polylines.forEach(line => map.removeLayer(line));
+                    }
+            }
+            $('#in-progress-requests').on('change', applyFilters);
+            $('#pending-requests').on('change', applyFilters);
+            $('#in-progress-offers').on('change', applyFilters);
+            $('#pending-offers').on('change', applyFilters);
+            $('#straight-lines').on('change', applyFilters);
         });
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -728,6 +795,8 @@
             const distance = R * c;
             return distance;
         }
+
+        
     </script>
     <script src="/js/logout.js"></script>
 </body>

@@ -7,7 +7,7 @@ const verifyToken = (requiredRole) => (req, res, next) => {
 
     try {
         const verified = jwt.verify(token, process.env.SECRET_KEY);
-        req.user = verified; // Add the verified user data to the request object
+        req.user = verified;
         if (req.user.role !== requiredRole) {
             return res.status(403).send({ message: 'Forbidden: Insufficient permissions' });
         }
