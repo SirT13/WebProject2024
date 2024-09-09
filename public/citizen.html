@@ -9,7 +9,8 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Style for the request and offer panel container */
-        #request-panel, #offer-panel {
+        #request-panel,
+        #offer-panel {
             height: 85%;
             padding: 15px;
             border-left: 2px solid #ccc;
@@ -86,7 +87,7 @@
 
         .dropdown:hover .dropdown-content {
             display: block;
-        }   
+        }
 
         .task-item {
             padding: 15px;
@@ -187,7 +188,8 @@
         }
 
         /* Additional Styles */
-        #request-panel h3, #offer-panel h3 {
+        #request-panel h3,
+        #offer-panel h3 {
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 15px;
@@ -241,7 +243,8 @@
     </div>
 
     <!-- Modal for creating new requests -->
-    <div class="modal fade custom-modal" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel" aria-hidden="true">
+    <div class="modal fade custom-modal" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -280,3 +283,10 @@
 </body>
 
 </html>
+
+<script>
+    $('#logout-button').click(function () {
+        localStorage.removeItem('auth-token');
+        window.location.href = '/login';
+    });
+</script>
