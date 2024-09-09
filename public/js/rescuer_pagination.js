@@ -11,7 +11,7 @@ function fetchDataAndRender() {
     fetch('/admin/get_items', {
         method: 'GET',
         headers: {
-            'Authorization': `Bearer ${token}`, // Add the authorization header
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
         }
     })

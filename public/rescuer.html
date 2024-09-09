@@ -113,8 +113,7 @@
         .dropdown {
             position: absolute;
             top: 20px;
-            left: 70px;
-            display: inline-block;
+            left: 200px;
             z-index: 1000;
         }
 
@@ -249,7 +248,7 @@
 
 <body>
     <div class="navbar">
-        <div class="navbar-left">Rescuer Dashboard</div>
+        <div class="navbar-left text-white">Rescuer Dashboard</div>
         <div class="navbar-right">
             <button id="load-button" data-toggle="modal" data-target="#paginationModal">Load</button>
             <button id="logout-button">Logout</button>
@@ -442,7 +441,7 @@
                     }
                     const rescuerMarker = L.marker([rescuerLatitude, rescuerLongitude], {
                         icon: L.icon({
-                            iconUrl: 'assets/rescuer.png', // Example rescuer icon
+                            iconUrl: 'assets/rescuer.png',
                             iconSize: [32, 32],
                             iconAnchor: [16, 32],
                             popupAnchor: [0, -32]
@@ -615,7 +614,6 @@
                                 });
 
                                 
-
                                 rescuerMarker.on('dragend', function(event) {
                                     const newLocation = event.target.getLatLng();
                                     if (record.status === 'in_progress') {
