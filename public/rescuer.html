@@ -311,14 +311,13 @@
                 Φίλτρα Χάρτη
             </button>
             <div class="dropdown-content" aria-labelledby="filterDropdown">
-                <label class="dropdown-item"><input type="checkbox" id="in-progress-requests"> Αιτήματα που έχουν
+                <label class="dropdown-item"><input type="checkbox" id="in-progress-requests" checked> Αιτήματα που έχουν
                     αναληφθεί</label>
-                <label class="dropdown-item"><input type="checkbox" id="pending-requests"> Εκκρεμή Αιτήματα</label>
-                <label class="dropdown-item"><input type="checkbox" id="in-progress-offers"> Προσφορές που έχουν
+                <label class="dropdown-item"><input type="checkbox" id="pending-requests" checked> Εκκρεμή Αιτήματα</label>
+                <label class="dropdown-item"><input type="checkbox" id="in-progress-offers" checked> Προσφορές που έχουν
                     αναληφθεί</label>
-                <label class="dropdown-item"><input type="checkbox" id="pending-offers"> Εκκρεμείς
+                <label class="dropdown-item"><input type="checkbox" id="pending-offers" checked> Εκκρεμείς
                     Προσφορές</label>
-                <label class="dropdown-item"><input type="checkbox" id="straight-lines"> Ευθείες Γραμμές</label>
             </div>
         </div>
     </div>
@@ -500,7 +499,6 @@
 
                     const taskPanel = $('#task-panel');
                     records.forEach((record, index) => {
-
                             const date_submited = new Date(record.date_submited);
                             const formattedDateSumbited = date_submited.toLocaleString('en-GB', {
                                 year: 'numeric',
@@ -620,19 +618,21 @@
                                     });
                                 }
                             });
-                            if (record.status === 'in_progress') {
-                                taskMarkers.push(taskMarker);
-                            }
-                                taskMarkers.forEach(taskMarker => {
-                                    const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
-                                        color: 'blue',
-                                        weight: 3,
-                                        opacity: 0.7
-                                    }).addTo(map);
-                                    
-                                    polylines.push(line);
-                                });
 
+                                taskMarkers.push(taskMarker);
+                                taskMarkers.forEach(taskMarker => {
+                                    if(taskMarker.options.type === "in_progress_request" || taskMarker.options.type === "in_progress_offer")
+                                    {
+                                        const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
+                                            color: 'blue',
+                                            weight: 3,
+                                            opacity: 0.7
+                                        }).addTo(map);
+                                    
+                                        polylines.push(line);
+                                    }
+                                    
+                                });
                                 
                                 rescuerMarker.on('dragend', function(event) {
                                     const newLocation = event.target.getLatLng();
@@ -650,7 +650,7 @@
                                     }
                                     
 
-
+                                    debugger;
                                     polylines.forEach(polyline => {
                                         polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
                                     });
@@ -674,18 +674,10 @@
                                     });
                                 });
 
-
-                        // Adjust the map view to include the rescuer and task markers
                         map.fitBounds([
                             rescuerMarker.getLatLng(),
                             ...taskMarkers.map(marker => marker.getLatLng())
                         ]);
-
-                            // Function to show/hide markers based on selected filters
-
-
-                        // Attach event listeners to checkboxes
-
                     });
 
                     // Handle button clicks for completing or canceling tasks
@@ -739,7 +731,7 @@
                     const showPendingRequests = $('#pending-requests').is(':checked');
                     const showInProgressOffers = $('#in-progress-offers').is(':checked');
                     const showPendingOffers = $('#pending-offers').is(':checked');
-                    const showStraightLines = $('#straight-lines').is(':checked');
+                    debugger;
                     console.log(taskMarkers)
                     // Loop through each marker and apply filters
                     taskMarkers.forEach(marker => {
@@ -763,21 +755,11 @@
                             map.removeLayer(marker);  // Remove the marker from the map
                         }
                     });
-
-                    // Show/hide polylines for straight lines
-                    if (showStraightLines) {
-                        // Code to show the polylines
-                        polylines.forEach(line => line.addTo(map));
-                    } else {
-                        // Code to hide the polylines
-                        polylines.forEach(line => map.removeLayer(line));
-                    }
             }
             $('#in-progress-requests').on('change', applyFilters);
             $('#pending-requests').on('change', applyFilters);
             $('#in-progress-offers').on('change', applyFilters);
             $('#pending-offers').on('change', applyFilters);
-            $('#straight-lines').on('change', applyFilters);
         });
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
