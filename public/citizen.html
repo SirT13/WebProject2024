@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Citizen Dashboard</title>
+    <title class="text-white">Citizen Dashboard</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         /* Style for the request and offer panel container */
         #request-panel,
@@ -174,8 +174,7 @@
         }
 
         .custom-modal .modal-dialog {
-            height: 70%;
-            max-height: 600px;
+            height: auto;
         }
 
         .custom-modal .modal-content {
@@ -194,6 +193,7 @@
             font-weight: bold;
             margin-bottom: 15px;
         }
+
         /* Table styling */
         .table {
             width: 100%;
@@ -203,7 +203,8 @@
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
-        .table th, .table td {
+        .table th,
+        .table td {
             padding: 15px;
             text-align: center;
             border-bottom: 1px solid #ddd;
@@ -262,6 +263,7 @@
         .delete-task-btn:hover {
             background-color: #c82333;
         }
+
         #request-panel h3,
         #offer-panel h3 {
             text-align: center;
@@ -330,16 +332,18 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form>
+                    <form id="create-request-form">
                         <div class="form-group">
                             <label for="category-select">Category</label>
                             <select id="category-select" class="form-control">
-                                <!-- Populate with categories -->
+                                <!-- Categories will be populated here -->
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="item-search">Item</label>
-                            <input type="text" id="item-search" class="form-control" placeholder="Search for an item">
+                            <label for="item-select">Item</label>
+                            <select id="item-select" class="form-control" disabled>
+                                <!-- Items will be populated here after category selection -->
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="people-count">People Count</label>
@@ -352,9 +356,32 @@
         </div>
     </div>
 
+    <!-- Modal for displaying announcements -->
+    <div class="modal fade" id="announcementsModal" tabindex="-1" aria-labelledby="announcementsModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="announcementsModalLabel">Announcements</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul id="announcement-list" class="list-group">
+                        <!-- Announcements will be appended here dynamically -->
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Include Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
@@ -362,47 +389,200 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-    // Fetch requests and populate the request table
-    fetchRequests();
+        // Fetch requests and populate the request table
+        fetchRequests();
 
-    // Fetch offers and populate the offer table
-    fetchOffers();
-});
+        // Fetch offers and populate the offer table
+        fetchOffers();
+    });
 
-// Fetch requests from the server
-function fetchRequests() {
-    fetch('/api/get_requests', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        populateRequestTable(data);
-    })
-    .catch(error => console.error('Error fetching requests:', error));
-}
+    // Fetch new requests
+    $(document).ready(function () {
+        let token = localStorage.getItem('auth-token');
+        let categories = {};
 
-// Fetch offers from the server
-function fetchOffers() {
-    fetch('/api/get_offers', {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        populateOfferTable(data);
-    })
-    .catch(error => console.error('Error fetching offers:', error));
-}
+        // Trigger when the modal is opened
+        $('#requestModal').on('show.bs.modal', function () {
+            let token = localStorage.getItem('auth-token');
 
-// Populate the request table
-// Populate the request table
+            // Fetch categories and items when the modal opens
+            $.ajax({
+                url: '/admin/get_items',
+                type: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                success: function (response) {
+                    const data = JSON.parse(response);
+
+                    // Populate categories and group items by category
+                    data.forEach(item => {
+                        if (!categories[item.category]) {
+                            categories[item.category] = [];
+                        }
+                        categories[item.category].push({ id: item.id, name: item.item });
+                    });
+
+                    // Populate the category select dropdown
+                    const categorySelect = $('#category-select');
+                    categorySelect.empty().append('<option value="">Select a Category</option>'); // Default option
+
+                    for (const category in categories) {
+                        categorySelect.append(`<option value="${category}">${category}</option>`);
+                    }
+
+                    // Enable the category dropdown
+                    categorySelect.prop('disabled', false);
+
+                    // Reset the items dropdown
+                    $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
+                },
+                error: function (error) {
+                    $('#message').text('Error fetching items: ' + error.responseText);
+                }
+            });
+        });
+
+        // Handle category selection to populate items
+        $('#category-select').on('change', function () {
+            const selectedCategory = $(this).val();
+
+            if (selectedCategory) {
+                const items = categories[selectedCategory]; // Access the global categories object
+                const itemSelect = $('#item-select');
+
+                // Populate the items select dropdown based on the selected category
+                itemSelect.empty().append('<option value="">Select an Item</option>'); // Default option
+
+                items.forEach(item => {
+                    itemSelect.append(`<option value="${item.id}">${item.name}</option>`);
+                });
+
+                // Enable the items dropdown
+                itemSelect.prop('disabled', false);
+            } else {
+                // If no category is selected, disable the items dropdown
+                $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
+            }
+        });
+
+        // Handle form submission
+        $('#create-request-form').on('submit', function (e) {
+            e.preventDefault();
+            const item = $('#item-select').val();
+            const peopleCount = $('#people-count').val();
+
+            if (!item || !peopleCount) {
+                alert("Please fill out all fields.");
+                return;
+            }
+
+            // Submit the request
+            $.ajax({
+                url: '/api/create_request',
+                type: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    item_id: item,
+                    number_of_people: peopleCount
+                }),
+                success: function (response) {
+                    alert('Request submitted successfully');
+                    $('#requestModal').modal('hide');
+                },
+                error: function (error) {
+                    alert('Error submitting request: ' + error.responseText);
+                }
+            });
+
+        });
+    });
+
+    $(document).ready(function () {
+        $('#view-announcements-btn').on('click', function () {
+            // Open the modal when the button is clicked
+            $('#announcementsModal').modal('show');
+
+            // Fetch notifications from the API
+            $.ajax({
+                url: '/api/get_notifications',
+                type: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,  // Ensure the token is passed
+                    'Content-Type': 'application/json'
+                },
+                success: function (response) {
+                    // Assuming the response is an array of notifications
+                    const notifications = response;
+                    const announcementList = $('#announcement-list');
+
+                    // Clear any previous notifications
+                    announcementList.empty();
+
+                    // Iterate over the notifications and display only the active ones
+                    notifications.forEach(notification => {
+                        if (notification.is_active === 1) {
+                            const listItem = `
+                            <li class="list-group-item">
+                                <strong>${notification.name}</strong><br>
+                                <small>Category: ${notification.category}</small><br>
+                                <small>Quantity: ${notification.quantity}</small><br>
+                                <small>Created at: ${new Date(notification.created_at).toLocaleString()}</small>
+                            </li>`;
+                            announcementList.append(listItem);
+                        }
+                    });
+
+                    // If no active notifications, show a message
+                    if (announcementList.children().length === 0) {
+                        announcementList.append('<li class="list-group-item">No active announcements at the moment.</li>');
+                    }
+                },
+                error: function (error) {
+                    // Handle error response
+                    alert('Error fetching announcements: ' + error.responseText);
+                }
+            });
+        });
+    });
+
+    // Fetch requests from the server
+    function fetchRequests() {
+        fetch('/api/get_requests', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                populateRequestTable(data);
+            })
+            .catch(error => console.error('Error fetching requests:', error));
+    }
+
+    // Fetch offers from the server
+    function fetchOffers() {
+        fetch('/api/get_offers', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                populateOfferTable(data);
+            })
+            .catch(error => console.error('Error fetching offers:', error));
+    }
+
+    // Populate the request table
     function populateRequestTable(requests) {
         const requestList = document.getElementById('request-list');
         requestList.innerHTML = ''; // Clear any existing data
@@ -420,11 +600,11 @@ function fetchOffers() {
             row.appendChild(itemCell);
 
             const peopleCell = document.createElement('td');
-            peopleCell.textContent = request.people;
+            peopleCell.textContent = request.number_of_people;
             row.appendChild(peopleCell);
 
             const statusCell = document.createElement('td');
-            
+
             statusCell.classList.add('status-cell');
             if (request.status === 'complete') {
                 statusCell.textContent = "Completed";
@@ -443,112 +623,111 @@ function fetchOffers() {
             row.appendChild(dateSubmitedCell);
 
             const dateAssignedCell = document.createElement('td');
-            dateAssignedCell.textContent = formatDate(request.date_assigned);
+            dateAssignedCell.textContent = request.date_completed != null ? formatDate(request.date_assigned) :'-';
             row.appendChild(dateAssignedCell);
 
             const dateCompletedCell = document.createElement('td');
-            dateCompletedCell.textContent = formatDate(request.date_completed);
+            dateCompletedCell.textContent = request.date_completed != null ? formatDate(request.date_completed) :'-';
             row.appendChild(dateCompletedCell);
 
             requestList.appendChild(row);
         });
     }
 
-// Populate the offer table
     // Populate the offer table
-function populateOfferTable(offers) {
-    const offerList = document.getElementById('offer-list');
-    offerList.innerHTML = ''; // Clear any existing data
+    function populateOfferTable(offers) {
+        const offerList = document.getElementById('offer-list');
+        offerList.innerHTML = ''; // Clear any existing data
 
-    if (offers.length === 0) {
-        offerList.innerHTML = '<tr><td colspan="7">No offers found.</td></tr>';
-        return;
+        if (offers.length === 0) {
+            offerList.innerHTML = '<tr><td colspan="7">No offers found.</td></tr>';
+            return;
+        }
+
+        offers.forEach(offer => {
+            const row = document.createElement('tr');
+
+            const itemCell = document.createElement('td');
+            itemCell.textContent = offer.name;
+            row.appendChild(itemCell);
+
+            const quantityCell = document.createElement('td');
+            quantityCell.textContent = offer.quantity;
+            row.appendChild(quantityCell);
+
+            const statusCell = document.createElement('td');
+            statusCell.classList.add('status-cell');
+            if (offer.status === 'complete') {
+                statusCell.textContent = "Completed";
+                statusCell.classList.add('status-completed');
+            } else if (offer.status === 'not_assigned') {
+                statusCell.textContent = "Pending";
+                statusCell.classList.add('status-pending');
+            } else {
+                statusCell.textContent = "In Progress";
+                statusCell.classList.add('status-in-progress');
+            }
+            row.appendChild(statusCell);
+
+            const dateSubmitedCell = document.createElement('td');
+            dateSubmitedCell.textContent = formatDate(offer.date_submited);
+            row.appendChild(dateSubmitedCell);
+
+            const dateAssignedCell = document.createElement('td');
+            dateAssignedCell.textContent = formatDate(offer.date_assigned);
+            row.appendChild(dateAssignedCell);
+
+            const dateCompletedCell = document.createElement('td');
+            dateCompletedCell.textContent = formatDate(offer.date_completed);
+            row.appendChild(dateCompletedCell);
+
+            // Actions column with buttons
+            const actionsCell = document.createElement('td');
+            if (offer.status == 'in_progress') {
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.classList.add('btn', 'btn-danger', 'delete-task-btn');
+
+                // Add event listener for the cancel button
+                cancelButton.addEventListener('click', function () {
+                    // Confirm before deletion
+                    deleteOffer(offer.id, row);  // Call deleteOffer function
+                });
+
+                actionsCell.appendChild(cancelButton);
+            } else {
+                actionsCell.textContent = '-';
+            }
+
+            row.appendChild(actionsCell);
+            offerList.appendChild(row);
+        });
     }
 
-    offers.forEach(offer => {
-        const row = document.createElement('tr');
-
-        const itemCell = document.createElement('td');
-        itemCell.textContent = offer.name;
-        row.appendChild(itemCell);
-
-        const quantityCell = document.createElement('td');
-        quantityCell.textContent = offer.quantity;
-        row.appendChild(quantityCell);
-
-        const statusCell = document.createElement('td');
-        statusCell.classList.add('status-cell');
-        if (offer.status === 'complete') {
-            statusCell.textContent = "Completed";
-            statusCell.classList.add('status-completed');
-        } else if (offer.status === 'not_assigned') {
-            statusCell.textContent = "Pending";
-            statusCell.classList.add('status-pending');
-        } else {
-            statusCell.textContent = "In Progress";
-            statusCell.classList.add('status-in-progress');
-        }
-        row.appendChild(statusCell);
-
-        const dateSubmitedCell = document.createElement('td');
-        dateSubmitedCell.textContent = formatDate(offer.date_submited);
-        row.appendChild(dateSubmitedCell);
-
-        const dateAssignedCell = document.createElement('td');
-        dateAssignedCell.textContent = formatDate(offer.date_assigned);
-        row.appendChild(dateAssignedCell);
-
-        const dateCompletedCell = document.createElement('td');
-        dateCompletedCell.textContent = formatDate(offer.date_completed);
-        row.appendChild(dateCompletedCell);
-
-        // Actions column with buttons
-        const actionsCell = document.createElement('td');
-        if (offer.status == 'in_progress') {
-            const cancelButton = document.createElement('button');
-            cancelButton.textContent = 'Cancel';
-            cancelButton.classList.add('btn', 'btn-danger', 'delete-task-btn');
-            
-            // Add event listener for the cancel button
-            cancelButton.addEventListener('click', function() {
-                // Confirm before deletion
-                    deleteOffer(offer.id, row);  // Call deleteOffer function
+    // Function to send the DELETE request via AJAX
+    function deleteOffer(offerId, row) {
+        fetch(`/api/delete_offer/${offerId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Successfully deleted, remove the row from the table
+                    row.remove();
+                    alert('Offer has been successfully canceled.');
+                } else {
+                    // Handle errors (e.g., offer couldn't be deleted)
+                    alert('Failed to cancel the offer. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting the offer:', error);
+                alert('An error occurred. Please try again later.');
             });
-
-            actionsCell.appendChild(cancelButton);
-        } else {
-            actionsCell.textContent = '-';
-        }
-
-        row.appendChild(actionsCell);
-        offerList.appendChild(row);
-    });
-}
-
-// Function to send the DELETE request via AJAX
-function deleteOffer(offerId, row) {
-    fetch(`/api/delete_offer/${offerId}`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (response.ok) {
-            // Successfully deleted, remove the row from the table
-            row.remove();
-            alert('Offer has been successfully canceled.');
-        } else {
-            // Handle errors (e.g., offer couldn't be deleted)
-            alert('Failed to cancel the offer. Please try again.');
-        }
-    })
-    .catch(error => {
-        console.error('Error deleting the offer:', error);
-        alert('An error occurred. Please try again later.');
-    });
-}
+    }
 
 
     // Format date
@@ -564,4 +743,9 @@ function deleteOffer(offerId, row) {
             hour12: false
         });
     }
+
+    $('#logout-button').click(function () {
+        localStorage.removeItem('auth-token');
+        window.location.href = '/login';
+    });
 </script>

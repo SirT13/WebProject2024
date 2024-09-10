@@ -509,7 +509,6 @@
                                 success: function(response) {
                                     let parsedData = JSON.parse(response);
                                     let loadItems = JSON.parse(parsedData[0].load)
-                                    debugger;
                                     let loadDetailsHTML = '';
                                     if (loadItems && loadItems.length > 0) {
  
@@ -690,8 +689,6 @@
                                         }
                                     }
                                     
-
-                                    debugger;
                                     polylines.forEach(polyline => {
                                         polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
                                     });
@@ -772,7 +769,6 @@
                     const showPendingRequests = $('#pending-requests').is(':checked');
                     const showInProgressOffers = $('#in-progress-offers').is(':checked');
                     const showPendingOffers = $('#pending-offers').is(':checked');
-                    debugger;
                     console.log(taskMarkers)
                     // Loop through each marker and apply filters
                     taskMarkers.forEach(marker => {

@@ -199,95 +199,64 @@
 
             //  Region Notifications
             $(document).ready(function () {
-                let token = localStorage.getItem('auth-token');  // Βεβαιώσου ότι υπάρχει το token
-                let items = [];  // Αποθήκευση όλων των items που επιστρέφονται
-                let selectedItems = [];  // Επιλεγμένα items από την αναζήτηση
+                $('#requestModal').on('show.bs.modal', function () {
+                    let token = localStorage.getItem('auth-token');
 
-                // Trigger την κλήση get_items όταν ανοίγει το modal
-                $('#add-announcement-modal').on('show.bs.modal', function () {
+                    // Fetch categories and items when the modal opens
                     $.ajax({
-                        url: '/admin/get_items',
-                        method: 'GET',
+                        url: '/api/get_items',
+                        type: 'GET',
                         headers: {
-                            'Authorization': 'Bearer ' + token,  // Στέλνουμε το token στην κεφαλίδα
-                        },
-                        success: function (response) {
-                            items = JSON.parse(response); // Αποθηκεύουμε τα δεδομένα
-                        },
-                        error: function (error) {
-                            console.error('Error fetching items:', error);
-                            alert('Failed to load categories. Error: ' + error.status);
-                        }
-                    });
-                });
-
-                // Αναζήτηση όταν ο χρήστης πατάει Enter στο input
-                $('#category-search').on('keypress', function (e) {
-                    if (e.which == 13) {  // Αν πατήσει το Enter
-                        e.preventDefault();  // Προλαμβάνει το default submit της φόρμας
-
-                        let searchTerm = $(this).val().toLowerCase();  // Παίρνουμε το input και το μετατρέπουμε σε πεζά
-                        $('#category-results').empty();  // Καθαρίζουμε τα παλιά αποτελέσματα
-
-                        // Φιλτράρουμε τα items με βάση το search term
-                        let filteredItems = items.filter(item => item.item.toLowerCase().includes(searchTerm));
-
-                        if (filteredItems.length > 0) {
-                            // Εμφάνιση των φιλτραρισμένων items με checkboxes
-                            filteredItems.forEach(item => {
-                                $('#category-results').append(`
-                        <div class="item-container row">
-                            <div class="col-md-8">
-                                <span>${item.item}</span> - <span>${item.category}</span>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="checkbox" class="item-checkbox" value="${item.id}">
-                            </div>
-                        </div>
-                    `);
-                            });
-                        } else {
-                            $('#category-results').append('<p>No items found.</p>');
-                        }
-                    }
-                });
-
-                // Υποβολή φόρμας
-                $('#add-announcement-form').submit(function (event) {
-                    event.preventDefault();
-
-                    // Καθαρισμός της λίστας με τα επιλεγμένα items
-                    let selectedItems = [];
-
-                    // Βρίσκουμε τα επιλεγμένα checkboxes και προσθέτουμε τα item IDs στο selectedItems
-                    $('.item-checkbox:checked').each(function () {
-                        selectedItems.push($(this).val());
-                    });
-
-                    if (selectedItems.length === 0) {
-                        alert('Please select at least one item.');
-                        return;
-                    }
-
-                    console.log(selectedItems);
-
-                    // Κλήση για δημιουργία notification
-                    $.ajax({
-                        url: '/admin/create_notification',
-                        method: 'POST',
-                        headers: {
-                            'Authorization': 'Bearer ' + token,
+                            'Authorization': `Bearer ${token}`,
                             'Content-Type': 'application/json'
                         },
-                        data: JSON.stringify({ items: selectedItems }),
                         success: function (response) {
-                            alert('Notification created successfully.');
-                            $('#add-announcement-modal').modal('hide');
+                            const data = JSON.parse(response);
+                            const categories = {};
+
+                            // Populate categories and group items by category
+                            data.forEach(item => {
+                                if (!categories[item.category]) {
+                                    categories[item.category] = [];
+                                }
+                                categories[item.category].push({ id: item.id, name: item.item });
+                            });
+
+                            // Populate the category select dropdown
+                            const categorySelect = $('#category-select');
+                            categorySelect.empty().append('<option value="">Select a Category</option>'); // Default option
+
+                            for (const category in categories) {
+                                categorySelect.append(`<option value="${category}">${category}</option>`);
+                            }
+
+                            // Enable the category dropdown
+                            categorySelect.prop('disabled', false);
+
+                            // Reset the items dropdown
+                            $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
                         },
                         error: function (error) {
-                            alert('Error creating notification: ' + error.responseText);
+                            $('#message').text('Error fetching items: ' + error.responseText);
                         }
                     });
+                });
+
+                $('#category-select').on('change', function () {
+                    const selectedCategory = $(this).val();
+                    if (selectedCategory) {
+                        const items = categories[selectedCategory];
+                        const itemSelect = $('#item-select');
+
+                        // Populate the items select dropdown based on the selected category
+                        itemSelect.empty().append('<option value="">Select an Item</option>'); // Default option
+                        items.forEach(item => {
+                            itemSelect.append(`<option value="${item.id}">${item.name}</option>`);
+                        });
+                        itemSelect.prop('disabled', false);
+                    } else {
+                        $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
+                    }
                 });
             });
             // End Region Notifications  
