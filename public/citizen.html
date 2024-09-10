@@ -379,6 +379,26 @@
         </div>
     </div>
 
+    <!-- Modal for making an offer -->
+    <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="offerModalLabel">Make an Offer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="selected-item-name"></p>
+                    <input type="hidden" id="selected-item-id">
+                    <!-- You can add more fields for making an offer here -->
+                    <button id="submit-offer-btn" class="btn btn-primary">Submit Offer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Include Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
@@ -503,8 +523,8 @@
     });
 
     $(document).ready(function () {
+        // Open the announcements modal
         $('#view-announcements-btn').on('click', function () {
-            // Open the modal when the button is clicked
             $('#announcementsModal').modal('show');
 
             // Fetch notifications from the API
@@ -512,39 +532,92 @@
                 url: '/api/get_notifications',
                 type: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,  // Ensure the token is passed
+                    'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
                     'Content-Type': 'application/json'
                 },
                 success: function (response) {
-                    // Assuming the response is an array of notifications
                     const notifications = response;
                     const announcementList = $('#announcement-list');
 
-                    // Clear any previous notifications
+                    // Clear previous announcements
                     announcementList.empty();
 
-                    // Iterate over the notifications and display only the active ones
+                    // Group notifications by category
+                    const groupedByCategory = {};
+
                     notifications.forEach(notification => {
                         if (notification.is_active === 1) {
+                            if (!groupedByCategory[notification.category]) {
+                                groupedByCategory[notification.category] = [];
+                            }
+                            groupedByCategory[notification.category].push(notification);
+                        }
+                    });
+
+                    // Display grouped notifications with a button for each item
+                    Object.keys(groupedByCategory).forEach(category => {
+                        const categoryHeader = `<li class="list-group-item active">${category}</li>`;
+                        announcementList.append(categoryHeader);
+
+                        groupedByCategory[category].forEach(notification => {
                             const listItem = `
                             <li class="list-group-item">
                                 <strong>${notification.name}</strong><br>
-                                <small>Category: ${notification.category}</small><br>
                                 <small>Quantity: ${notification.quantity}</small><br>
                                 <small>Created at: ${new Date(notification.created_at).toLocaleString()}</small>
+                                <button class="btn btn-sm btn-primary mt-2 make-offer-btn" data-item-id="${notification.item_id}" data-item-name="${notification.name}">Make Offer</button>
                             </li>`;
                             announcementList.append(listItem);
-                        }
+                        });
                     });
 
                     // If no active notifications, show a message
                     if (announcementList.children().length === 0) {
                         announcementList.append('<li class="list-group-item">No active announcements at the moment.</li>');
                     }
+
+                    // Handle the Make Offer button click
+                    $('.make-offer-btn').on('click', function () {
+                        const itemId = $(this).data('item-id');
+                        const itemName = $(this).data('item-name');
+
+                        // Set the item name and ID in the offer modal
+                        $('#selected-item-name').text(`Make an offer for ${itemName}`);
+                        $('#selected-item-id').val(itemId);
+
+                        // Open the offer modal
+                        $('#offerModal').modal('show');
+                    });
                 },
                 error: function (error) {
-                    // Handle error response
                     alert('Error fetching announcements: ' + error.responseText);
+                }
+            });
+        });
+
+        // Submit the offer when the offer modal button is clicked
+        $('#submit-offer-btn').on('click', function () {
+            const item = $('#selected-item-id').val();
+            const quantity = $(notification.quantity).val();
+
+            // Trigger the API call to make an offer
+            $.ajax({
+                url: '/api/create_offer',
+                type: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    items: item,
+                    quantity: quantity
+                }),
+                success: function (response) {
+                    alert('Offer submitted successfully');
+                    $('#offerModal').modal('hide');
+                },
+                error: function (error) {
+                    alert('Error submitting offer: ' + error.responseText);
                 }
             });
         });
@@ -623,11 +696,11 @@
             row.appendChild(dateSubmitedCell);
 
             const dateAssignedCell = document.createElement('td');
-            dateAssignedCell.textContent = request.date_completed != null ? formatDate(request.date_assigned) :'-';
+            dateAssignedCell.textContent = request.date_completed != null ? formatDate(request.date_assigned) : '-';
             row.appendChild(dateAssignedCell);
 
             const dateCompletedCell = document.createElement('td');
-            dateCompletedCell.textContent = request.date_completed != null ? formatDate(request.date_completed) :'-';
+            dateCompletedCell.textContent = request.date_completed != null ? formatDate(request.date_completed) : '-';
             row.appendChild(dateCompletedCell);
 
             requestList.appendChild(row);
