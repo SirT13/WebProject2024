@@ -250,8 +250,8 @@
     <div class="navbar">
         <div class="navbar-left text-white">Dashboard</div>
         <div class="navbar-right">
-            <button id="load-button" data-toggle="modal" data-target="#paginationModal">Load</button>
-            <button id="unload-button" data-toggle="modal" data-target="#confirmUnloadModal">Unload</button>
+            <button id="load-button" data-toggle="modal" data-target="#paginationModal" disabled>Load</button>
+            <button id="unload-button" data-toggle="modal" data-target="#confirmUnloadModal" disabled>Unload</button>
             <button id="logout-button">Logout</button>
         </div>
     </div>
@@ -405,13 +405,14 @@
             }).addTo(map);
 
             //Fetch warehouse location and add the baseMarker
+            let warehouseLocation = null
             $.ajax({
                 url: '/admin/get_warehouse_location',
                 method: 'GET',
                 contentType: 'application/json',
                 success: function (response) {
                     let location = JSON.parse(response)
-                    const warehouseLocation = [location[0].latitude, location[0].longitude];
+                    warehouseLocation = [location[0].latitude, location[0].longitude];
                     // Add the warehouse marker
                     const baseMarker = L.marker(warehouseLocation, {
                         icon: L.icon({
@@ -567,7 +568,8 @@
                                     <div class="task-item ${record.type === 'request' ? 'request-border' : 'offer-border'}" 
                                         data-task-type="${record.type}" 
                                         data-quantity="${record.quantity}"
-                                        data-item-id="${record.item_id}">
+                                        data-item-id="${record.item_id}"
+                                        data-item-name="${record.item_name}">
                                         <h4>${record.type === 'request' ? 'Αίτημα' : 'Προσφορά'}</h4>
                                         <p><strong>Ονοματεπώνυμο:</strong> ${record.citizen}</p>
                                         <p><strong>Τηλέφωνο:</strong> ${record.citizen_phone_number}</p>
@@ -679,16 +681,26 @@
                                     if (record.status === 'in_progress') {
                                         const citizen_latitude = record.citizen_latitude
                                         const citizen_longitude = record.citizen_longitude
-                                        const distance = calculateDistance(newLocation.lat, newLocation.lng, citizen_latitude, citizen_longitude);
+                                        const taskRescuerDistance = calculateDistance(newLocation.lat, newLocation.lng, citizen_latitude, citizen_longitude);
                                         const completeButton = $(`.complete-task-btn[data-task-id="${record.task_id}"]`);
 
-                                        if (distance <= 50) {
+                                        if (taskRescuerDistance <= 50) {
                                             completeButton.prop('disabled', false);
                                         } else {
                                             completeButton.prop('disabled', true); 
                                         }
                                     }
-                                    
+
+                                    const warehouseRescuerDistance = calculateDistance(newLocation.lat, newLocation.lng, warehouseLocation[0], warehouseLocation[1]);
+                                    const loadButton =$('#load-button')
+                                    const unloadButton =$('#unload-button')
+                                    if (warehouseRescuerDistance <= 100) {
+                                            loadButton.prop('disabled', false);
+                                            unloadButton.prop('disabled', false);
+                                        } else {
+                                            loadButton.prop('disabled', true);
+                                            unloadButton.prop('disabled', true); 
+                                    }
                                     polylines.forEach(polyline => {
                                         polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
                                     });
@@ -725,14 +737,15 @@
                         const taskType = $taskItem.attr('data-task-type');
                         const quantity = $taskItem.attr('data-quantity');
                         const item_id = $taskItem.attr('data-item-id');
-                        updateTaskStatus(taskId, 'complete', taskType, quantity, item_id);
+                        const item_name = $taskItem.attr('data-item-name');
+                        updateTaskStatus(taskId, 'complete', taskType, quantity, item_id,item_name);
                     });
 
                     $('.cancel-task-btn').on('click', function () {
                         const taskId = $(this).data('task-id');
                         const $taskItem = $(this).closest('.task-item');
                         const taskType = $taskItem.attr('data-task-type');
-                        updateTaskStatus(taskId, 'not_assigned', taskType, 0, 0);
+                        updateTaskStatus(taskId, 'not_assigned', taskType, 0, 0,"");
                     });
                 },
                 error: function (error) {
@@ -741,7 +754,7 @@
 
             })
 
-            function updateTaskStatus(taskId, status, taskType, item_quantity, itemId) {
+            function updateTaskStatus(taskId, status, taskType, item_quantity, itemId, itemName) {
                 $.ajax({
                     url: '/api/update_task_status', 
                     method: 'POST',
@@ -754,7 +767,8 @@
                         status: status,
                         task_type: taskType,
                         quantity: item_quantity,
-                        item_id: itemId
+                        item_id: itemId,
+                        item_name: itemName
                     }),
                     success: function (response) {
                         location.reload(); // Reload the page to update the task list
