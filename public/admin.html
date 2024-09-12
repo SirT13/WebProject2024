@@ -14,363 +14,398 @@
     <style>
         body {
             margin: 0;
-            background-color: #343a40;
+            background-color: #f8f9fa;
         }
 
         h1,
         h2 {
-            color: white;
+            color: #343a40;
         }
 
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar-nav .nav-item .nav-link {
+            color: white !important;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header,
         .modal-content {
-            text-align: center;
+            background-color: #f8f9fa;
         }
 
-        .category-container {
-            margin-bottom: 20px;
+        .btn-primary,
+        .btn-light {
+            border-radius: 20px;
         }
 
-        .item-container {
-            margin-top: 10px;
-            display: flex;
+        #upload-json {
+            background-color: white;
+            color: white;
+            border-radius: 0.75rem;
+        }
+
+        #upload-message {
+            color: #28a745;
+        }
+
+        .container h1,
+        .container p {
+            color: #343a40;
+        }
+
+        .form-control {
+            border-radius: 0.5rem;
+        }
+
+        .btn-icon {
+            display: inline-flex;
             align-items: center;
         }
 
-        .item-container select {
-            margin-right: 10px;
+        .btn-icon .icon {
+            margin-right: 0.5rem;
         }
 
-        .item-quantity {
-            width: 100px;
-            margin-left: 10px;
-        }
-
-        .form-group {
-            text-align: left;
+        .text-muted {
+            font-size: 1rem;
         }
     </style>
 </head>
 
-<body class="bg-dark">
+<body>
+
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark ml-auto">
+    <nav class="navbar navbar-expand navbar-dark">
         <div class="container">
+            <a class="navbar-brand">Admin Dashboard</a>
             <div class="ml-auto">
-                <button id="view-items" class="btn btn-light mr-2">
-                    View Items
+                <button id="view-items" class="btn btn-light mr-2 btn-icon">
+                    <i class="icon fas fa-eye"></i> View Items
                 </button>
-                <button id="redirectButton" class="btn btn-light mr-2">
-                    Go to Map Page
+                <button id="redirectButton" class="btn btn-light mr-2 btn-icon">
+                    <i class="icon fas fa-map-marker-alt"></i> Go to Map
                 </button>
-                <button id="update-warehouse-button" class="btn btn-light mr-2">
-                    Update Warehouse
+                <button id="update-warehouse-button" class="btn btn-light mr-2 btn-icon">
+                    <i class="icon fas fa-warehouse"></i> Update Warehouse
                 </button>
-                <button type="button" class="btn btn-light" data-toggle="modal" data-target="#add-rescuer-modal">
-                    Register Rescuer
+                <button class="btn btn-light mr-2" data-toggle="modal" data-target="#add-rescuer-modal">
+                    <i class="icon fas fa-user-plus"></i> Register Rescuer
                 </button>
-                <button type="button" id="create-announcement-button" class="btn btn-light" data-toggle="modal"
+                <button id="create-announcement-button" class="btn btn-light btn-icon" data-toggle="modal"
                     data-target="#add-announcement-modal">
-                    Create Announcement
+                    <i class="icon fas fa-bullhorn"></i> Create Announcement
                 </button>
-                <button id="logout-button" class="btn btn-danger">
-                    Logout
+                <button id="logout-button" class="btn btn-danger btn-icon">
+                    <i class="icon fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
         </div>
     </nav>
 
+    <!-- Welcome Section -->
+    <div class="container text-center mt-5">
+        <h1 class="mb-4">Welcome, Admin!</h1>
+        <p class="lead text-muted">Manage categories, items, and announcements efficiently.</p>
+    </div>
+
+    <!-- Management Sections -->
+    <div class="container">
+        <div class="row mt-5">
+            <!-- Category Management -->
+            <div id="category-management" class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h2 class="card-title">Manage Categories</h2>
+                        <button id="add-category-button" class="btn btn-primary btn-icon mt-3">
+                            <i class="icon fas fa-plus"></i> Add Category
+                        </button>
+                        <div id="category-list" class="mt-4">
+                            <!-- Categories will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item Management -->
+            <div id="item-management" class="col-md-6">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h2 class="card-title">Manage Items</h2>
+                        <button id="add-item-button" class="btn btn-primary btn-icon mt-3">
+                            <i class="icon fas fa-box"></i> Add Item
+                        </button>
+                        <div id="item-list" class="mt-4">
+                            <!-- Items will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload JSON File Section -->
+    <div id="upload-json" class="container mt-5 text-center shadow p-4">
+        <h2 class="card-title text-black mb-4">Upload JSON Data</h2>
+        <input type="file" id="json-file-input" accept=".json" class="d-none">
+        <button id="choose-file-button" class="btn btn-primary btn-icon">
+            <i class="icon fas fa-file-upload"></i> Choose File
+        </button>
+        <button id="upload-json-button" class="btn btn-success btn-icon ml-3">
+            <i class="icon fas fa-upload"></i> Upload JSON
+        </button>
+        <div id="upload-message" class="mt-3"></div>
+    </div>
+
     <!-- Modal for creating a new announcement -->
-    <div class="container mt-5">
-
-        <!-- Create Notification Form -->
-        <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
-            aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Announcement</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="add-announcement-form">
-                            <div id="search-container" class="form-group">
-                                <label for="category-search">Search Items</label>
-                                <input type="text" id="category-search" class="form-control"
-                                    placeholder="Search for items...">
-                            </div>
-                            <div id="category-results" class="form-group">
-                                <!-- Εδώ θα εμφανίζονται τα αποτελέσματα -->
-                            </div>
-                            <button type="submit" class="btn btn-primary">Add Announcement</button>
-                        </form>
-                    </div>
+    <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Announcement</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Modal for creating a new rescuer -->
-        <div id="add-rescuer-modal" class="modal fade" tabindex="-1" role="dialog"
-            aria-labelledby="addRescuerModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addRescuerModalLabel">Register New Rescuer</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="add-rescuer-form">
-                            <div class="form-group">
-                                <label for="username">Username</label>
-                                <input type="text" id="reg-rescuer-username" name="username" class="form-control"
-                                    required>
-                            </div>
-                            <div class="form-group">
-                                <label for="pass">Password</label>
-                                <input type="password" id="reg-rescuer-pass" name="pass" class="form-control" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Add Rescuer</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="container mt-5">
-            <!-- Welcome Section -->
-            <div class="text-center">
-                <h1>Welcome, Admin!</h1>
-                <p class="text-white">This is the admin page for managing categories and items.</p>
-            </div>
-            <!-- Management Sections -->
-            <div class="row">
-                <!-- Category Management -->
-                <div id="category-management" class="col-md-6 mb-4">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <h2 class="card-title">Manage Categories</h2>
-                            <button id="add-category-button" class="btn btn-light mt-3">Add Category</button>
-                            <div id="category-list" class="mt-4">
-                                <!-- Categories will be dynamically loaded here -->
-                            </div>
+                <div class="modal-body">
+                    <form id="add-announcement-form">
+                        <div class="form-group">
+                            <label for="category-search">Search Items</label>
+                            <input type="text" id="category-search" class="form-control"
+                                placeholder="Search for items...">
                         </div>
-                    </div>
-                </div>
-                <!-- Item Management -->
-                <div id="item-management" class="col-md-6 mb-4">
-                    <div class="card bg-dark text-white">
-                        <div class="card-body">
-                            <h2 class="card-title">Manage Items</h2>
-                            <button id="add-item-button" class="btn btn-light mt-3">Add Item</button>
-                            <div id="item-list" class="mt-4">
-                                <!-- Items will be dynamically loaded here -->
-                            </div>
+                        <div id="category-results" class="form-group">
+                            <!-- Search results will be displayed here -->
                         </div>
-                    </div>
+                        <button type="submit" class="btn btn-primary btn-icon">
+                            <i class="icon fas fa-plus"></i> Add Announcement
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Upload JSON File Section -->
-        <div id="upload-json" class="d-flex justify-content-center m-auto bg-dark mb-4">
-            <div class="card-body">
-                <h2 class="card-title">Upload JSON Data</h2>
-                <div class="d-flex align-items-center">
-                    <input type="file" id="json-file-input" accept=".json" class="d-none">
-                    <button id="choose-file-button" class="btn btn-primary">Choose File</button>
-                    <button id="upload-json-button" class="btn btn-success ml-3">Upload JSON</button>
+    <!-- Modal for creating a new rescuer -->
+    <div id="add-rescuer-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addRescuerModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addRescuerModalLabel">Register New Rescuer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-                <div id="upload-message" class="mt-3"></div>
+                <div class="modal-body">
+                    <form id="add-rescuer-form">
+                        <div class="form-group">
+                            <label for="reg-rescuer-username">Username</label>
+                            <input type="text" id="reg-rescuer-username" name="username" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="reg-rescuer-pass">Password</label>
+                            <input type="password" id="reg-rescuer-pass" name="pass" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-icon">
+                            <i class="icon fas fa-user-plus"></i> Add Rescuer
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- Bootstrap and JS dependencies -->
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        <!-- Bootstrap Select JS -->
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
+    <!-- Bootstrap and JS dependencies -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap Select JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
 
-        <script>
+    <script>
 
-            //  Region Notifications
-            $(document).ready(function () {
-                $('#requestModal').on('show.bs.modal', function () {
-                    let token = localStorage.getItem('auth-token');
+        //  Region Notifications
+        $(document).ready(function () {
+            $('#requestModal').on('show.bs.modal', function () {
+                let token = localStorage.getItem('auth-token');
 
-                    // Fetch categories and items when the modal opens
-                    $.ajax({
-                        url: '/api/get_items',
-                        type: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        success: function (response) {
-                            const data = JSON.parse(response);
-                            const categories = {};
+                // Fetch categories and items when the modal opens
+                $.ajax({
+                    url: '/api/get_items',
+                    type: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    success: function (response) {
+                        const data = JSON.parse(response);
+                        const categories = {};
 
-                            // Populate categories and group items by category
-                            data.forEach(item => {
-                                if (!categories[item.category]) {
-                                    categories[item.category] = [];
-                                }
-                                categories[item.category].push({ id: item.id, name: item.item });
-                            });
-
-                            // Populate the category select dropdown
-                            const categorySelect = $('#category-select');
-                            categorySelect.empty().append('<option value="">Select a Category</option>'); // Default option
-
-                            for (const category in categories) {
-                                categorySelect.append(`<option value="${category}">${category}</option>`);
+                        // Populate categories and group items by category
+                        data.forEach(item => {
+                            if (!categories[item.category]) {
+                                categories[item.category] = [];
                             }
-
-                            // Enable the category dropdown
-                            categorySelect.prop('disabled', false);
-
-                            // Reset the items dropdown
-                            $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
-                        },
-                        error: function (error) {
-                            $('#message').text('Error fetching items: ' + error.responseText);
-                        }
-                    });
-                });
-
-                $('#category-select').on('change', function () {
-                    const selectedCategory = $(this).val();
-                    if (selectedCategory) {
-                        const items = categories[selectedCategory];
-                        const itemSelect = $('#item-select');
-
-                        // Populate the items select dropdown based on the selected category
-                        itemSelect.empty().append('<option value="">Select an Item</option>'); // Default option
-                        items.forEach(item => {
-                            itemSelect.append(`<option value="${item.id}">${item.name}</option>`);
+                            categories[item.category].push({ id: item.id, name: item.item });
                         });
-                        itemSelect.prop('disabled', false);
-                    } else {
+
+                        // Populate the category select dropdown
+                        const categorySelect = $('#category-select');
+                        categorySelect.empty().append('<option value="">Select a Category</option>'); // Default option
+
+                        for (const category in categories) {
+                            categorySelect.append(`<option value="${category}">${category}</option>`);
+                        }
+
+                        // Enable the category dropdown
+                        categorySelect.prop('disabled', false);
+
+                        // Reset the items dropdown
                         $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
+                    },
+                    error: function (error) {
+                        $('#message').text('Error fetching items: ' + error.responseText);
                     }
                 });
             });
-            // End Region Notifications  
 
-            $(document).ready(function () {
-                const token = localStorage.getItem('auth-token');
-                if (!token) {
-                    window.location.href = '/login';
+            $('#category-select').on('change', function () {
+                const selectedCategory = $(this).val();
+                if (selectedCategory) {
+                    const items = categories[selectedCategory];
+                    const itemSelect = $('#item-select');
+
+                    // Populate the items select dropdown based on the selected category
+                    itemSelect.empty().append('<option value="">Select an Item</option>'); // Default option
+                    items.forEach(item => {
+                        itemSelect.append(`<option value="${item.id}">${item.name}</option>`);
+                    });
+                    itemSelect.prop('disabled', false);
+                } else {
+                    $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
                 }
+            });
+        });
+        // End Region Notifications  
 
-                $('#logout-button').click(function () {
-                    localStorage.removeItem('auth-token');
-                    window.location.href = '/login';
-                });
+        $(document).ready(function () {
+            const token = localStorage.getItem('auth-token');
+            if (!token) {
+                window.location.href = '/login';
+            }
 
-                $('#update-warehouse-button').click(function () {
-                    $.ajax({
-                        url: '/admin/update_warehouse',
-                        type: 'GET',
-                        headers: {
-                            'Authorization': 'Bearer ' + token
-                        },
-                        success: function (response) {
-                            $('#message').text(response);
-                        },
-                        error: function (error) {
-                            $('#message').text('Error updating warehouse: ' + error.responseText);
-                        }
-                    });
-                });
+            $('#logout-button').click(function () {
+                localStorage.removeItem('auth-token');
+                window.location.href = '/login';
+            });
 
-                $('#add-rescuer-form').submit(function (event) {
-                    event.preventDefault();
-                    const rescuer_username = $('#reg-rescuer-username').val();
-                    const resucer_password = $('#reg-rescuer-pass').val();
-                    $.ajax({
-                        url: '/admin/register_rescuer',
-                        type: 'POST',
-                        headers: {
-                            'Authorization': 'Bearer ' + token,
-                            'Content-Type': 'application/json'
-                        },
-                        data: JSON.stringify({
-                            username: rescuer_username,
-                            password: resucer_password
-                        }),
-                        success: function (response) {
-                            $('#message').text(response);
-                        },
-                        error: function (error) {
-                            $('#message').text('Error registering rescuer: ' + error.responseText);
-                        }
-                    });
-                });
-
-                document.getElementById("redirectButton").onclick = function () {
-                    window.location.href = "admin_map.html";
-                };
-
-                $('#view-items').click(function () {
-                    window.location.href = 'items.html';
-                });
-
-                $('#add-category-button').click(function () {
-                    $('#add-category-modal').modal('show');
-                });
-
-                $('#add-category-form').submit(function (event) {
-                    event.preventDefault();
-                    const categoryName = $('#new-category-name').val();
-
-                    $.ajax({
-                        url: '/admin/add_category',
-                        type: 'POST',
-                        headers: {
-                            'Authorization': 'Bearer ' + token,
-                            'Content-Type': 'application/json'
-                        },
-                        data: JSON.stringify({
-                            name: categoryName
-                        }),
-                        success: function (response) {
-                            alert('Category added successfully!');
-                            $('#add-category-modal').modal('hide');
-                            $('#category-list').append('<div class="list-item">' + categoryName + '</div>');
-                            $('#add-category-form')[0].reset();
-                        },
-                        error: function (error) {
-                            alert('Error adding category: ' + error.responseText);
-                        }
-                    });
-                });
-
-                // Trigger the file input click event when the "Choose File" button is clicked
-                $('#choose-file-button').click(function () {
-                    $('#json-file-input').click();
-                });
-
-                $('#upload-json-button').click(function () {
-                    const fileInput = $('#json-file-input')[0].files[0];
-                    if (fileInput) {
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const jsonData = JSON.parse(e.target.result);
-                            console.log(jsonData);
-                            $('#upload-message').text('JSON data uploaded successfully.');
-                        };
-                        reader.readAsText(fileInput);
-                    } else {
-                        $('#upload-message').text('Please select a JSON file to upload.');
+            $('#update-warehouse-button').click(function () {
+                $.ajax({
+                    url: '/admin/update_warehouse',
+                    type: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    success: function (response) {
+                        $('#message').text(response);
+                    },
+                    error: function (error) {
+                        $('#message').text('Error updating warehouse: ' + error.responseText);
                     }
                 });
             });
-        </script>
+
+            $('#add-rescuer-form').submit(function (event) {
+                event.preventDefault();
+                const rescuer_username = $('#reg-rescuer-username').val();
+                const resucer_password = $('#reg-rescuer-pass').val();
+                $.ajax({
+                    url: '/admin/register_rescuer',
+                    type: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    data: JSON.stringify({
+                        username: rescuer_username,
+                        password: resucer_password
+                    }),
+                    success: function (response) {
+                        $('#message').text(response);
+                    },
+                    error: function (error) {
+                        $('#message').text('Error registering rescuer: ' + error.responseText);
+                    }
+                });
+            });
+
+            document.getElementById("redirectButton").onclick = function () {
+                window.location.href = "admin_map.html";
+            };
+
+            $('#view-items').click(function () {
+                window.location.href = 'items.html';
+            });
+
+            $('#add-category-button').click(function () {
+                $('#add-category-modal').modal('show');
+            });
+
+            $('#add-category-form').submit(function (event) {
+                event.preventDefault();
+                const categoryName = $('#new-category-name').val();
+
+                $.ajax({
+                    url: '/admin/add_category',
+                    type: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    data: JSON.stringify({
+                        name: categoryName
+                    }),
+                    success: function (response) {
+                        alert('Category added successfully!');
+                        $('#add-category-modal').modal('hide');
+                        $('#category-list').append('<div class="list-item">' + categoryName + '</div>');
+                        $('#add-category-form')[0].reset();
+                    },
+                    error: function (error) {
+                        alert('Error adding category: ' + error.responseText);
+                    }
+                });
+            });
+
+            // Trigger the file input click event when the "Choose File" button is clicked
+            $('#choose-file-button').click(function () {
+                $('#json-file-input').click();
+            });
+
+            $('#upload-json-button').click(function () {
+                const fileInput = $('#json-file-input')[0].files[0];
+                if (fileInput) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const jsonData = JSON.parse(e.target.result);
+                        console.log(jsonData);
+                        $('#upload-message').text('JSON data uploaded successfully.');
+                    };
+                    reader.readAsText(fileInput);
+                } else {
+                    $('#upload-message').text('Please select a JSON file to upload.');
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
