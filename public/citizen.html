@@ -456,7 +456,7 @@
 
                     // Populate the category select dropdown
                     const categorySelect = $('#category-select');
-                    categorySelect.empty().append('<option value="">Select a Category</option>'); // Default option
+                    categorySelect.empty().append('<option value="">Select a Category</option>');
 
                     for (const category in categories) {
                         categorySelect.append(`<option value="${category}">${category}</option>`);
@@ -479,11 +479,11 @@
             const selectedCategory = $(this).val();
 
             if (selectedCategory) {
-                const items = categories[selectedCategory]; // Access the global categories object
+                const items = categories[selectedCategory];
                 const itemSelect = $('#item-select');
 
                 // Populate the items select dropdown based on the selected category
-                itemSelect.empty().append('<option value="">Select an Item</option>'); // Default option
+                itemSelect.empty().append('<option value="">Select an Item</option>');
 
                 items.forEach(item => {
                     itemSelect.append(`<option value="${item.id}">${item.name}</option>`);
@@ -642,14 +642,14 @@
 
             // Trigger the API call to submit all offers
             $.ajax({
-                url: '/api/create_offer',  // Replace with your offer submission API
+                url: '/api/create_offer',
                 type: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
                     'Content-Type': 'application/json'
                 },
                 data: JSON.stringify({
-                    offers: offers  // Send the array of offers to the server
+                    offers: offers
                 }),
                 success: function (response) {
                     alert('Offers submitted successfully');
@@ -822,7 +822,7 @@
         fetch(`/api/delete_offer/${offerId}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('auth-token')}`, // Assuming you use an auth token
+                'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
                 'Content-Type': 'application/json'
             }
         })
