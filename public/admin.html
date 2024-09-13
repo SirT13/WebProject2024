@@ -12,69 +12,158 @@
         rel="stylesheet">
 
     <style>
+        /* General Styling */
         body {
             margin: 0;
-            background-color: #f8f9fa;
+            background-color: #f4f7f6;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
         }
 
         h1,
         h2 {
-            color: #343a40;
+            color: #2c3e50;
         }
 
         .navbar {
-            background-color: #343a40;
+            background-color: #2c3e50;
+            padding: 1rem;
+        }
+
+        .navbar .navbar-brand {
+            font-weight: bold;
+            color: #fff;
         }
 
         .navbar-nav .nav-item .nav-link {
             color: white !important;
-        }
-
-        .card {
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .modal-header,
-        .modal-content {
-            background-color: #f8f9fa;
-        }
-
-        .btn-primary,
-        .btn-light {
-            border-radius: 20px;
-        }
-
-        #upload-json {
-            background-color: white;
-            color: white;
-            border-radius: 0.75rem;
-        }
-
-        #upload-message {
-            color: #28a745;
+            font-weight: 500;
         }
 
         .container h1,
         .container p {
-            color: #343a40;
+            color: #2c3e50;
         }
 
-        .form-control {
-            border-radius: 0.5rem;
+        /* Cards and Buttons */
+        .card {
+            background-color: #fff;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+        }
+
+        .btn-primary,
+        .btn-light {
+            border-radius: 50px;
+            font-size: 0.875rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Linear Gradient for Buttons */
+        .btn-primary {
+            background: linear-gradient(45deg, #1abc9c, #16a085);
+            border: none;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #16a085, #1abc9c);
+        }
+
+        .btn-light {
+            background: linear-gradient(45deg, #ecf0f1, #bdc3c7);
+            color: #2c3e50;
+            border: none;
+        }
+
+        .btn-light:hover {
+            background: linear-gradient(45deg, #bdc3c7, #ecf0f1);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
         }
 
         .btn-icon {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
+            font-weight: 500;
         }
 
         .btn-icon .icon {
             margin-right: 0.5rem;
         }
 
-        .text-muted {
-            font-size: 1rem;
+        .form-control {
+            border-radius: 0.5rem;
+            border: 1px solid #dcdde1;
+            padding: 0.75rem 1rem;
+        }
+
+        .upload-section {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .upload-section:hover {
+            transform: translateY(-10px);
+        }
+
+        #upload-message {
+            color: #27ae60;
+        }
+
+        /* Modal Styling */
+        .modal-header {
+            background-color: #16a085;
+            color: white;
+        }
+
+        .modal-title {
+            font-weight: bold;
+        }
+
+        /* Table Styling */
+        #category-list,
+        #item-list {
+            text-align: left;
+            margin-top: 1.5rem;
+        }
+
+        .list-item {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 1.1rem;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+
+            .btn-primary,
+            .btn-light {
+                width: 100%;
+            }
+
+            .container {
+                margin-bottom: 2rem;
+            }
         }
     </style>
 </head>
@@ -102,7 +191,7 @@
                     data-target="#add-announcement-modal">
                     <i class="icon fas fa-bullhorn"></i> Create Announcement
                 </button>
-                <button id="logout-button" class="btn btn-danger btn-icon">
+                <button id="logout-button" class="btn btn-danger btn-icon ml-3">
                     <i class="icon fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
@@ -120,7 +209,7 @@
         <div class="row mt-5">
             <!-- Category Management -->
             <div id="category-management" class="col-md-6">
-                <div class="card">
+                <div class="card p-4">
                     <div class="card-body text-center">
                         <h2 class="card-title">Manage Categories</h2>
                         <button id="add-category-button" class="btn btn-primary btn-icon mt-3">
@@ -135,7 +224,7 @@
 
             <!-- Item Management -->
             <div id="item-management" class="col-md-6">
-                <div class="card">
+                <div class="card p-4">
                     <div class="card-body text-center">
                         <h2 class="card-title">Manage Items</h2>
                         <button id="add-item-button" class="btn btn-primary btn-icon mt-3">
@@ -145,49 +234,6 @@
                             <!-- Items will be dynamically loaded here -->
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Upload JSON File Section -->
-    <div id="upload-json" class="container mt-5 text-center shadow p-4">
-        <h2 class="card-title text-black mb-4">Upload JSON Data</h2>
-        <input type="file" id="json-file-input" accept=".json" class="d-none">
-        <button id="choose-file-button" class="btn btn-primary btn-icon">
-            <i class="icon fas fa-file-upload"></i> Choose File
-        </button>
-        <button id="upload-json-button" class="btn btn-success btn-icon ml-3">
-            <i class="icon fas fa-upload"></i> Upload JSON
-        </button>
-        <div id="upload-message" class="mt-3"></div>
-    </div>
-
-    <!-- Modal for creating a new announcement -->
-    <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
-        aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Announcement</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="add-announcement-form">
-                        <div class="form-group">
-                            <label for="category-search">Search Items</label>
-                            <input type="text" id="category-search" class="form-control"
-                                placeholder="Search for items...">
-                        </div>
-                        <div id="category-results" class="form-group">
-                            <!-- Search results will be displayed here -->
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-icon">
-                            <i class="icon fas fa-plus"></i> Add Announcement
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
@@ -223,6 +269,76 @@
         </div>
     </div>
 
+    <!-- Create Notification Form -->
+    <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Announcement</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-announcement-form">
+                        <div id="search-container" class="form-group">
+                            <label for="category-search">Search Items</label>
+                            <input type="text" id="category-search" class="form-control"
+                                placeholder="Search for items...">
+                        </div>
+                        <div id="category-results" class="form-group">
+                            <!-- Εδώ θα εμφανίζονται τα αποτελέσματα -->
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Announcement</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Upload JSON File Section -->
+    <div id="upload-json" class="container mt-5 text-center upload-section">
+        <h2 class="card-title mb-4">Upload JSON Data</h2>
+        <input type="file" id="json-file-input" accept=".json" class="d-none">
+        <button id="choose-file-button" class="btn btn-primary btn-icon">
+            <i class="icon fas fa-file-upload"></i> Choose File
+        </button>
+        <button id="upload-json-button" class="btn btn-primary btn-icon ml-3">
+            <i class="icon fas fa-upload"></i> Upload JSON
+        </button>
+        <div id="upload-message" class="mt-3"></div>
+    </div>
+
+    <!-- Modal for Adding Category -->
+    <div id="add-category-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCategoryModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-category-form">
+                        <div class="form-group">
+                            <label for="new-category-name">Category Name</label>
+                            <input type="text" id="new-category-name" class="form-control"
+                                placeholder="Enter category name" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-icon">
+                            <i class="icon fas fa-plus"></i> Add Category
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Bootstrap and JS dependencies -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
@@ -231,7 +347,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
 
     <script>
-
         //  Region Notifications
         $(document).ready(function () {
             $('#requestModal').on('show.bs.modal', function () {
