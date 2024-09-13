@@ -10,7 +10,8 @@
     <!-- Bootstrap Select CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/css/bootstrap-select.min.css"
         rel="stylesheet">
-
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         /* General Styling */
         body {
@@ -171,30 +172,28 @@
 <body>
 
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand navbar-dark">
-        <div class="container">
-            <a class="navbar-brand">Admin Dashboard</a>
-            <div class="ml-auto">
-                <button id="view-items" class="btn btn-light mr-2 btn-icon">
-                    <i class="icon fas fa-eye"></i> View Items
-                </button>
-                <button id="redirectButton" class="btn btn-light mr-2 btn-icon">
-                    <i class="icon fas fa-map-marker-alt"></i> Go to Map
-                </button>
-                <button id="update-warehouse-button" class="btn btn-light mr-2 btn-icon">
-                    <i class="icon fas fa-warehouse"></i> Update Warehouse
-                </button>
-                <button class="btn btn-light mr-2" data-toggle="modal" data-target="#add-rescuer-modal">
-                    <i class="icon fas fa-user-plus"></i> Register Rescuer
-                </button>
-                <button id="create-announcement-button" class="btn btn-light btn-icon" data-toggle="modal"
-                    data-target="#add-announcement-modal">
-                    <i class="icon fas fa-bullhorn"></i> Create Announcement
-                </button>
-                <button id="logout-button" class="btn btn-danger btn-icon ml-3">
-                    <i class="icon fas fa-sign-out-alt"></i> Logout
-                </button>
-            </div>
+    <nav class="navbar navbar-expand navbar-dark d-flex">
+        <a class="navbar-brand">Admin Dashboard</a>
+        <div class="ml-auto">
+            <button id="view-items" class="btn btn-light mr-2 btn-icon">
+                <i class="icon fas fa-eye"></i> View Items
+            </button>
+            <button id="redirectButton" class="btn btn-light mr-2 btn-icon">
+                <i class="icon fas fa-map-marker-alt"></i> Go to Map
+            </button>
+            <button id="update-warehouse-button" class="btn btn-light mr-2 btn-icon">
+                <i class="icon fas fa-warehouse"></i> Update Warehouse
+            </button>
+            <button class="btn btn-light mr-2" data-toggle="modal" data-target="#add-rescuer-modal">
+                <i class="icon fas fa-user-plus"></i> Register Rescuer
+            </button>
+            <button id="create-announcement-button" class="btn btn-light btn-icon" data-toggle="modal"
+                data-target="#add-announcement-modal">
+                <i class="icon fas fa-bullhorn"></i> Create Announcement
+            </button>
+            <button id="logout-button" class="btn btn-danger btn-icon ml-3">
+                <i class="icon fas fa-sign-out-alt"></i> Logout
+            </button>
         </div>
     </nav>
 

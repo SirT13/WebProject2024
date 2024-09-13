@@ -7,6 +7,8 @@
     <title>Citizen Dashboard</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         /* Style for the request and offer panel container */
         #request-panel,
@@ -153,6 +155,14 @@
             background-color: #c82333
         }
 
+        #logout-button {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+
+        #logout-button:hover {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
+        }
+
         .rescue-btn {
             background: linear-gradient(45deg, #1abc9c, #16a085);
             border: none;
@@ -230,7 +240,8 @@
         .list-group-item.active {
             z-index: 2;
             color: #fff;
-            background-color: #08274a;
+            background: linear-gradient(45deg, #131f5c, #08064a);
+            ;
         }
 
         /* Styling for the status column with conditional formatting */
@@ -277,17 +288,25 @@
 </head>
 
 <body>
-    <div class="navbar">
+    <div class="navbar navbar-expand navbar-dark">
         <div class="text-white">Citizen Dashboard</div>
-        <div class="navbar-right">
-            <button id="create-request-btn" data-toggle="modal" data-target="#requestModal">Create New Request</button>
-            <button id="view-announcements-btn">View Announcements</button>
-            <button id="logout-button">Logout</button>
+        <div class="navbar-right ml-auto">
+            <button id="create-request-btn" class="btn btn-light btn-icon" data-toggle="modal"
+                data-target="#requestModal">
+                <i class="fas fa-plus-circle icon"></i> Create New Request
+            </button>
+            <button id="view-announcements-btn" class="btn btn-light btn-icon">
+                <i class="fas fa-bullhorn icon"></i> View Announcements
+            </button>
+            <button id="logout-button" class="btn btn-danger btn-icon ml-3">
+                <i class="fas fa-sign-out-alt icon"></i> Logout
+            </button>
         </div>
     </div>
 
-    <div id="request-panel">
-        <h3>Requests</h3>
+
+    <div class="shadow" id="request-panel">
+        <h3 class="mb-5">Requests</h3>
         <table class="table">
             <thead>
                 <tr>
@@ -305,8 +324,8 @@
         </table>
     </div>
 
-    <div id="offer-panel">
-        <h3>Offers</h3>
+    <div class="shadow" id="offer-panel">
+        <h3 class="">Offers</h3>
         <table class="table">
             <thead>
                 <tr>
@@ -326,7 +345,7 @@
     </div>
 
     <!-- Modal for creating new requests -->
-    <div class="modal fade custom-modal" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel"
+    <div class="modal fade custom-modal shadow" id="requestModal" tabindex="-1" aria-labelledby="requestModalLabel"
         aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -362,7 +381,7 @@
     </div>
 
     <!-- First modal: View Announcements -->
-    <div class="modal fade" id="announcementsModal" tabindex="-1" aria-labelledby="announcementsModalLabel"
+    <div class="modal fade shadow" id="announcementsModal" tabindex="-1" aria-labelledby="announcementsModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -385,7 +404,7 @@
     </div>
 
     <!-- Second modal (third modal in your description): Make Offers -->
-    <div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+    <div class="modal fade shadow" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
