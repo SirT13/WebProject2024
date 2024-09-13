@@ -5,14 +5,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Paginated Table with Quantity</title>
-    <link rel="stylesheet" href="css/pagination.css">
+
+    <style>
+        /* General Styling */
+        body {
+            background-color: #f4f7f6;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        /* Table Styling */
+        #item-table {
+            width: 100%;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #item-table th,
+        #item-table td {
+            padding: 12px 20px;
+            text-align: left;
+        }
+
+        #item-table thead {
+            background-color: #2c3e50;
+            color: white;
+        }
+
+        #item-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        #item-table tbody tr:hover {
+            background-color: #ecf0f1;
+        }
+
+        /* Button Styling */
+        .btn-dark {
+            border-radius: 50px;
+            font-size: 0.875rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-dark:hover {
+            background-color: #1a252f;
+        }
+
+        /* Pagination Styling */
+        #pagination {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        #pagination select {
+            border-radius: 5px;
+            padding: 5px;
+            border: 1px solid #dcdde1;
+        }
+
+        #prev-btn,
+        #next-btn {
+            border: none;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 50px;
+            padding: 8px 15px;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #prev-btn:hover,
+        #next-btn:hover {
+            background-color: #1a252f;
+        }
+
+        #range-info,
+        #page-info {
+            margin-right: 20px;
+        }
+
+        /* Responsive Styling */
+        @media (max-width: 768px) {
+            #pagination {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #prev-btn,
+            #next-btn {
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .btn-dark {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <button id="redirectButton" onclick="prevPage()" class="btn btn-dark mr-2">Back</button>
-    <div class="container shadow" id="item-table-container">
-        <table id="item-table">
+
+    <!-- Back Button -->
+    <button id="redirectButton" class="btn btn-dark mt-3 ml-3">
+        <i class="fas fa-arrow-left icon"></i> Back
+    </button>
+
+    <!-- Table Container -->
+    <div class="container mt-4" id="item-table-container">
+        <table id="item-table" class="table table-bordered">
             <thead>
                 <tr>
                     <th>Item</th>
@@ -24,23 +145,34 @@
             <tbody id="item-list"></tbody>
         </table>
     </div>
-    <div class="d-flex justify-content-between align-items-center">
-        <div id="pagination">
-            <span id="range-info"></span>
-            <span id="page-info">Page: <select id="page-select" onchange="goToPage(this.value)"></select></span>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-between align-items-center container mt-4">
+        <div id="pagination" class="d-flex align-items-center">
+            <span id="range-info">Showing 1 to 10 of 50 entries</span>
+            <span id="page-info">
+                Page:
+                <select id="page-select" class="form-control-sm" onchange="goToPage(this.value)">
+                    <!-- Options will be dynamically loaded -->
+                </select>
+            </span>
             <button id="prev-btn" onclick="prevPage()">&#9664;</button>
             <button id="next-btn" onclick="nextPage()">&#9654;</button>
         </div>
     </div>
+
+    <!-- Redirect Button Functionality -->
     <script>
         document.getElementById("redirectButton").onclick = function () {
             window.location.href = "admin.html";
         };
     </script>
-    <script src="js/admin_pagination.js"></script>
+
+    <!-- JavaScript dependencies and Pagination Script -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="js/admin_pagination.js"></script>
 </body>
 
 </html>

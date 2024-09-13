@@ -7,6 +7,8 @@
     <title>Rescuer Page</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
         /* Style for the map and panel container */
         #map-container {
@@ -59,6 +61,7 @@
             border-radius: 50%;
             margin-right: 8px;
         }
+
         /* Navigation Bar Styles */
         .navbar {
             width: 100%;
@@ -97,6 +100,7 @@
         .navbar button:hover {
             background: linear-gradient(45deg, #c0392b, #e74c3c);
         }
+
         #task-panel {
             width: 30%;
             /* Adjust width as needed */
@@ -140,7 +144,7 @@
 
         .dropdown:hover .dropdown-content {
             display: block;
-        }   
+        }
 
         .task-item {
             padding: 15px;
@@ -224,59 +228,77 @@
         .rescue-btn:hover {
             background-color: #218838;
         }
+
         button:disabled {
-            opacity: 0.5; /* Makes the button appear faded */
-            cursor: not-allowed; /* Changes the cursor to indicate the button is not clickable */
+            opacity: 0.5;
+            /* Makes the button appear faded */
+            cursor: not-allowed;
+            /* Changes the cursor to indicate the button is not clickable */
         }
 
         .custom-modal .modal-dialog {
-            height: 70%; /* Adjust as needed */
-            max-height: 600px; /* Set a maximum height if needed */
+            height: 70%;
+            /* Adjust as needed */
+            max-height: 600px;
+            /* Set a maximum height if needed */
         }
 
         .custom-modal .modal-content {
-            height: 100%; /* Make sure content takes full height of the dialog */
+            height: 100%;
+            /* Make sure content takes full height of the dialog */
             width: 130%;
         }
 
         .custom-modal .modal-body {
-            height: calc(100% - 60px); /* Adjust to account for header and footer height */
-            overflow-y: auto; /* Adds a scrollbar if content exceeds height */
+            height: calc(100% - 60px);
+            /* Adjust to account for header and footer height */
+            overflow-y: auto;
+            /* Adds a scrollbar if content exceeds height */
         }
     </style>
 </head>
 
 <body>
-    <div class="navbar">
+    <div class="navbar navbar-expand navbar-dark">
         <div class="navbar-left text-white">Dashboard</div>
-        <div class="navbar-right">
-            <button id="load-button" data-toggle="modal" data-target="#paginationModal" disabled>Load</button>
-            <button id="unload-button" data-toggle="modal" data-target="#confirmUnloadModal" disabled>Unload</button>
-            <button id="logout-button">Logout</button>
+        <div class="navbar-right ml-auto">
+            <button id="load-button" class="btn btn-light btn-icon" data-toggle="modal" data-target="#paginationModal"
+                disabled>
+                <i class="fas fa-download icon"></i> Load
+            </button>
+            <button id="unload-button" class="btn btn-light btn-icon" data-toggle="modal"
+                data-target="#confirmUnloadModal" disabled>
+                <i class="fas fa-upload icon"></i> Unload
+            </button>
+            <button id="logout-button" class="btn btn-danger btn-icon ml-3">
+                <i class="fas fa-sign-out-alt icon"></i> Logout
+            </button>
         </div>
     </div>
-        <!-- Confirmation Modal -->
-    <div class="modal fade" id="confirmUnloadModal" tabindex="-1" role="dialog" aria-labelledby="confirmUnloadModalLabel" aria-hidden="true">
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmUnloadModal" tabindex="-1" role="dialog"
+        aria-labelledby="confirmUnloadModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="confirmUnloadModalLabel">Confirmation</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmUnloadModalLabel">Confirmation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to unload?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="button" id="confirm-unload-btn" class="btn btn-danger">Yes, Unload</button>
+                </div>
             </div>
-            <div class="modal-body">
-            Are you sure you want to unload?
-            </div>
-            <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-            <button type="button" id="confirm-unload-btn" class="btn btn-danger">Yes, Unload</button>
-            </div>
-        </div>
         </div>
     </div>
     <!-- Modal for Paginated Items -->
-    <div class="modal fade custom-modal" id="paginationModal" tabindex="-1" aria-labelledby="paginationModalLabel" aria-hidden="true">
+    <div class="modal fade custom-modal" id="paginationModal" tabindex="-1" aria-labelledby="paginationModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -303,11 +325,14 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div id="pagination">
                             <span id="range-info"></span>
-                            <span id="page-info">Page: 
-                                <select id="page-select" onchange="goToPage(this.value)" class="custom-select w-auto"></select>
+                            <span id="page-info">Page:
+                                <select id="page-select" onchange="goToPage(this.value)"
+                                    class="custom-select w-auto"></select>
                             </span>
-                            <button id="prev-btn" onclick="prevPage()" class="btn btn-outline-secondary mx-2">&#9664;</button>
-                            <button id="next-btn" onclick="nextPage()" class="btn btn-outline-secondary mx-2">&#9654;</button>
+                            <button id="prev-btn" onclick="prevPage()"
+                                class="btn btn-outline-secondary mx-2">&#9664;</button>
+                            <button id="next-btn" onclick="nextPage()"
+                                class="btn btn-outline-secondary mx-2">&#9654;</button>
                             <button id="load-items-btn" class="btn btn-primary" disabled>Load</button>
                         </div>
                     </div>
@@ -331,9 +356,11 @@
                 Φίλτρα Χάρτη
             </button>
             <div class="dropdown-content" aria-labelledby="filterDropdown">
-                <label class="dropdown-item"><input type="checkbox" id="in-progress-requests" checked> Αιτήματα που έχουν
+                <label class="dropdown-item"><input type="checkbox" id="in-progress-requests" checked> Αιτήματα που
+                    έχουν
                     αναληφθεί</label>
-                <label class="dropdown-item"><input type="checkbox" id="pending-requests" checked> Εκκρεμή Αιτήματα</label>
+                <label class="dropdown-item"><input type="checkbox" id="pending-requests" checked> Εκκρεμή
+                    Αιτήματα</label>
                 <label class="dropdown-item"><input type="checkbox" id="in-progress-offers" checked> Προσφορές που έχουν
                     αναληφθεί</label>
                 <label class="dropdown-item"><input type="checkbox" id="pending-offers" checked> Εκκρεμείς
@@ -347,24 +374,25 @@
         <div id="popup-content"></div>
         <button id="action-button"></button>
     </div>
-    <div class="modal fade" id="loadDetailsModal" tabindex="-1" aria-labelledby="loadDetailsModalLabel" aria-hidden="true">
+    <div class="modal fade" id="loadDetailsModal" tabindex="-1" aria-labelledby="loadDetailsModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="loadDetailsModalLabel">Φορτίο</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loadDetailsModalLabel">Φορτίο</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="loadDetailsBody">
+                    <!-- Content will be populated dynamically -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
-            <div class="modal-body" id="loadDetailsBody">
-              <!-- Content will be populated dynamically -->
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
     <div id="map-legend">
         <h4>Task Status</h4>
         <div>
@@ -434,7 +462,7 @@
                     console.error('Error fetching warehouse location:', error);
                 }
             });
-            $('#confirm-unload-btn').on('click', function() {
+            $('#confirm-unload-btn').on('click', function () {
                 $('#confirmUnloadModal').modal('hide');
 
                 $.ajax({
@@ -444,10 +472,10 @@
                         'Authorization': 'Bearer ' + localStorage.getItem('auth-token'), // Replace with actual token
                         'Content-Type': 'application/json'
                     },
-                    success: function(response) {
+                    success: function (response) {
                         alert('Unload operation completed successfully!');
                     },
-                    error: function(error) {
+                    error: function (error) {
                         console.error('Error during unload operation:', error);
                         alert('Failed to complete the unload operation.');
                     }
@@ -497,8 +525,8 @@
                         </div>
                     `);
 
-                    rescuerMarker.on('popupopen', function() {
-                        document.getElementById('showLoadButton').addEventListener('click', function() {
+                    rescuerMarker.on('popupopen', function () {
+                        document.getElementById('showLoadButton').addEventListener('click', function () {
                             // Trigger AJAX call to get the load information
                             $.ajax({
                                 url: '/api/get_vehicle_load',
@@ -507,13 +535,13 @@
                                     'Authorization': 'Bearer ' + token,
                                     'Content-Type': 'application/json'
                                 },
-                                success: function(response) {
+                                success: function (response) {
                                     let parsedData = JSON.parse(response);
                                     let loadItems = JSON.parse(parsedData[0].load)
                                     let loadDetailsHTML = '';
                                     if (loadItems && loadItems.length > 0) {
- 
-                                        loadItems.forEach(function(item) {
+
+                                        loadItems.forEach(function (item) {
                                             loadDetailsHTML += `
                                                 <div class="load-item">
                                                     <strong>Item:</strong> ${item.item}<br>
@@ -531,7 +559,7 @@
                                     // Show the modal
                                     $('#loadDetailsModal').modal('show');
                                 },
-                                error: function(error) {
+                                error: function (error) {
                                     console.error('Error fetching load details:', error);
                                 }
                             });
@@ -540,31 +568,31 @@
 
                     const taskPanel = $('#task-panel');
                     records.forEach((record, index) => {
-                            const date_submited = new Date(record.date_submited);
-                            const formattedDateSumbited = date_submited.toLocaleString('en-GB', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: false
-                            });
+                        const date_submited = new Date(record.date_submited);
+                        const formattedDateSumbited = date_submited.toLocaleString('en-GB', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        });
 
-                            const date_assigned = new Date(record.date_assigned);
-                            const formattedDateAssigned = date_assigned.toLocaleString('en-GB', {
-                                year: 'numeric',
-                                month: '2-digit',
-                                day: '2-digit',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                second: '2-digit',
-                                hour12: false
-                            });
-                            //Task Panel
-                            if (record.rescuer_id && record.status === 'in_progress') {
-                                // Create a div for the task item
-                                const taskItem = $(`
+                        const date_assigned = new Date(record.date_assigned);
+                        const formattedDateAssigned = date_assigned.toLocaleString('en-GB', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: false
+                        });
+                        //Task Panel
+                        if (record.rescuer_id && record.status === 'in_progress') {
+                            // Create a div for the task item
+                            const taskItem = $(`
                                     <div class="task-item ${record.type === 'request' ? 'request-border' : 'offer-border'}" 
                                         data-task-type="${record.type}" 
                                         data-quantity="${record.quantity}"
@@ -590,37 +618,33 @@
 
                         // Add a marker for the citizen's location
                         let iconURL = null
-                        let type = null 
-                        if(record.type === 'request' && record.status === 'not_assigned')
-                        {
+                        let type = null
+                        if (record.type === 'request' && record.status === 'not_assigned') {
                             iconURL = 'assets/person_raised_hand_black.png'
                             type = 'pending_request'
                         }
-                        else if (record.type === 'request' && record.status != 'not_assigned')
-                        {
+                        else if (record.type === 'request' && record.status != 'not_assigned') {
                             iconURL = 'assets/person_raised_hand_orange.png'
                             type = 'in_progress_request'
                         }
-                        else if (record.type === 'offer' && record.status === 'not_assigned')
-                        {
-                             iconURL = 'assets/person_raised_hand_black.png'
-                             type = 'pending_offer'
+                        else if (record.type === 'offer' && record.status === 'not_assigned') {
+                            iconURL = 'assets/person_raised_hand_black.png'
+                            type = 'pending_offer'
                         }
-                        else
-                        {
+                        else {
                             iconURL = 'assets/person_raised_hand_red.png'
                             type = 'in_progress_offer'
                         }
 
-                            const taskMarker = L.marker(citizenLocation, {
-                                type: type,
-                                icon: L.icon({
-                                    iconUrl: iconURL, 
-                                    iconSize: [42, 42],
-                                    iconAnchor: [16, 32],
-                                    popupAnchor: [0, -32]
-                                })
-                            }).addTo(map).bindPopup(`
+                        const taskMarker = L.marker(citizenLocation, {
+                            type: type,
+                            icon: L.icon({
+                                iconUrl: iconURL,
+                                iconSize: [42, 42],
+                                iconAnchor: [16, 32],
+                                popupAnchor: [0, -32]
+                            })
+                        }).addTo(map).bindPopup(`
                                 <strong>${record.type === 'request' ? 'Αίτημα' : 'Προσφορά'}</strong><br>
                                 Ονοματεπώνυμο: ${record.citizen}<br>
                                 Τηλέφωνο: ${record.citizen_phone_number}<br>
@@ -635,94 +659,93 @@
                                         Ανάληψη
                                     </button>
                                 </div>` : ''}
-                            `).on('popupopen', function() {
-                                const button = document.getElementById(`rescue-btn-${record.task_id}`);
-                                if (button) {
-                                    button.addEventListener('click', function() {
-                                        $.ajax({
-                                            url: '/api/assign_task',
-                                            method: 'PUT',
-                                            headers: {
-                                                'Authorization': 'Bearer ' + token,
-                                                'Content-Type': 'application/json'
-                                            },
-                                            data: JSON.stringify({
-                                                task_id: record.task_id
-                                            }),
-                                            success: function(response) {
-                                            },
-                                            error: function(error) {
-                                                console.error('Error assigning task:', error);
-                                                alert('Failed to assign the task.');
-                                            }
-                                        });
-                                        location.reload()
-                                    });
-                                }
-                            });
-
-                                taskMarkers.push(taskMarker);
-                                taskMarkers.forEach(taskMarker => {
-                                    if(taskMarker.options.type === "in_progress_request" || taskMarker.options.type === "in_progress_offer")
-                                    {
-                                        const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
-                                            color: 'blue',
-                                            weight: 3,
-                                            opacity: 0.7
-                                        }).addTo(map);
-                                    
-                                        polylines.push(line);
-                                    }
-                                    
-                                });
-                                
-                                rescuerMarker.on('dragend', function(event) {
-                                    const newLocation = event.target.getLatLng();
-                                    if (record.status === 'in_progress') {
-                                        const citizen_latitude = record.citizen_latitude
-                                        const citizen_longitude = record.citizen_longitude
-                                        const taskRescuerDistance = calculateDistance(newLocation.lat, newLocation.lng, citizen_latitude, citizen_longitude);
-                                        const completeButton = $(`.complete-task-btn[data-task-id="${record.task_id}"]`);
-
-                                        if (taskRescuerDistance <= 50) {
-                                            completeButton.prop('disabled', false);
-                                        } else {
-                                            completeButton.prop('disabled', true); 
-                                        }
-                                    }
-
-                                    const warehouseRescuerDistance = calculateDistance(newLocation.lat, newLocation.lng, warehouseLocation[0], warehouseLocation[1]);
-                                    const loadButton =$('#load-button')
-                                    const unloadButton =$('#unload-button')
-                                    if (warehouseRescuerDistance <= 100) {
-                                            loadButton.prop('disabled', false);
-                                            unloadButton.prop('disabled', false);
-                                        } else {
-                                            loadButton.prop('disabled', true);
-                                            unloadButton.prop('disabled', true); 
-                                    }
-                                    polylines.forEach(polyline => {
-                                        polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
-                                    });
-                                
+                            `).on('popupopen', function () {
+                            const button = document.getElementById(`rescue-btn-${record.task_id}`);
+                            if (button) {
+                                button.addEventListener('click', function () {
                                     $.ajax({
-                                        url: '/api/save_rescuer_location',
-                                        method: 'POST',
+                                        url: '/api/assign_task',
+                                        method: 'PUT',
                                         headers: {
                                             'Authorization': 'Bearer ' + token,
                                             'Content-Type': 'application/json'
                                         },
                                         data: JSON.stringify({
-                                            latitude: newLocation.lat,
-                                            longitude: newLocation.lng
+                                            task_id: record.task_id
                                         }),
-                                        success: function(response) {
+                                        success: function (response) {
                                         },
-                                        error: function(error) {
-                                            console.error('Error saving new rescuer location:', error);
+                                        error: function (error) {
+                                            console.error('Error assigning task:', error);
+                                            alert('Failed to assign the task.');
                                         }
                                     });
+                                    location.reload()
                                 });
+                            }
+                        });
+
+                        taskMarkers.push(taskMarker);
+                        taskMarkers.forEach(taskMarker => {
+                            if (taskMarker.options.type === "in_progress_request" || taskMarker.options.type === "in_progress_offer") {
+                                const line = L.polyline([rescuerMarker.getLatLng(), taskMarker.getLatLng()], {
+                                    color: 'blue',
+                                    weight: 3,
+                                    opacity: 0.7
+                                }).addTo(map);
+
+                                polylines.push(line);
+                            }
+
+                        });
+
+                        rescuerMarker.on('dragend', function (event) {
+                            const newLocation = event.target.getLatLng();
+                            if (record.status === 'in_progress') {
+                                const citizen_latitude = record.citizen_latitude
+                                const citizen_longitude = record.citizen_longitude
+                                const taskRescuerDistance = calculateDistance(newLocation.lat, newLocation.lng, citizen_latitude, citizen_longitude);
+                                const completeButton = $(`.complete-task-btn[data-task-id="${record.task_id}"]`);
+
+                                if (taskRescuerDistance <= 50) {
+                                    completeButton.prop('disabled', false);
+                                } else {
+                                    completeButton.prop('disabled', true);
+                                }
+                            }
+
+                            const warehouseRescuerDistance = calculateDistance(newLocation.lat, newLocation.lng, warehouseLocation[0], warehouseLocation[1]);
+                            const loadButton = $('#load-button')
+                            const unloadButton = $('#unload-button')
+                            if (warehouseRescuerDistance <= 100) {
+                                loadButton.prop('disabled', false);
+                                unloadButton.prop('disabled', false);
+                            } else {
+                                loadButton.prop('disabled', true);
+                                unloadButton.prop('disabled', true);
+                            }
+                            polylines.forEach(polyline => {
+                                polyline.setLatLngs([newLocation, polyline.getLatLngs()[1]]);
+                            });
+
+                            $.ajax({
+                                url: '/api/save_rescuer_location',
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': 'Bearer ' + token,
+                                    'Content-Type': 'application/json'
+                                },
+                                data: JSON.stringify({
+                                    latitude: newLocation.lat,
+                                    longitude: newLocation.lng
+                                }),
+                                success: function (response) {
+                                },
+                                error: function (error) {
+                                    console.error('Error saving new rescuer location:', error);
+                                }
+                            });
+                        });
 
                         map.fitBounds([
                             rescuerMarker.getLatLng(),
@@ -738,14 +761,14 @@
                         const quantity = $taskItem.attr('data-quantity');
                         const item_id = $taskItem.attr('data-item-id');
                         const item_name = $taskItem.attr('data-item-name');
-                        updateTaskStatus(taskId, 'complete', taskType, quantity, item_id,item_name);
+                        updateTaskStatus(taskId, 'complete', taskType, quantity, item_id, item_name);
                     });
 
                     $('.cancel-task-btn').on('click', function () {
                         const taskId = $(this).data('task-id');
                         const $taskItem = $(this).closest('.task-item');
                         const taskType = $taskItem.attr('data-task-type');
-                        updateTaskStatus(taskId, 'not_assigned', taskType, 0, 0,"");
+                        updateTaskStatus(taskId, 'not_assigned', taskType, 0, 0, "");
                     });
                 },
                 error: function (error) {
@@ -756,7 +779,7 @@
 
             function updateTaskStatus(taskId, status, taskType, item_quantity, itemId, itemName) {
                 $.ajax({
-                    url: '/api/update_task_status', 
+                    url: '/api/update_task_status',
                     method: 'POST',
                     headers: {
                         'Authorization': 'Bearer ' + token,
@@ -779,33 +802,33 @@
                 });
             }
             function applyFilters() {
-                    const showInProgressRequests = $('#in-progress-requests').is(':checked');
-                    const showPendingRequests = $('#pending-requests').is(':checked');
-                    const showInProgressOffers = $('#in-progress-offers').is(':checked');
-                    const showPendingOffers = $('#pending-offers').is(':checked');
-                    console.log(taskMarkers)
-                    // Loop through each marker and apply filters
-                    taskMarkers.forEach(marker => {
-                        const markerType = marker.options.type;
+                const showInProgressRequests = $('#in-progress-requests').is(':checked');
+                const showPendingRequests = $('#pending-requests').is(':checked');
+                const showInProgressOffers = $('#in-progress-offers').is(':checked');
+                const showPendingOffers = $('#pending-offers').is(':checked');
+                console.log(taskMarkers)
+                // Loop through each marker and apply filters
+                taskMarkers.forEach(marker => {
+                    const markerType = marker.options.type;
 
-                        let shouldShow = false;
-                        if (markerType === 'in_progress_request' && showInProgressRequests) {
-                            shouldShow = true;
-                        } else if (markerType === 'pending_request' && showPendingRequests) {
-                            shouldShow = true;
-                        } else if (markerType === 'in_progress_offer' && showInProgressOffers) {
-                            shouldShow = true;
-                        } else if (markerType === 'pending_offer' && showPendingOffers) {
-                            shouldShow = true;
-                        }
+                    let shouldShow = false;
+                    if (markerType === 'in_progress_request' && showInProgressRequests) {
+                        shouldShow = true;
+                    } else if (markerType === 'pending_request' && showPendingRequests) {
+                        shouldShow = true;
+                    } else if (markerType === 'in_progress_offer' && showInProgressOffers) {
+                        shouldShow = true;
+                    } else if (markerType === 'pending_offer' && showPendingOffers) {
+                        shouldShow = true;
+                    }
 
-                        // Show or hide the marker based on the filter
-                        if (shouldShow) {
-                            marker.addTo(map);  // Add the marker to the map
-                        } else {
-                            map.removeLayer(marker);  // Remove the marker from the map
-                        }
-                    });
+                    // Show or hide the marker based on the filter
+                    if (shouldShow) {
+                        marker.addTo(map);  // Add the marker to the map
+                    } else {
+                        map.removeLayer(marker);  // Remove the marker from the map
+                    }
+                });
             }
             $('#in-progress-requests').on('change', applyFilters);
             $('#pending-requests').on('change', applyFilters);
@@ -815,21 +838,21 @@
 
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
-            const φ1 = lat1 * Math.PI/180;
-            const φ2 = lat2 * Math.PI/180;
-            const Δφ = (lat2-lat1) * Math.PI/180;
-            const Δλ = (lon2-lon1) * Math.PI/180;
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
 
-            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                    Math.cos(φ1) * Math.cos(φ2) *
-                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
             const distance = R * c;
             return distance;
         }
 
-        
+
     </script>
     <script src="/js/logout.js"></script>
 </body>
