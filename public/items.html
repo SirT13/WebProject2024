@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <title>Paginated Table with Quantity</title>
+    <title>Paginated Table with Vehicle Panel</title>
 
     <style>
         /* General Styling */
@@ -18,11 +17,14 @@
 
         .container {
             max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
         }
 
         /* Table Styling */
         #item-table {
-            width: 100%;
+            width: 140%;
             margin-top: 20px;
             background-color: white;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -30,8 +32,7 @@
             overflow: hidden;
         }
 
-        #item-table th,
-        #item-table td {
+        #item-table th, #item-table td {
             padding: 12px 20px;
             text-align: left;
         }
@@ -64,6 +65,28 @@
             background-color: #1a252f;
         }
 
+        /* Vehicle Panel Styling */
+        #vehicle-panel {
+            width: 400px;
+            height: 725px;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .vehicle-item {
+            margin-bottom: 15px;
+            margin-top: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .vehicle-item h5 {
+            margin-bottom: 10px;
+        }
+
         /* Pagination Styling */
         #pagination {
             display: flex;
@@ -81,8 +104,7 @@
             border: 1px solid #dcdde1;
         }
 
-        #prev-btn,
-        #next-btn {
+        #prev-btn, #next-btn {
             border: none;
             background-color: #2c3e50;
             color: white;
@@ -93,13 +115,11 @@
             transition: background-color 0.3s ease;
         }
 
-        #prev-btn:hover,
-        #next-btn:hover {
+        #prev-btn:hover, #next-btn:hover {
             background-color: #1a252f;
         }
 
-        #range-info,
-        #page-info {
+        #range-info, #page-info {
             margin-right: 20px;
         }
 
@@ -110,8 +130,7 @@
                 align-items: stretch;
             }
 
-            #prev-btn,
-            #next-btn {
+            #prev-btn, #next-btn {
                 width: 100%;
                 margin-top: 10px;
             }
@@ -119,6 +138,10 @@
             .btn-dark {
                 width: 100%;
                 margin-bottom: 10px;
+            }
+
+            #vehicle-panel {
+                width: 100%;
             }
         }
     </style>
@@ -131,19 +154,30 @@
         <i class="fas fa-arrow-left icon"></i> Back
     </button>
 
-    <!-- Table Container -->
-    <div class="container mt-4" id="item-table-container">
-        <table id="item-table" class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Quantity</th>
-                    <th>Category</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="item-list"></tbody>
-        </table>
+    <!-- Container for Table and Vehicle Panel -->
+    <div class="container mt-4">
+        <!-- Item Table -->
+        <div id="item-table-container">
+            <table id="item-table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Category</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="item-list"></tbody>
+            </table>
+        </div>
+
+        <!-- Vehicle Panel -->
+        <div id="vehicle-panel">
+            <h4>Vehicles</h4>
+            <div id="vehicle-list">
+                <!-- Vehicle items will be dynamically loaded -->
+            </div>
+        </div>
     </div>
 
     <!-- Pagination Controls -->
@@ -161,7 +195,29 @@
         </div>
     </div>
 
-    <!-- Redirect Button Functionality -->
+    <!-- Modal for Vehicle Load -->
+    <div class="modal fade" id="loadModal" tabindex="-1" role="dialog" aria-labelledby="loadModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loadModalLabel">Vehicle Load</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul id="load-list">
+                        <!-- Vehicle load details will be dynamically loaded -->
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Redirect Button Script -->
     <script>
         document.getElementById("redirectButton").onclick = function () {
             window.location.href = "admin.html";
@@ -173,6 +229,77 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="js/admin_pagination.js"></script>
-</body>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+        fetchDataAndRender();
+        fetchVehicleData();  // Load vehicle and load data
+    });
+
+    // Fetch both vehicles and their load in one request
+    function fetchVehicleData() {
+        fetch('/admin/get_vehicles', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,  // Ensure the token is being passed
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(vehicles => {
+            renderVehicleList(vehicles);
+        })
+        .catch(error => console.error('Error fetching vehicle data:', error));
+    }
+
+    // Render the vehicle panel with Show Load buttons
+    function renderVehicleList(vehicles) {
+        const vehicleList = document.getElementById('vehicle-list');
+        vehicleList.innerHTML = ''; // Clear any existing vehicle items
+
+        vehicles.forEach(vehicle => {
+            const vehicleItem = document.createElement('div');
+            vehicleItem.className = 'vehicle-item';
+
+            vehicleItem.innerHTML = `
+                <h5>${vehicle.username}</h5>
+                <button class="btn btn-dark" onclick="showVehicleLoad(${vehicle.id})">Show Load</button>
+            `;
+
+            // Save load data on the button element (this avoids another API call)
+            vehicleItem.querySelector('button').dataset.load = JSON.stringify(vehicle.load);
+
+            vehicleList.appendChild(vehicleItem);
+        });
+    }
+
+    // Show load details in a modal when the "Show Load" button is clicked
+    function showVehicleLoad(vehicleId) {
+        const button = document.querySelector(`button[onclick="showVehicleLoad(${vehicleId})"]`);
+        const loadData = JSON.parse(button.dataset.load);
+        displayLoadModal(loadData);
+    }
+
+    // Display the load data in the modal
+    function displayLoadModal(loadData) {
+        const loadList = document.getElementById('load-list');
+        loadList.innerHTML = ''; // Clear previous load data
+        let parsedArray = JSON.parse(loadData)
+        if (parsedArray && parsedArray.length > 0) {
+            parsedArray.forEach(loadItem => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${loadItem.item} - Quantity: ${loadItem.load_quantity}`;
+                loadList.appendChild(listItem);
+            });
+        } else {
+            const emptyMessage = document.createElement('li');
+            emptyMessage.textContent = 'No load available.';
+            loadList.appendChild(emptyMessage);
+        }
+
+        // Show the modal using Bootstrap's modal function
+        $('#loadModal').modal('show');
+    }
+    </script>
+</body>
 </html>

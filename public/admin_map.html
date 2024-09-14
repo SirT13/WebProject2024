@@ -269,19 +269,48 @@
             draggable: true
         }).addTo(map);
 
-        baseMarker.bindPopup("Βάση Διασώστη").openPopup();
+        baseMarker.bindPopup("Βάση").openPopup();
+        // $.ajax({
+        //         url: '/admin/get_warehouse_location',
+        //         method: 'GET',
+        //         contentType: 'application/json',
+        //         success: function (response) {
+        //             let location = JSON.parse(response)
+        //             baseLatitude = location[0].latitude;
+        //             baseLongitude = location[0].longitude;
+        //             warehouseLocation = [location[0].latitude, location[0].longitude];
+        //             // Add the warehouse marker
+        //             baseMarker = L.marker(warehouseLocation, {
+        //                 icon: L.icon({
+        //                     iconUrl: 'assets/warehouse.png', // Example warehouse icon
+        //                     iconSize: [32, 32],
+        //                     iconAnchor: [16, 32], // Anchor the icon at the center bottom
+        //                     popupAnchor: [0, -32] // Position the popup correctly relative to the icon
+        //                 })
+        //             }).addTo(map);
 
+        //             // Bind a popup to the warehouse marker
+        //             baseMarker.bindPopup('<strong>Warehouse Location</strong>').openPopup();
+
+        //             // Adjust the map view to include the warehouse location
+        //             map.setView(warehouseLocation, 12);
+
+        //         },
+        //         error: function (error) {
+        //             console.error('Error fetching warehouse location:', error);
+        //         }
+        //     });
         baseMarker.on('dragend', function (e) {
             var newLatLng = e.target.getLatLng();
             baseLatitude = newLatLng.lat;
             baseLongitude = newLatLng.lng;
-            console.log("Νέα τοποθεσία βάσης: " + baseLatitude + ", " + baseLongitude);
-        });
-
-        document.getElementById("saveLocationButton").onclick = function () {
             $.ajax({
-                url: '/api/saveBaseLocation',
+                url: '/admin/save_warehouse_location',
                 method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
                 contentType: 'application/json',
                 data: JSON.stringify({
                     latitude: baseLatitude,
@@ -294,6 +323,11 @@
                     alert('Παρουσιάστηκε πρόβλημα κατά την αποθήκευση της τοποθεσίας.');
                 }
             });
+            console.log("Νέα τοποθεσία βάσης: " + baseLatitude + ", " + baseLongitude);
+        });
+
+        document.getElementById("saveLocationButton").onclick = function () {
+
         };
 
         function fetchTasks() {
