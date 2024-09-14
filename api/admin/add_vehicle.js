@@ -5,7 +5,6 @@ exports.add_vehicle = async(req,res,next)=>{
     var username = req.body.username
 
     var sql="INSERT INTO vehicles (username,rescuer_id,load) VALUES (?,?,?)";
-    let username = res1[0].username
     db.query(sql,[username,rescuer_id,''],function(err,res2){
         
         if(err) {
