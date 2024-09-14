@@ -187,7 +187,7 @@
             <button class="btn btn-light mr-2" data-toggle="modal" data-target="#add-rescuer-modal">
                 <i class="icon fas fa-user-plus"></i> Register Rescuer
             </button>
-            <button class="btn btn-light mr-2" data-toggle="modal" data-target="#add-vehicle-modal">
+            <button id="add-vehicle-button" class="btn btn-light btn-icon mr-2">
                 <i class="icon fas fa-car"></i> Add Vehicle
             </button>
             <button id="create-announcement-button" class="btn btn-light btn-icon" data-toggle="modal"
@@ -271,33 +271,25 @@
         </div>
     </div>
 
-
-    <!-- Modal for creating a new rescuer -->
+    <!-- Modal for adding a new vehicle -->
     <div id="add-vehicle-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addNewVehicle"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addNewVehicle">Add new vehicle</h5>
+                    <h5 class="modal-title" id="addNewVehicle">Add New Vehicle</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="add-rescuer-form">
-                        <div class="form-group">
-                            <label for="reg-rescuer-username">Username</label>
-                            <input type="text" id="reg-rescuer-username" name="username" class="form-control" required>
-                        </div>
-                        <button id="submit-rescuer-button" type="submit" class="btn btn-primary btn-icon">
-                            <i class="icon fas fa-user-plus"></i> Add Vehicle
-                        </button>
-                    </form>
+                    <div id="rescuer-list" class="list-group">
+                        <!-- Rescuers will be appended here -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
     <!-- Create Notification Form -->
     <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
         aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
@@ -467,115 +459,95 @@
                 });
             });
 
-
+            // Region Add new vehicle
             $(document).ready(function () {
-                // Open the announcements modal
-                $('#view-announcements-btn').on('click', function () {
-                    $('#announcementsModal').modal('show');
 
-                    // Fetch notifications from the API
+                // Open the Add Vehicle modal and fetch rescuers
+                $('#add-vehicle-button').on('click', function () {
+                    $('#add-vehicle-modal').modal('show');  // Ensure the modal is shown
+
+                    console.log('Fetching rescuers...');  // Debug log to confirm button click
+
+                    // Fetch rescuers from the API
                     $.ajax({
-                        url: '/api/get_rescuers',
+                        url: '/admin/get_rescuers',
                         type: 'GET',
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
                             'Content-Type': 'application/json'
                         },
-                        data: JSON.stringify({
-                            items: offers
-                        }),
                         success: function (response) {
-                            const rescuers = response;
+                            let rescuers = response;
 
-                            $('#submit-rescuer-button').on('click', function () {
-                                const username = $(this).data('category');
-                                let items = groupedByCategory[category]; // Get all items under this category
+                            // Check if response is a string and needs to be parsed as JSON
+                            if (typeof rescuers === 'string') {
+                                rescuers = JSON.parse(rescuers);
+                            }
 
-                                console.log(category);
-                                console.log(items);
+                            const rescuerList = $('#rescuer-list');
+                            console.log(rescuers); // Log the response to debug
 
-                                // Check if items are undefined or empty
-                                if (!items || items.length === 0) {
-                                    alert('No items found for this category');
-                                    return;
-                                }
+                            rescuerList.empty(); // Clear any previous data
 
-                                // Filter out duplicate items based on item_id
-                                items = filterUniqueItems(items);
+                            if (Array.isArray(rescuers) && rescuers.length > 0) {
+                                // Populate rescuers into the modal
+                                rescuers.forEach(rescuer => {
+                                    const firstName = rescuer.first_name ? rescuer.first_name : "N/A";  // Handle null first_name
+                                    const lastName = rescuer.last_name ? rescuer.last_name : "N/A";    // Handle null last_name
 
-                                // Open the offer modal and display all unique items under this category
-                                $('#items-list').empty();
-                                items.forEach(item => {
-                                    const itemName = item.name || 'Unnamed Item';
-                                    const itemQuantity = item.quantity !== undefined ? item.quantity : 'N/A';
-                                    const itemId = item.item_id || 'Unknown ID';
+                                    console.log(firstName, lastName);  // Log for debugging
 
-                                    const itemInput = `
-                        <div class="list-group-item">
-                            <strong>${itemName}</strong><br>
-                            <small>Quantity: ${itemQuantity}</small><br>
-                            <label for="quantity-${itemId}">Enter Offer Quantity:</label>
-                            <input type="number" id="quantity-${itemId}" class="form-control offer-quantity" data-item-id="${itemId}" min="1">
-                        </div>`;
-                                    $('#items-list').append(itemInput);
+                                    // Create the rescuer list item
+                                    const rescuerItem = `
+                                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                                            <span>${rescuer.username} (${firstName} ${lastName})</span>
+                                            <button class="btn btn-primary choose-rescuer-button" data-user-id="${rescuer.id}">
+                                                Choose
+                                            </button>
+                                        </div>
+                                    `;
+                                    // Append the rescuer to the list
+                                    rescuerList.append(rescuerItem);
                                 });
 
-                                // Show the offer modal
-                                $('#offerModal').modal('show');
-                            });
+                                // Handle rescuer selection and trigger add_vehicle API
+                                $('.choose-rescuer-button').on('click', function () {
+                                    const userId = $(this).data('userId');     // Get the selected rescuer's ID
+                                    const username = $(this).data('username'); // Get the selected rescuer's username
 
+                                    // Trigger the API call to add a vehicle
+                                    $.ajax({
+                                        url: '/admin/add_vehicle',
+                                        type: 'POST',
+                                        headers: {
+                                            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                                            'Content-Type': 'application/json'
+                                        },
+                                        data: JSON.stringify({
+                                            userId: userId,       // Send the selected userId
+                                            username: username    // Send the selected username
+                                        }),
+                                        success: function (response) {
+                                            alert('Vehicle added successfully for the rescuer!');
+                                            $('#add-vehicle-modal').modal('hide');
+                                        },
+                                        error: function (error) {
+                                            alert('Error adding vehicle: ' + error.responseText);
+                                        }
+                                    });
+                                });
+                            } else {
+                                // No rescuers found, display a message
+                                rescuerList.append('<p>No rescuers found.</p>');
+                            }
                         },
                         error: function (error) {
                             alert('Error fetching rescuers: ' + error.responseText);
                         }
                     });
                 });
-
-                // Submit the offers when the "Submit Offer" button is clicked
-                $('#submit-offer-btn').on('click', function () {
-                    const offers = [];
-
-                    // Gather all the items and their offer quantities
-                    $('.offer-quantity').each(function () {
-                        const itemId = $(this).data('item-id');
-                        const quantity = $(this).val();
-
-                        // If the user entered a quantity, add it to the offers array
-                        if (quantity) {
-                            offers.push({
-                                item_id: itemId,
-                                quantity: quantity
-                            });
-                        }
-                    });
-
-                    if (offers.length === 0) {
-                        alert('Please enter at least one offer.');
-                        return;
-                    }
-
-                    // Trigger the API call to submit all offers
-                    $.ajax({
-                        url: '/api/create_offer',
-                        type: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
-                            'Content-Type': 'application/json'
-                        },
-                        data: JSON.stringify({
-                            items: offers
-                        }),
-                        success: function (response) {
-                            alert('Offers submitted successfully');
-                            $('#offerModal').modal('hide');
-                        },
-                        error: function (error) {
-                            alert('Error submitting offers: ' + error.responseText);
-                        }
-                    });
-                });
             });
-
+            // End Region add new vehicle
 
             $('#add-rescuer-form').submit(function (event) {
                 event.preventDefault();
