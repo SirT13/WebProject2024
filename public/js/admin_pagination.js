@@ -56,7 +56,9 @@ function renderPage(page) {
         row.appendChild(categoryCell);
 
         const actionsCell = document.createElement('td');
-
+        actionsCell.style.display = 'flex';
+        actionsCell.style.gap = '10px'; // Adjust spacing as needed
+        
         const decreaseBtn = document.createElement('button');
         decreaseBtn.textContent = '-';
         decreaseBtn.disabled = item.quantity === 0;
