@@ -187,6 +187,9 @@
             <button class="btn btn-light mr-2" data-toggle="modal" data-target="#add-rescuer-modal">
                 <i class="icon fas fa-user-plus"></i> Register Rescuer
             </button>
+            <button class="btn btn-light mr-2" data-toggle="modal" data-target="#add-vehicle-modal">
+                <i class="icon fas fa-car"></i> Add Vehicle
+            </button>
             <button id="create-announcement-button" class="btn btn-light btn-icon" data-toggle="modal"
                 data-target="#add-announcement-modal">
                 <i class="icon fas fa-bullhorn"></i> Create Announcement
@@ -261,6 +264,33 @@
                         </div>
                         <button type="submit" class="btn btn-primary btn-icon">
                             <i class="icon fas fa-user-plus"></i> Add Rescuer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal for creating a new rescuer -->
+    <div id="add-vehicle-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addNewVehicle"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addNewVehicle">Add new vehicle</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-rescuer-form">
+                        <div class="form-group">
+                            <label for="reg-rescuer-username">Username</label>
+                            <input type="text" id="reg-rescuer-username" name="username" class="form-control" required>
+                        </div>
+                        <button id="submit-rescuer-button" type="submit" class="btn btn-primary btn-icon">
+                            <i class="icon fas fa-user-plus"></i> Add Vehicle
                         </button>
                     </form>
                 </div>
@@ -436,6 +466,116 @@
                     }
                 });
             });
+
+
+            $(document).ready(function () {
+                // Open the announcements modal
+                $('#view-announcements-btn').on('click', function () {
+                    $('#announcementsModal').modal('show');
+
+                    // Fetch notifications from the API
+                    $.ajax({
+                        url: '/api/get_rescuers',
+                        type: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify({
+                            items: offers
+                        }),
+                        success: function (response) {
+                            const rescuers = response;
+
+                            $('#submit-rescuer-button').on('click', function () {
+                                const username = $(this).data('category');
+                                let items = groupedByCategory[category]; // Get all items under this category
+
+                                console.log(category);
+                                console.log(items);
+
+                                // Check if items are undefined or empty
+                                if (!items || items.length === 0) {
+                                    alert('No items found for this category');
+                                    return;
+                                }
+
+                                // Filter out duplicate items based on item_id
+                                items = filterUniqueItems(items);
+
+                                // Open the offer modal and display all unique items under this category
+                                $('#items-list').empty();
+                                items.forEach(item => {
+                                    const itemName = item.name || 'Unnamed Item';
+                                    const itemQuantity = item.quantity !== undefined ? item.quantity : 'N/A';
+                                    const itemId = item.item_id || 'Unknown ID';
+
+                                    const itemInput = `
+                        <div class="list-group-item">
+                            <strong>${itemName}</strong><br>
+                            <small>Quantity: ${itemQuantity}</small><br>
+                            <label for="quantity-${itemId}">Enter Offer Quantity:</label>
+                            <input type="number" id="quantity-${itemId}" class="form-control offer-quantity" data-item-id="${itemId}" min="1">
+                        </div>`;
+                                    $('#items-list').append(itemInput);
+                                });
+
+                                // Show the offer modal
+                                $('#offerModal').modal('show');
+                            });
+
+                        },
+                        error: function (error) {
+                            alert('Error fetching rescuers: ' + error.responseText);
+                        }
+                    });
+                });
+
+                // Submit the offers when the "Submit Offer" button is clicked
+                $('#submit-offer-btn').on('click', function () {
+                    const offers = [];
+
+                    // Gather all the items and their offer quantities
+                    $('.offer-quantity').each(function () {
+                        const itemId = $(this).data('item-id');
+                        const quantity = $(this).val();
+
+                        // If the user entered a quantity, add it to the offers array
+                        if (quantity) {
+                            offers.push({
+                                item_id: itemId,
+                                quantity: quantity
+                            });
+                        }
+                    });
+
+                    if (offers.length === 0) {
+                        alert('Please enter at least one offer.');
+                        return;
+                    }
+
+                    // Trigger the API call to submit all offers
+                    $.ajax({
+                        url: '/api/create_offer',
+                        type: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                            'Content-Type': 'application/json'
+                        },
+                        data: JSON.stringify({
+                            items: offers
+                        }),
+                        success: function (response) {
+                            alert('Offers submitted successfully');
+                            $('#offerModal').modal('hide');
+                        },
+                        error: function (error) {
+                            alert('Error submitting offers: ' + error.responseText);
+                        }
+                    });
+                });
+            });
+
 
             $('#add-rescuer-form').submit(function (event) {
                 event.preventDefault();
