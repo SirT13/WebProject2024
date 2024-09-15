@@ -694,6 +694,8 @@
 
         // Region Add Rescuer
         $('#add-rescuer-form').submit(function (event) {
+            const token = localStorage.getItem('auth-token');
+
             event.preventDefault();
             const rescuer_username = $('#reg-rescuer-username').val();
             const resucer_password = $('#reg-rescuer-pass').val();
@@ -737,7 +739,6 @@
 
             // Show the modal with the form when the "Manage Categories" button is clicked
             $('#category-management-button').click(function () {
-                console.log('Manage Categories button clicked');
                 $('#add-category-modal').modal('show'); // Show the modal
             });
 
@@ -745,13 +746,12 @@
             $('#add-category-form').submit(function (event) {
                 event.preventDefault(); // Prevent the form from submitting the traditional way
 
-                const categoryName = $('#new-category-name').val(); // Get the entered category name
+                const categoryName = $('#new-category-name').val();
+                 // Get the entered category name
                 if (!categoryName) {
                     alert('Please enter a category name.');
                     return;
                 }
-
-                console.log('Submitting form with category:', categoryName); // Debugging log
 
                 // Make the API call to add the category
                 $.ajax({
@@ -765,7 +765,6 @@
                         name: categoryName // The category name being passed to the API
                     }),
                     success: function (response) {
-                        console.log('Category added successfully:', response); // Debugging log
                         alert('Category added successfully!');
                         $('#add-category-modal').modal('hide'); // Hide the modal after successful submission
                         $('#category-list').append('<div class="list-item">' + categoryName + '</div>'); // Update the category list dynamically

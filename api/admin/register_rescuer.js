@@ -5,9 +5,12 @@ const bcrypt = require('bcrypt');
 exports.register_rescuer = async(req,res,next)=>{   
     var username=req.body.username
     var password=req.body.password
+    
     password = await bcrypt.hash(password, 10);
+
     var values = [username,password,'rescuer'];
     var sql="INSERT INTO users (username, password, role) VALUES (?,?,?)";
+    
     db.query(sql,values,function(err,record){
         
         if(err) {
