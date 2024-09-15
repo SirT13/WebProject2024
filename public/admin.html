@@ -190,9 +190,8 @@
             <button id="add-vehicle-button" class="btn btn-light btn-icon mr-2">
                 <i class="icon fas fa-car"></i> Add Vehicle
             </button>
-            <button id="create-announcement-button" class="btn btn-light btn-icon" data-toggle="modal"
-                data-target="#add-announcement-modal">
-                <i class="icon fas fa-bullhorn"></i> Create Announcement
+            <button type="button" id="create-announcement-button" class="btn btn-light">
+                Create Announcement
             </button>
             <button id="logout-button" class="btn btn-danger btn-icon ml-3">
                 <i class="icon fas fa-sign-out-alt"></i> Logout
@@ -290,33 +289,41 @@
             </div>
         </div>
     </div>
+
     <!-- Create Notification Form -->
-    <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
-        aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+    <div class="modal fade" id="add-announcement-modal" tabindex="-1" role="dialog"
+        aria-labelledby="announcementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Announcement</h5>
+                    <h5 class="modal-title" id="announcementModalLabel">Create Announcement</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
+                    <!-- Form to add announcement -->
                     <form id="add-announcement-form">
-                        <div id="search-container" class="form-group">
-                            <label for="category-search">New Announcement</label>
-                            <input type="text" id="category-search" class="form-control">
+                        <div class="form-group">
+                            <label for="category-search">Search Category Name</label>
+                            <input type="text" id="category-search" class="form-control"
+                                placeholder="Search category...">
+                            <div id="category-results" class="mt-2"></div>
                         </div>
-                        <div id="category-results" class="form-group">
-                            <!-- Εδώ θα εμφανίζονται τα αποτελέσματα -->
+
+                        <div id="selected-categories" class="mt-3">
+                            <h6>Selected Categories:</h6>
+                            <ul id="selected-categories-list" class="list-group">
+                                <!-- Selected categories will be displayed here -->
+                            </ul>
                         </div>
-                        <button type="submit" class="btn btn-primary">Add Announcement</button>
+
+                        <button type="submit" class="btn btn-success mt-4">Create Notification</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
 
     <!-- Upload JSON File Section -->
     <div id="upload-json" class="container mt-5 text-center upload-section">
@@ -331,33 +338,39 @@
         <div id="upload-message" class="mt-3"></div>
     </div>
 
-    <!-- Modal for Adding Category -->
-    <div id="add-category-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCategoryModalLabel"
-        aria-hidden="true">
+    <!-- Modal για τη δημιουργία νέας ανακοίνωσης -->
+    <div id="add-announcement-modal" class="modal fade" tabindex="-1" role="dialog"
+        aria-labelledby="addAnnouncementModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                    <h5 class="modal-title" id="addAnnouncementModalLabel">Create New Notification</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="add-category-form">
+                    <form id="add-announcement-form">
                         <div class="form-group">
-                            <label for="new-category-name">Category Name</label>
-                            <input type="text" id="new-category-name" class="form-control"
-                                placeholder="Enter category name" required>
+                            <label for="category-search">Search Category Name</label>
+                            <input type="text" id="category-search" class="form-control"
+                                placeholder="Search category...">
+                            <div id="category-results" class="mt-2"></div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-icon">
-                            <i class="icon fas fa-plus"></i> Add Category
-                        </button>
+
+                        <div id="selected-categories" class="mt-3">
+                            <h6>Selected Categories:</h6>
+                            <ul id="selected-categories-list" class="list-group">
+                                <!-- Selected categories will be displayed here -->
+                            </ul>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-4">Create Notification</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
 
     <!-- Bootstrap and JS dependencies -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -367,69 +380,151 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.14/js/bootstrap-select.min.js"></script>
 
     <script>
-        //  Region Notifications
+        // Region Notifications
         $(document).ready(function () {
-            $('#requestModal').on('show.bs.modal', function () {
-                let token = localStorage.getItem('auth-token');
+            const token = localStorage.getItem('auth-token');
+            let items = [];
+            let selectedItems = [];
 
-                // Fetch categories and items when the modal opens
+            // When the user clicks the button to create an announcement
+            $('#create-announcement-button').click(function () {
+                // Make an API call to get_items
                 $.ajax({
-                    url: '/api/get_items',
-                    type: 'GET',
+                    url: '/admin/get_items',
+                    method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': 'Bearer ' + token,
                         'Content-Type': 'application/json'
                     },
                     success: function (response) {
-                        const data = JSON.parse(response);
-                        const categories = {};
+                        items = JSON.parse(response);
 
-                        // Populate categories and group items by category
-                        data.forEach(item => {
-                            if (!categories[item.category]) {
-                                categories[item.category] = [];
-                            }
-                            categories[item.category].push({ id: item.id, name: item.item });
-                        });
+                        // Clear the search input, results, and selected items list
+                        $('#category-search').val('');
+                        $('#category-results').empty();
+                        $('#selected-categories-list').empty();
 
-                        // Populate the category select dropdown
-                        const categorySelect = $('#category-select');
-                        categorySelect.empty().append('<option value="">Select a Category</option>'); // Default option
-
-                        for (const category in categories) {
-                            categorySelect.append(`<option value="${category}">${category}</option>`);
-                        }
-
-                        // Enable the category dropdown
-                        categorySelect.prop('disabled', false);
-
-                        // Reset the items dropdown
-                        $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
+                        // Show the modal
+                        $('#add-announcement-modal').modal('show');
                     },
                     error: function (error) {
-                        $('#message').text('Error fetching items: ' + error.responseText);
+                        console.error('Error fetching items:', error);
+                        alert('Failed to load categories.');
                     }
                 });
             });
 
-            $('#category-select').on('change', function () {
-                const selectedCategory = $(this).val();
-                if (selectedCategory) {
-                    const items = categories[selectedCategory];
-                    const itemSelect = $('#item-select');
+            // Search logic for category search bar
+            $('#category-search').on('input', function () {
+                const searchQuery = $(this).val().toLowerCase();
+                $('#category-results').empty();
 
-                    // Populate the items select dropdown based on the selected category
-                    itemSelect.empty().append('<option value="">Select an Item</option>'); // Default option
-                    items.forEach(item => {
-                        itemSelect.append(`<option value="${item.id}">${item.name}</option>`);
+                if (searchQuery) {
+                    // Filter categories from the items
+                    const filteredCategories = [...new Set(items.filter(item => item.category.toLowerCase().includes(searchQuery)).map(item => item.category))];
+
+                    // Display filtered categories
+                    filteredCategories.forEach(category => {
+                        $('#category-results').append(`
+                    <button class="btn btn-light btn-block mb-1 select-category" data-category="${category}">
+                        ${category}
+                    </button>
+                `);
                     });
-                    itemSelect.prop('disabled', false);
-                } else {
-                    $('#item-select').empty().append('<option value="">Select an Item</option>').prop('disabled', true);
                 }
             });
+
+            // When a user selects a category, display the items for that category
+            $('#category-results').on('click', '.select-category', function () {
+                const selectedCategory = $(this).data('category');
+                $('#category-results').empty();
+
+                // Filter items by the selected category
+                const filteredItems = items.filter(item => item.category === selectedCategory);
+
+                // Display items in the selected category
+                filteredItems.forEach(item => {
+                    $('#category-results').append(`
+                <div class="form-check">
+                    <input class="form-check-input select-item" type="checkbox" data-id="${item.id}" data-name="${item.item}" id="item-${item.id}">
+                    <label class="form-check-label" for="item-${item.id}">
+                        ${item.item}
+                    </label>
+                </div>
+            `);
+                });
+            });
+
+            // Track selected items
+            $('#category-results').on('change', '.select-item', function () {
+                const itemId = $(this).data('id');
+                const itemName = $(this).data('name');
+
+                if (this.checked) {
+                    // Add item to selected list
+                    if (!selectedItems.some(item => item.id === itemId)) {
+                        selectedItems.push({ id: itemId, name: itemName });
+
+                        // Add to selected items display
+                        $('#selected-categories-list').append(`
+                    <li class="list-group-item d-flex justify-content-between align-items-center" data-id="${itemId}">
+                        ${itemName}
+                        <button class="btn btn-danger btn-sm remove-item" data-id="${itemId}">Remove</button>
+                    </li>
+                `);
+                    }
+                } else {
+                    // Remove item from selected list
+                    selectedItems = selectedItems.filter(item => item.id !== itemId);
+
+                    // Remove from selected items display
+                    $(`#selected-categories-list li[data-id="${itemId}"]`).remove();
+                }
+            });
+
+            // Remove item from selected list
+            $('#selected-categories-list').on('click', '.remove-item', function () {
+                const itemId = $(this).data('id');
+                selectedItems = selectedItems.filter(item => item.id !== itemId);
+
+                // Uncheck the checkbox in the category results
+                $(`#category-results input[data-id="${itemId}"]`).prop('checked', false);
+
+                // Remove the item from the selected list in the UI
+                $(this).closest('li').remove();
+            });
+
+            // Handle form submission to create the notification
+            $('#add-announcement-form').submit(function (event) {
+                event.preventDefault();
+
+                if (selectedItems.length === 0) {
+                    alert('Please select at least one item.');
+                    return;
+                }
+
+                const itemIds = selectedItems.map(item => item.id);
+
+                // Make API call to create_notification
+                $.ajax({
+                    url: '/admin/create_notification',
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    data: JSON.stringify({ items: itemIds }),
+                    success: function (response) {
+                        alert('Notification created successfully.');
+                        $('#add-announcement-modal').modal('hide');
+                    },
+                    error: function (error) {
+                        alert('Error creating notification: ' + error.responseText);
+                    }
+                });
+            });
         });
-        // End Region Notifications  
+        // End Region Notifications
 
         $(document).ready(function () {
             const token = localStorage.getItem('auth-token');
@@ -509,7 +604,7 @@
                                 $('.choose-rescuer-button').on('click', function () {
                                     const userId = $(this).data('user-id');     // Get the selected rescuer's ID
                                     const username = $(this).data('user-name'); // Get the selected rescuer's username
-                                    console.log(userId,username)
+                                    console.log(userId, username)
                                     // Trigger the API call to add a vehicle
                                     $.ajax({
                                         url: '/admin/add_vehicle',
