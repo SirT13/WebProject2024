@@ -14,7 +14,7 @@ exports.get_rescuer_map_info = async(req,res,next)=>{
     WHERE (u.id = ? AND status != 'complete') OR ( t.rescuer_id IS NULL AND status = 'not_assigned')`
 
     db.query(sql,[userId],(err,results)=>{
-
+        console.log(JSON.stringify(results))
         if (err){
             return next(err)
         }
