@@ -154,6 +154,55 @@
             font-size: 1.1rem;
         }
 
+
+        /* Sections */
+        .show-section {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .show-section .btn {
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 30px;
+            background-color: #f1f1f1;
+            border: none;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .show-section .btn-icon i {
+            margin-right: 8px;
+        }
+
+        .show-section .btn:hover {
+            background-color: #e0e0e0;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .show-section .btn:active {
+            background-color: #d4d4d4;
+        }
+
+        .show-section .btn-icon i {
+            color: #007bff;
+        }
+
+        .custom-btn {
+            margin: 10px;
+        }
+
+        /* For small screens (make the buttons stack) */
+        @media (max-width: 768px) {
+            .show-section .btn {
+                display: block;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+
+
         /* Media Queries */
         @media (max-width: 768px) {
 
@@ -175,24 +224,6 @@
     <nav class="navbar navbar-expand navbar-dark d-flex">
         <a class="navbar-brand">Admin Dashboard</a>
         <div class="ml-auto">
-            <button id="view-items" class="btn btn-light mr-2 btn-icon">
-                <i class="icon fas fa-eye"></i> View Items
-            </button>
-            <button id="redirectButton" class="btn btn-light mr-2 btn-icon">
-                <i class="icon fas fa-map-marker-alt"></i> Go to Map
-            </button>
-            <button id="update-warehouse-button" class="btn btn-light mr-2 btn-icon">
-                <i class="icon fas fa-warehouse"></i> Update Warehouse
-            </button>
-            <button class="btn btn-light mr-2" data-toggle="modal" data-target="#add-rescuer-modal">
-                <i class="icon fas fa-user-plus"></i> Register Rescuer
-            </button>
-            <button id="add-vehicle-button" class="btn btn-light btn-icon mr-2">
-                <i class="icon fas fa-car"></i> Add Vehicle
-            </button>
-            <button type="button" id="create-announcement-button" class="btn btn-light">
-                Create Announcement
-            </button>
             <button id="logout-button" class="btn btn-danger btn-icon ml-3">
                 <i class="icon fas fa-sign-out-alt"></i> Logout
             </button>
@@ -205,36 +236,56 @@
         <p class="lead text-muted">Manage categories, items, and announcements efficiently.</p>
     </div>
 
-    <!-- Management Sections -->
+    <!-- Sections -->
     <div class="container">
         <div class="row mt-5">
-            <!-- Category Management -->
-            <div id="category-management" class="col-md-6">
-                <div class="card p-4">
-                    <div class="card-body text-center">
-                        <h2 class="card-title">Manage Categories</h2>
-                        <button id="add-category-button" class="btn btn-primary btn-icon mt-3">
-                            <i class="icon fas fa-plus"></i> Add Category
-                        </button>
-                        <div id="category-list" class="mt-4">
-                            <!-- Categories will be dynamically loaded here -->
-                        </div>
-                    </div>
-                </div>
+            <div class="container mt-5 text-center show-section">
+                <button id="category-management-button" class="btn btn-light mr-2 btn-icon custom-btn">
+                    <i class="icon fas fa-list-alt"></i> Manage Categories
+                </button>
+                <button id="view-items" class="btn btn-light mr-2 btn-icon custom-btn">
+                    <i class="icon fas fa-eye"></i> View Items
+                </button>
+                <button id="redirectButton" class="btn btn-light mr-2 btn-icon custom-btn">
+                    <i class="icon fas fa-map-marker-alt"></i> Go to Map
+                </button>
+                <button id="update-warehouse-button" class="btn btn-light mr-2 btn-icon custom-btn">
+                    <i class="icon fas fa-warehouse"></i> Update Warehouse
+                </button>
+                <button class="btn btn-light mr-2 custom-btn" data-toggle="modal" data-target="#add-rescuer-modal">
+                    <i class="icon fas fa-user-plus"></i> Register Rescuer
+                </button>
+                <button id="add-vehicle-button" class="btn btn-light btn-icon mr-2 custom-btn">
+                    <i class="icon fas fa-car"></i> Add Vehicle
+                </button>
+                <button type="button" id="create-announcement-button" class="btn btn-light custom-btn">
+                    <i class="icon fas fa-bullhorn"></i> Create Announcement
+                </button>
             </div>
+        </div>
+    </div>
 
-            <!-- Item Management -->
-            <div id="item-management" class="col-md-6">
-                <div class="card p-4">
-                    <div class="card-body text-center">
-                        <h2 class="card-title">Manage Items</h2>
-                        <button id="add-item-button" class="btn btn-primary btn-icon mt-3">
-                            <i class="icon fas fa-box"></i> Add Item
-                        </button>
-                        <div id="item-list" class="mt-4">
-                            <!-- Items will be dynamically loaded here -->
+    <!-- Modal with 'Add New Category' -->
+    <div id="add-category-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="addCategoryModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="add-category-form">
+                        <div class="form-group">
+                            <label for="new-category-name">Category Name</label>
+                            <input type="text" id="new-category-name" class="form-control"
+                                placeholder="Enter category name">
                         </div>
-                    </div>
+                        <button type="submit" id="#add-category-form" class="btn btn-primary">Add
+                            Category</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -318,7 +369,7 @@
                             </ul>
                         </div>
 
-                        <button type="submit" class="btn btn-success mt-4">Create Notification</button>
+                        <button type="submit" class="btn btn-primary d-flex m-auto">Create Notification</button>
                     </form>
                 </div>
             </div>
@@ -329,10 +380,10 @@
     <div id="upload-json" class="container mt-5 text-center upload-section">
         <h2 class="card-title mb-4">Upload JSON Data</h2>
         <input type="file" id="json-file-input" accept=".json" class="d-none">
-        <button id="choose-file-button" class="btn btn-primary btn-icon">
+        <button id="choose-file-button" class="btn btn-primary btn-icon mb-2">
             <i class="icon fas fa-file-upload"></i> Choose File
         </button>
-        <button id="upload-json-button" class="btn btn-primary btn-icon ml-3">
+        <button id="upload-json-button" class="btn btn-primary btn-icon mb-1 ml-lg-3">
             <i class="icon fas fa-upload"></i> Upload JSON
         </button>
         <div id="upload-message" class="mt-3"></div>
@@ -526,6 +577,7 @@
         });
         // End Region Notifications
 
+        // Update Warehouse button
         $(document).ready(function () {
             const token = localStorage.getItem('auth-token');
             if (!token) {
@@ -552,43 +604,44 @@
                     }
                 });
             });
+        });
 
-            // Region Add new vehicle
-            $(document).ready(function () {
+        // Region Add new vehicle
+        $(document).ready(function () {
 
-                // Open the Add Vehicle modal and fetch rescuers
-                $('#add-vehicle-button').on('click', function () {
-                    $('#add-vehicle-modal').modal('show');  // Ensure the modal is shown
+            // Open the Add Vehicle modal and fetch rescuers
+            $('#add-vehicle-button').on('click', function () {
+                $('#add-vehicle-modal').modal('show');  // Ensure the modal is shown
 
-                    // Fetch rescuers from the API
-                    $.ajax({
-                        url: '/admin/get_rescuers',
-                        type: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
-                            'Content-Type': 'application/json'
-                        },
-                        success: function (response) {
-                            let rescuers = response;
+                // Fetch rescuers from the API
+                $.ajax({
+                    url: '/admin/get_rescuers',
+                    type: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                        'Content-Type': 'application/json'
+                    },
+                    success: function (response) {
+                        let rescuers = response;
 
-                            // Check if response is a string and needs to be parsed as JSON
-                            if (typeof rescuers === 'string') {
-                                rescuers = JSON.parse(rescuers);
-                            }
+                        // Check if response is a string and needs to be parsed as JSON
+                        if (typeof rescuers === 'string') {
+                            rescuers = JSON.parse(rescuers);
+                        }
 
-                            const rescuerList = $('#rescuer-list');
-                            rescuerList.empty(); // Clear any previous data
+                        const rescuerList = $('#rescuer-list');
+                        rescuerList.empty(); // Clear any previous data
 
-                            if (Array.isArray(rescuers) && rescuers.length > 0) {
-                                // Populate rescuers into the modal
-                                rescuers.forEach(rescuer => {
-                                    const firstName = rescuer.first_name ? rescuer.first_name : "N/A";  // Handle null first_name
-                                    const lastName = rescuer.last_name ? rescuer.last_name : "N/A";    // Handle null last_name
+                        if (Array.isArray(rescuers) && rescuers.length > 0) {
+                            // Populate rescuers into the modal
+                            rescuers.forEach(rescuer => {
+                                const firstName = rescuer.first_name ? rescuer.first_name : "N/A";  // Handle null first_name
+                                const lastName = rescuer.last_name ? rescuer.last_name : "N/A";    // Handle null last_name
 
-                                    console.log(firstName, lastName);  // Log for debugging
+                                console.log(firstName, lastName);  // Log for debugging
 
-                                    // Create the rescuer list item
-                                    const rescuerItem = `
+                                // Create the rescuer list item
+                                const rescuerItem = `
                                         <div class="list-group-item d-flex justify-content-between align-items-center">
                                             <span>${rescuer.username}</span>
                                             <button class="btn btn-primary choose-rescuer-button" data-user-id="${rescuer.id}" data-user-name="${rescuer.username}">
@@ -596,129 +649,155 @@
                                             </button>
                                         </div>
                                     `;
-                                    // Append the rescuer to the list
-                                    rescuerList.append(rescuerItem);
-                                });
+                                // Append the rescuer to the list
+                                rescuerList.append(rescuerItem);
+                            });
 
-                                // Handle rescuer selection and trigger add_vehicle API
-                                $('.choose-rescuer-button').on('click', function () {
-                                    const userId = $(this).data('user-id');     // Get the selected rescuer's ID
-                                    const username = $(this).data('user-name'); // Get the selected rescuer's username
-                                    console.log(userId, username)
-                                    // Trigger the API call to add a vehicle
-                                    $.ajax({
-                                        url: '/admin/add_vehicle',
-                                        type: 'POST',
-                                        headers: {
-                                            'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
-                                            'Content-Type': 'application/json'
-                                        },
-                                        data: JSON.stringify({
-                                            rescuer_id: userId,       // Send the selected userId
-                                            username: username    // Send the selected username
-                                        }),
-                                        success: function (response) {
-                                            $('#add-vehicle-modal').modal('hide');
-                                        },
-                                        error: function (error) {
-                                            alert('Error adding vehicle: ' + error.responseText);
-                                        }
-                                    });
+                            // Handle rescuer selection and trigger add_vehicle API
+                            $('.choose-rescuer-button').on('click', function () {
+                                const userId = $(this).data('user-id');     // Get the selected rescuer's ID
+                                const username = $(this).data('user-name'); // Get the selected rescuer's username
+                                console.log(userId, username)
+                                // Trigger the API call to add a vehicle
+                                $.ajax({
+                                    url: '/admin/add_vehicle',
+                                    type: 'POST',
+                                    headers: {
+                                        'Authorization': `Bearer ${localStorage.getItem('auth-token')}`,
+                                        'Content-Type': 'application/json'
+                                    },
+                                    data: JSON.stringify({
+                                        rescuer_id: userId,       // Send the selected userId
+                                        username: username    // Send the selected username
+                                    }),
+                                    success: function (response) {
+                                        $('#add-vehicle-modal').modal('hide');
+                                    },
+                                    error: function (error) {
+                                        alert('Error adding vehicle: ' + error.responseText);
+                                    }
                                 });
-                            } else {
-                                // No rescuers found, display a message
-                                rescuerList.append('<p>No rescuers without vehicle found.</p>');
-                            }
-                        },
-                        error: function (error) {
-                            alert('Error fetching rescuers: ' + error.responseText);
+                            });
+                        } else {
+                            // No rescuers found, display a message
+                            rescuerList.append('<p>No rescuers without vehicle found.</p>');
                         }
-                    });
-                });
-            });
-            // End Region add new vehicle
-
-            $('#add-rescuer-form').submit(function (event) {
-                event.preventDefault();
-                const rescuer_username = $('#reg-rescuer-username').val();
-                const resucer_password = $('#reg-rescuer-pass').val();
-                $.ajax({
-                    url: '/admin/register_rescuer',
-                    type: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                        'Content-Type': 'application/json'
-                    },
-                    data: JSON.stringify({
-                        username: rescuer_username,
-                        password: resucer_password
-                    }),
-                    success: function (response) {
-                        $('#add-rescuer-modal').modal('hide');
                     },
                     error: function (error) {
-                        $('#message').text('Error registering rescuer: ' + error.responseText);
+                        alert('Error fetching rescuers: ' + error.responseText);
                     }
                 });
             });
+        });
+        // End Region add new vehicle
 
-            document.getElementById("redirectButton").onclick = function () {
-                window.location.href = "admin_map.html";
-            };
 
-            $('#view-items').click(function () {
-                window.location.href = 'items.html';
+        // Region Add Rescuer
+        $('#add-rescuer-form').submit(function (event) {
+            event.preventDefault();
+            const rescuer_username = $('#reg-rescuer-username').val();
+            const resucer_password = $('#reg-rescuer-pass').val();
+            $.ajax({
+                url: '/admin/register_rescuer',
+                type: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                    'Content-Type': 'application/json'
+                },
+                data: JSON.stringify({
+                    username: rescuer_username,
+                    password: resucer_password
+                }),
+                success: function (response) {
+                    $('#add-rescuer-modal').modal('hide');
+                },
+                error: function (error) {
+                    $('#message').text('Error registering rescuer: ' + error.responseText);
+                }
+            });
+        });
+        // End Region add rescuer
+
+        // Redirect buttons
+        document.getElementById("redirectButton").onclick = function () {
+            window.location.href = "admin_map.html";
+        };
+
+        $('#view-items').click(function () {
+            window.location.href = 'items.html';
+        });
+        // End Region of redirect buttons
+
+        $(document).ready(function () {
+            // Ensure the token is available
+            const token = localStorage.getItem('auth-token');
+            if (!token) {
+                console.error('Authorization token is missing');
+            }
+
+            // Show the modal with the form when the "Manage Categories" button is clicked
+            $('#category-management-button').click(function () {
+                console.log('Manage Categories button clicked');
+                $('#add-category-modal').modal('show'); // Show the modal
             });
 
-            $('#add-category-button').click(function () {
-                $('#add-category-modal').modal('show');
-            });
-
+            // Handle the form submission for adding categories
             $('#add-category-form').submit(function (event) {
-                event.preventDefault();
-                const categoryName = $('#new-category-name').val();
+                event.preventDefault(); // Prevent the form from submitting the traditional way
 
+                const categoryName = $('#new-category-name').val(); // Get the entered category name
+                if (!categoryName) {
+                    alert('Please enter a category name.');
+                    return;
+                }
+
+                console.log('Submitting form with category:', categoryName); // Debugging log
+
+                // Make the API call to add the category
                 $.ajax({
-                    url: '/admin/add_category',
+                    url: '/admin/add_category', // API endpoint (adjust the URL as needed)
                     type: 'POST',
                     headers: {
-                        'Authorization': 'Bearer ' + token,
-                        'Content-Type': 'application/json'
+                        'Authorization': 'Bearer ' + token, // Authorization token
+                        'Content-Type': 'application/json' // Setting the content type to JSON
                     },
                     data: JSON.stringify({
-                        name: categoryName
+                        name: categoryName // The category name being passed to the API
                     }),
                     success: function (response) {
+                        console.log('Category added successfully:', response); // Debugging log
                         alert('Category added successfully!');
-                        $('#add-category-modal').modal('hide');
-                        $('#category-list').append('<div class="list-item">' + categoryName + '</div>');
-                        $('#add-category-form')[0].reset();
+                        $('#add-category-modal').modal('hide'); // Hide the modal after successful submission
+                        $('#category-list').append('<div class="list-item">' + categoryName + '</div>'); // Update the category list dynamically
+                        $('#add-category-form')[0].reset(); // Reset the form
                     },
                     error: function (error) {
+                        console.error('Error adding category:', error); // Debugging log for any errors
                         alert('Error adding category: ' + error.responseText);
                     }
                 });
             });
+        });
 
-            // Trigger the file input click event when the "Choose File" button is clicked
-            $('#choose-file-button').click(function () {
-                $('#json-file-input').click();
-            });
 
-            $('#upload-json-button').click(function () {
-                const fileInput = $('#json-file-input')[0].files[0];
-                if (fileInput) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const jsonData = JSON.parse(e.target.result);
-                        console.log(jsonData);
-                        $('#upload-message').text('JSON data uploaded successfully.');
-                    };
-                    reader.readAsText(fileInput);
-                } else {
-                    $('#upload-message').text('Please select a JSON file to upload.');
-                }
-            });
+        // Trigger the file input click event when the "Choose File" button is clicked
+        $('#choose-file-button').click(function () {
+            $('#json-file-input').click();
+        });
+
+        $('#upload-json-button').click(function () {
+            const fileInput = $('#json-file-input')[0].files[0];
+            if (fileInput) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const jsonData = JSON.parse(e.target.result);
+                    console.log(jsonData);
+                    $('#upload-message').text('JSON data uploaded successfully.');
+                };
+                reader.readAsText(fileInput);
+            } else {
+                $('#upload-message').text('Please select a JSON file to upload.');
+            }
         });
     </script>
 </body>
