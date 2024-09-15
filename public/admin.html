@@ -706,15 +706,29 @@
             });
 
             $('#upload-json-button').click(function () {
+                console.log("clocickckckdssdf")
+                const formData = new FormData();
                 const fileInput = $('#json-file-input')[0].files[0];
                 if (fileInput) {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const jsonData = JSON.parse(e.target.result);
-                        console.log(jsonData);
-                        $('#upload-message').text('JSON data uploaded successfully.');
-                    };
-                    reader.readAsText(fileInput);
+                    formData.append('file', fileInput);
+                    $.ajax({
+                    url: 'admin/upload_file',  // The endpoint you want to send the file to
+                    type: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    data: formData,
+                    contentType: false, // Tell jQuery not to set content-type
+                    processData: false, // Tell jQuery not to process data
+                    success: function(response) {
+                        $('#responseMessage').text('File uploaded and processed successfully.');
+                        console.log('Server Response:', response);
+                    },
+                    error: function(xhr, status, error) {
+                        const errMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred';
+                        $('#responseMessage').text(`Error: ${errMessage}`);
+                    }
+                });
                 } else {
                     $('#upload-message').text('Please select a JSON file to upload.');
                 }

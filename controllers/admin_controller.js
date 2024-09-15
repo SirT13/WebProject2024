@@ -19,7 +19,7 @@ const { get_warehouse_location } = require('../api/admin/get_warehouse_location'
 const { get_admin_map_info } = require('../api/admin/get_admin_map_info')
 const { save_warehouse_location } = require('../api/admin/save_warehouse_location')
 const { create_notification } = require('../api/admin/create_notification')
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ dest: 'api/uploads/' });
 
 router.route('/update_warehouse').get(verifyToken('admin'),update_warehouse)
 router.route('/upload_file').post(verifyToken('admin'),upload.single('file'),upload_file)

@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 exports.upload_file = async(req,res,next)=>{
+    console.log("Step1")
     if (!req.file) {
         return res.status(400).send({ message: 'No file uploaded' });
     }
