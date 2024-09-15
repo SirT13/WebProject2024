@@ -465,8 +465,6 @@
                 $('#add-vehicle-button').on('click', function () {
                     $('#add-vehicle-modal').modal('show');  // Ensure the modal is shown
 
-                    console.log('Fetching rescuers...');  // Debug log to confirm button click
-
                     // Fetch rescuers from the API
                     $.ajax({
                         url: '/admin/get_rescuers',
@@ -484,8 +482,6 @@
                             }
 
                             const rescuerList = $('#rescuer-list');
-                            console.log(rescuers); // Log the response to debug
-
                             rescuerList.empty(); // Clear any previous data
 
                             if (Array.isArray(rescuers) && rescuers.length > 0) {
@@ -499,8 +495,8 @@
                                     // Create the rescuer list item
                                     const rescuerItem = `
                                         <div class="list-group-item d-flex justify-content-between align-items-center">
-                                            <span>${rescuer.username} (${firstName} ${lastName})</span>
-                                            <button class="btn btn-primary choose-rescuer-button" data-user-id="${rescuer.id}">
+                                            <span>${rescuer.username}</span>
+                                            <button class="btn btn-primary choose-rescuer-button" data-user-id="${rescuer.id}" data-user-name="${rescuer.username}">
                                                 Choose
                                             </button>
                                         </div>
@@ -511,9 +507,9 @@
 
                                 // Handle rescuer selection and trigger add_vehicle API
                                 $('.choose-rescuer-button').on('click', function () {
-                                    const userId = $(this).data('userId');     // Get the selected rescuer's ID
-                                    const username = $(this).data('username'); // Get the selected rescuer's username
-
+                                    const userId = $(this).data('user-id');     // Get the selected rescuer's ID
+                                    const username = $(this).data('user-name'); // Get the selected rescuer's username
+                                    console.log(userId,username)
                                     // Trigger the API call to add a vehicle
                                     $.ajax({
                                         url: '/admin/add_vehicle',
@@ -523,11 +519,10 @@
                                             'Content-Type': 'application/json'
                                         },
                                         data: JSON.stringify({
-                                            userId: userId,       // Send the selected userId
+                                            rescuer_id: userId,       // Send the selected userId
                                             username: username    // Send the selected username
                                         }),
                                         success: function (response) {
-                                            alert('Vehicle added successfully for the rescuer!');
                                             $('#add-vehicle-modal').modal('hide');
                                         },
                                         error: function (error) {
@@ -537,7 +532,7 @@
                                 });
                             } else {
                                 // No rescuers found, display a message
-                                rescuerList.append('<p>No rescuers found.</p>');
+                                rescuerList.append('<p>No rescuers without vehicle found.</p>');
                             }
                         },
                         error: function (error) {
@@ -564,7 +559,7 @@
                         password: resucer_password
                     }),
                     success: function (response) {
-                        $('#message').text(response);
+                        $('#add-rescuer-modal').modal('hide');
                     },
                     error: function (error) {
                         $('#message').text('Error registering rescuer: ' + error.responseText);

@@ -672,6 +672,7 @@
                                             task_id: record.task_id
                                         }),
                                         success: function (response) {
+                                            alert(response.message)
                                         },
                                         error: function (error) {
                                             console.error('Error assigning task:', error);

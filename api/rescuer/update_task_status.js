@@ -10,11 +10,17 @@ exports.update_task_status = async(req,res,next)=>{
     var rescuer_id = req.user.user_id
 
     const task_sql = 'UPDATE tasks SET status = ? where id = ?'
+    const vehicle_sql = "UPDATE vehicles SET number_of_tasks = number_of_tasks - 1"
     const get_load_sql = 'SELECT `load` from vehicles WHERE rescuer_id = ?'
     db.query(task_sql,[status,taskId],(err)=>{
         if (err){
             return next(err)
         }
+        db.query(vehicle_sql,[rescuer_id],(err,results)=> {
+            if (err){
+                return next(err)
+            }
+        })
     })
     if(status === 'complete')
     {

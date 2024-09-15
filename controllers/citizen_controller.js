@@ -13,7 +13,7 @@ const { delete_request } = require('../api/citizen/delete_request');
 const { get_offers } = require('../api/citizen/get_offers');
 
 router.route('/get_citizens').get(verifyToken('citizen'),get_citizens)
-router.route('/register_citizen').post(verifyToken('citizen'), register_citizen)
+router.route('/register_citizen').post(register_citizen)
 router.route('/create_offer').post(verifyToken('citizen'), create_offer)
 router.route('/create_request').post(verifyToken('citizen'), create_request)
 router.route('/get_requests').get(verifyToken('citizen'),get_requests)
