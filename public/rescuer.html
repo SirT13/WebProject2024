@@ -493,19 +493,11 @@
                 },
                 success: function (response) {
                     const records = JSON.parse(response)
+                    console.log(records)
                     // Assuming 'tasks' is your array from the JSON response
-                    let rescuerName = null;
-                    let rescuerLatitude = null;
-                    let rescuerLongitude = null;
+                    let rescuerLatitude = records[0].rescuer_latitude;
+                    let rescuerLongitude = records[0].rescuer_longitude;
 
-                    for (let i = 0; i < records.length; i++) {
-                        if (records[i].rescuer && records[i].rescuer_latitude && records[i].rescuer_longitude) {
-                            rescuerName = records[i].rescuer;
-                            rescuerLatitude = records[i].rescuer_latitude;
-                            rescuerLongitude = records[i].rescuer_longitude;
-                            break;
-                        }
-                    }
                     const rescuerMarker = L.marker([rescuerLatitude, rescuerLongitude], {
                         icon: L.icon({
                             iconUrl: 'assets/rescuer.png',
