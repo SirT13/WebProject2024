@@ -8,8 +8,8 @@ exports.register_rescuer = async(req,res,next)=>{
     
     password = await bcrypt.hash(password, 10);
 
-    var values = [username,password,'rescuer'];
-    var sql="INSERT INTO users (username, password, role) VALUES (?,?,?)";
+    var values = [username,password,'rescuer',37.9838,23.7275];
+    var sql="INSERT INTO users (username, password, role,latitude,longitude) VALUES (?,?,?,?,?)";
     
     db.query(sql,values,function(err,record){
         
