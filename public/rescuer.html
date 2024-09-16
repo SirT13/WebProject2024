@@ -492,11 +492,11 @@
                     'Content-Type': 'application/json'
                 },
                 success: function (response) {
-                    const records = JSON.parse(response)
+                    const records = response.tasks
                     console.log(records)
                     // Assuming 'tasks' is your array from the JSON response
-                    let rescuerLatitude = records[0].rescuer_latitude;
-                    let rescuerLongitude = records[0].rescuer_longitude;
+                    let rescuerLatitude = response.rescuer.latitude
+                    let rescuerLongitude = response.rescuer.longitude
 
                     const rescuerMarker = L.marker([rescuerLatitude, rescuerLongitude], {
                         icon: L.icon({
