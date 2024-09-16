@@ -8,6 +8,10 @@ exports.assign_task = async(req,res,next)=>{
     const sql2 = "UPDATE vehicles SET number_of_tasks = number_of_tasks + 1 WHERE rescuer_id = ?"
     const vehicle_sql = "SELECT number_of_tasks FROM vehicles WHERE rescuer_id = ?"
     db.query(vehicle_sql,[userId],(err,results)=>{
+        if(results.length <= 0)
+        {
+            return res.status(404).json({ message: "There is no vehicle assigned to this Rescuer" });
+        }
         let number_of_tasks = results[0].number_of_tasks
         if(err)
         {
@@ -16,7 +20,7 @@ exports.assign_task = async(req,res,next)=>{
 
         if(number_of_tasks >= 4)
         {
-            return res.status(200).json({ message: "You have exceeded the task limit (4) and cannot take more." });
+            return res.status(403).json({ message: "You have exceeded the task limit (4) and cannot take more." });
         }
         db.query(sql,[userId,currentDateTime,taskId],(err,results)=>{
 
