@@ -10,7 +10,7 @@ exports.assign_task = async(req,res,next)=>{
     db.query(vehicle_sql,[userId],(err,results)=>{
         if(results.length <= 0)
         {
-            return res.status(404).json({ message: "There is no vehicle assigned to this Rescuer" });
+            return res.status(200).json({ message: "There is no vehicle assigned to this Rescuer" });
         }
         let number_of_tasks = results[0].number_of_tasks
         if(err)
@@ -20,7 +20,7 @@ exports.assign_task = async(req,res,next)=>{
 
         if(number_of_tasks >= 4)
         {
-            return res.status(403).json({ message: "You have exceeded the task limit (4) and cannot take more." });
+            return res.status(200).json({ message: "You have exceeded the task limit (4) and cannot take more." });
         }
         db.query(sql,[userId,currentDateTime,taskId],(err,results)=>{
 
