@@ -156,52 +156,37 @@
 
 
         /* Sections */
-        .show-section {
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .show-section .btn {
-            font-size: 16px;
-            padding: 10px 20px;
-            border-radius: 30px;
-            background-color: #f1f1f1;
-            border: none;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .show-section .btn-icon i {
-            margin-right: 8px;
-        }
-
-        .show-section .btn:hover {
-            background-color: #e0e0e0;
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .show-section .btn:active {
-            background-color: #d4d4d4;
-        }
-
-        .show-section .btn-icon i {
-            color: #007bff;
-        }
-
         .custom-btn {
-            margin: 10px;
+            margin: 10px 5px;
+            padding: 10px 20px;
+            background: linear-gradient(45deg, #ffffff, #f1f1f1);
+            color: #343a40;
+            border-radius: 30px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
-        /* For small screens (make the buttons stack) */
+        .custom-btn:hover {
+            background: linear-gradient(45deg, #e1e1e1, #f9f9f9);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Responsive layout adjustment */
+        .show-section {
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
         @media (max-width: 768px) {
-            .show-section .btn {
-                display: block;
+            .custom-btn {
                 width: 100%;
-                margin-bottom: 10px;
+                margin: 10px 0;
             }
         }
-
 
         /* Media Queries */
         @media (max-width: 768px) {
@@ -237,27 +222,47 @@
     </div>
 
     <!-- Sections -->
-    <div class="container">
-        <div class="row mt-5">
-            <div class="container mt-5 text-center show-section">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <!-- Manage Categories Button -->
+            <div class="col-lg-4 col-md-6 col-sm-12 text-center">
                 <button id="category-management-button" class="btn btn-light mr-2 btn-icon custom-btn">
                     <i class="icon fas fa-list-alt"></i> Manage Categories
                 </button>
+            </div>
+            <!-- View Items Button -->
+            <div class="col-lg-4 col-md-6 col-sm-12 text-center">
                 <button id="view-items" class="btn btn-light mr-2 btn-icon custom-btn">
                     <i class="icon fas fa-eye"></i> View Items
                 </button>
+            </div>
+            <!-- Go to Map Button -->
+            <div class="col-lg-4 col-md-6 col-sm-12 text-center">
                 <button id="redirectButton" class="btn btn-light mr-2 btn-icon custom-btn">
                     <i class="icon fas fa-map-marker-alt"></i> Go to Map
                 </button>
+            </div>
+            <!-- Update Warehouse Button -->
+            <div class="col-lg-4 col-md-6 col-sm-12 text-center">
                 <button id="update-warehouse-button" class="btn btn-light mr-2 btn-icon custom-btn">
                     <i class="icon fas fa-warehouse"></i> Update Warehouse
                 </button>
-                <button class="btn btn-light btn-icon mr-2 custom-btn" data-toggle="modal" data-target="#add-rescuer-modal">
+            </div>
+            <!-- Register Rescuer Button -->
+            <div class="col-lg-4 col-md-6 col-sm-12 text-center">
+                <button class="btn btn-light btn-icon mr-2 custom-btn" data-toggle="modal"
+                    data-target="#add-rescuer-modal">
                     <i class="icon fas fa-user-plus"></i> Register Rescuer
                 </button>
+            </div>
+            <!-- Add Vehicle Button -->
+            <div class="col-lg-4 col-md-6 col-sm-12 text-center">
                 <button id="add-vehicle-button" class="btn btn-light btn-icon mr-2 custom-btn">
                     <i class="icon fas fa-car"></i> Add Vehicle
                 </button>
+            </div>
+            <!-- Create Announcement Button -->
+            <div class="col-lg-4 col-md-6 col-sm-12 text-center">
                 <button type="button" id="create-announcement-button" class="btn btn-light btn-icon custom-btn">
                     <i class="icon fas fa-bullhorn"></i> Create Announcement
                 </button>
@@ -747,7 +752,7 @@
                 event.preventDefault(); // Prevent the form from submitting the traditional way
 
                 const categoryName = $('#new-category-name').val();
-                 // Get the entered category name
+                // Get the entered category name
                 if (!categoryName) {
                     alert('Please enter a category name.');
                     return;
@@ -784,13 +789,13 @@
             $('#json-file-input').click();
         });
 
-            $('#upload-json-button').click(function () {
-                console.log("clocickckckdssdf")
-                const formData = new FormData();
-                const fileInput = $('#json-file-input')[0].files[0];
-                if (fileInput) {
-                    formData.append('file', fileInput);
-                    $.ajax({
+        $('#upload-json-button').click(function () {
+            console.log("clocickckckdssdf")
+            const formData = new FormData();
+            const fileInput = $('#json-file-input')[0].files[0];
+            if (fileInput) {
+                formData.append('file', fileInput);
+                $.ajax({
                     url: 'admin/upload_file',  // The endpoint you want to send the file to
                     type: 'POST',
                     headers: {
@@ -799,19 +804,19 @@
                     data: formData,
                     contentType: false, // Tell jQuery not to set content-type
                     processData: false, // Tell jQuery not to process data
-                    success: function(response) {
+                    success: function (response) {
                         $('#responseMessage').text('File uploaded and processed successfully.');
                         console.log('Server Response:', response);
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         const errMessage = xhr.responseJSON ? xhr.responseJSON.message : 'An error occurred';
                         $('#responseMessage').text(`Error: ${errMessage}`);
                     }
                 });
-                } else {
-                    $('#upload-message').text('Please select a JSON file to upload.');
-                }
-            });
+            } else {
+                $('#upload-message').text('Please select a JSON file to upload.');
+            }
+        });
     </script>
 </body>
 
