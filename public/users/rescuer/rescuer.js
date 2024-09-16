@@ -74,11 +74,11 @@ $(document).ready(function () {
             'Content-Type': 'application/json'
         },
         success: function (response) {
-            const records = JSON.parse(response)
+            const records = response.tasks
             console.log(records)
             // Assuming 'tasks' is your array from the JSON response
-            let rescuerLatitude = 23.786087036132816;
-            let rescuerLongitude = 37.99237479543426;
+            let rescuerLatitude = response.rescuer.latitude;
+            let rescuerLongitude = response.rescuer.longitude;
 
             const rescuerMarker = L.marker([rescuerLatitude, rescuerLongitude], {
                 icon: L.icon({
@@ -274,6 +274,7 @@ $(document).ready(function () {
 
                 rescuerMarker.on('dragend', function (event) {
                     const newLocation = event.target.getLatLng();
+                    console.log("fsfd")
                     if (record.status === 'in_progress') {
                         const citizen_latitude = record.citizen_latitude
                         const citizen_longitude = record.citizen_longitude
