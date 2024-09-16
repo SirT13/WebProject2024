@@ -24,10 +24,10 @@ $(document).ready(function () {
             // Add the warehouse marker
             const baseMarker = L.marker(warehouseLocation, {
                 icon: L.icon({
-                    iconUrl: 'assets/warehouse.png', // Example warehouse icon
+                    iconUrl: 'assets/warehouse.png',
                     iconSize: [32, 32],
-                    iconAnchor: [16, 32], // Anchor the icon at the center bottom
-                    popupAnchor: [0, -32] // Position the popup correctly relative to the icon
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
                 })
             }).addTo(map);
 
@@ -49,7 +49,7 @@ $(document).ready(function () {
             url: '/api/unload_items',
             method: 'POST',
             headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('auth-token'), // Replace with actual token
+                'Authorization': 'Bearer ' + localStorage.getItem('auth-token'),
                 'Content-Type': 'application/json'
             },
             success: function (response) {
@@ -162,7 +162,7 @@ $(document).ready(function () {
                     hour12: false
                 });
                 //Task Panel
-                if (record.rescuer_id && record.status === 'in_progress') {
+                if ( record.status === 'in_progress') {
                     // Create a div for the task item
                     const taskItem = $(`
                             <div class="task-item ${record.type === 'request' ? 'request-border' : 'offer-border'}" 
