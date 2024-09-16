@@ -1,0 +1,187 @@
+ /* General Styling */
+ body {
+    margin: 0;
+    background-color: #f4f7f6;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+h1,
+h2 {
+    color: #2c3e50;
+}
+
+.navbar {
+    background-color: #2c3e50;
+    padding: 1rem;
+}
+
+.navbar .navbar-brand {
+    font-weight: bold;
+    color: #fff;
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: white !important;
+    font-weight: 500;
+}
+
+.container h1,
+.container p {
+    color: #2c3e50;
+}
+
+/* Cards and Buttons */
+.card {
+    background-color: #fff;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+.btn-primary,
+.btn-light {
+    border-radius: 50px;
+    font-size: 0.875rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* Linear Gradient for Buttons */
+.btn-primary {
+    background: linear-gradient(45deg, #1abc9c, #16a085);
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #16a085, #1abc9c);
+}
+
+.btn-light {
+    background: linear-gradient(45deg, #ecf0f1, #bdc3c7);
+    color: #2c3e50;
+    border: none;
+}
+
+.btn-light:hover {
+    background: linear-gradient(45deg, #bdc3c7, #ecf0f1);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+    border: none;
+}
+
+.btn-danger:hover {
+    background: linear-gradient(45deg, #c0392b, #e74c3c);
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+
+.btn-icon .icon {
+    margin-right: 0.5rem;
+}
+
+.form-control {
+    border-radius: 0.5rem;
+    border: 1px solid #dcdde1;
+    padding: 0.75rem 1rem;
+}
+
+.upload-section {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.upload-section:hover {
+    transform: translateY(-10px);
+}
+
+#upload-message {
+    color: #27ae60;
+}
+
+/* Modal Styling */
+.modal-header {
+    background-color: #16a085;
+    color: white;
+}
+
+.modal-title {
+    font-weight: bold;
+}
+
+/* Table Styling */
+#category-list,
+#item-list {
+    text-align: left;
+    margin-top: 1.5rem;
+}
+
+.list-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #ecf0f1;
+    font-size: 1.1rem;
+}
+
+
+/* Sections */
+.custom-btn {
+    margin: 10px 5px;
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #ffffff, #f1f1f1);
+    color: #343a40;
+    border-radius: 30px;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.custom-btn:hover {
+    background: linear-gradient(45deg, #e1e1e1, #f9f9f9);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive layout adjustment */
+.show-section {
+    padding: 30px;
+    background-color: #f8f9fa;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .custom-btn {
+        width: 100%;
+        margin: 10px 0;
+    }
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+
+    .btn-primary,
+    .btn-light {
+        width: 100%;
+    }
+
+    .container {
+        margin-bottom: 2rem;
+    }
+}
