@@ -1,0 +1,274 @@
+/* Style for the request and offer panel container */
+#request-panel,
+#offer-panel {
+    height: 85%;
+    padding: 15px;
+    border-left: 2px solid #ccc;
+    overflow-y: auto;
+    background-color: #f4f6f9;
+}
+
+.navbar {
+    width: 100%;
+    height: 60px;
+    background-color: #343a40c2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar h1 {
+    color: white;
+    font-size: 24px;
+    margin: 0;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.navbar button {
+    background: linear-gradient(45deg, #1abc9c, #16a085);
+    margin-right: 16px;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.navbar button:hover {
+    background: linear-gradient(45deg, #16a085, #1abc9c);
+}
+
+.dropdown {
+    position: absolute;
+    top: 20px;
+    left: 70px;
+    display: inline-block;
+    z-index: 1000;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+}
+
+.dropdown-content label {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+
+.dropdown-content label:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.task-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-width: 4px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.task-item h4 {
+    margin: 0 0 10px;
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.task-item p {
+    margin: 0 0 10px;
+    color: #666;
+    font-size: 14px;
+}
+
+.task-item button {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.offer-border {
+    border-color: #dc3545;
+}
+
+.request-border {
+    border-color: #ff8800;
+}
+
+.complete-task-btn {
+    background-color: #28a745;
+    color: #fff !important;
+}
+
+.complete-task-btn:hover {
+    background-color: #218838
+}
+
+.cancel-task-btn {
+    background-color: #dc3545;
+    color: #fff !important;
+}
+
+.cancel-task-btn:hover {
+    background-color: #c82333
+}
+
+#logout-button {
+    background: linear-gradient(45deg, #e74c3c, #c0392b);
+}
+
+#logout-button:hover {
+    background: linear-gradient(45deg, #c0392b, #e74c3c);
+}
+
+.rescue-btn {
+    background: linear-gradient(45deg, #1abc9c, #16a085);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.rescue-btn:hover {
+    background-color: #218838;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.custom-modal .modal-dialog {
+    height: auto;
+}
+
+.custom-modal .modal-content {
+    height: 100%;
+}
+
+.custom-modal .modal-body {
+    height: calc(100% - 60px);
+    overflow-y: auto;
+}
+
+/* Additional Styles */
+#request-panel h3,
+#offer-panel h3 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+/* Table styling */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.table th,
+.table td {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    color: #343a40;
+    text-transform: uppercase;
+}
+
+.table tbody tr:hover {
+    background-color: #f1f1f1;
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.list-group-item.active {
+    z-index: 2;
+    color: #fff;
+    background: linear-gradient(45deg, #131f5c, #08064a);
+    ;
+}
+
+/* Styling for the status column with conditional formatting */
+.status-cell {
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 5px;
+}
+
+.status-completed {
+    background-color: #146b29;
+    color: white;
+}
+
+.status-pending {
+    background-color: #f7cb73;
+    color: #212529;
+}
+
+.status-in-progress {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Button styling for actions in the table */
+.delete-task-btn {
+    background-color: #dc3545;
+    color: #fff;
+    padding: 6px 12px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.delete-task-btn:hover {
+    background-color: #c82333;
+}
+
+#request-panel h3,
+#offer-panel h3 {
+    text-align: center;
+}
